@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Sandbox Checkout — Wefounder",
+  title: "Payment Gateway Sandbox",
+  description: "Test eSewa and Khalti payment checkout flows for WeFounders promotions.",
 };
 
 interface PageProps {

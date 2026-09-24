@@ -6,7 +6,7 @@ import { withLocalSubmissionCounts } from "@/lib/quests/store";
 import { QuestCard } from "@/components/quests/quest-card";
 
 export const metadata: Metadata = {
-  title: "Testing Quests — Wefounder",
+  title: "Testing Quests & Bounties",
   description:
     "Test real Nepali betas on real Nepali networks. Founders post the task; you file the report and earn NPR bounties and Karma.",
 };

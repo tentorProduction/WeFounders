@@ -5,7 +5,7 @@ import { listCollabPosts } from "@/lib/collab/store";
 import { CollabBoard } from "@/components/collab/collab-board";
 
 export const metadata: Metadata = {
-  title: "Collab & Gigs — Wefounder",
+  title: "Collab & Co-founder Board",
   description:
     "Find a co-founder, a founding engineer, a designer, or your first hundred beta testers — from Nepal's builder community.",
 };

@@ -1,39 +1,67 @@
 import type { MetadataRoute } from "next";
+import { STARTUP_FIXTURES } from "@/lib/fixtures/startups";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://www.wefounders.dev";
-  const lastModified = new Date();
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.wefounders.dev";
+  const now = new Date();
 
-  return [
+  const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
-      lastModified,
-      changeFrequency: "weekly",
+      lastModified: now,
+      changeFrequency: "daily",
       priority: 1.0,
     },
     {
-      url: `${baseUrl}/services`,
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/work`,
-      lastModified,
+      url: `${baseUrl}/submit`,
+      lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/pricing`,
-      lastModified,
-      changeFrequency: "monthly",
+      url: `${baseUrl}/search`,
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/leaderboard`,
+      lastModified: now,
+      changeFrequency: "daily",
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/contact`,
-      lastModified,
-      changeFrequency: "monthly",
+      url: `${baseUrl}/quests`,
+      lastModified: now,
+      changeFrequency: "daily",
       priority: 0.8,
     },
+    {
+      url: `${baseUrl}/collab`,
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/promote`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/about`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
   ];
+
+  const startupRoutes: MetadataRoute.Sitemap = STARTUP_FIXTURES.map((startup) => ({
+    url: `${baseUrl}/startups/${startup.slug}`,
+    lastModified: new Date(startup.updated_at || startup.created_at),
+    changeFrequency: "weekly",
+    priority: 0.8,
+  }));
+
+  return [...staticRoutes, ...startupRoutes];
 }

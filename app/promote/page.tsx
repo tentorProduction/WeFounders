@@ -6,9 +6,9 @@ import { StartupLogo } from "@/components/startups/startup-logo";
 import { Button } from "@/components/ui/button";
 
 export const metadata = {
-  title: "Promote your startup — Wefounder",
+  title: "Promote Your Startup Spotlight",
   description:
-    "Put your beta in the Featured Spotlight at the top of the Wefounder discovery feed, paid via eSewa or Khalti.",
+    "Put your beta in the Featured Spotlight at the top of the WeFounders discovery feed, paid via eSewa or Khalti.",
 };
 
 /** Startup picker shown when a founder hits /promote from the banner. */

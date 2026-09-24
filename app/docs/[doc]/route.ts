@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
 
-export async function GET() {
-  return NextResponse.json({ error: "Page not found" }, { status: 404 });
+/**
+ * Public Access Protection: Internal development documentation is unexposed.
+ * Redirects visitors to the public /about page.
+ */
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  url.pathname = "/about";
+  return NextResponse.redirect(url, 307);
 }
