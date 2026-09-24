@@ -1,0 +1,19 @@
+   ▲ Next.js 15.5.25
+   - Local:        http://localhost:3000
+   - Network:      http://172.18.16.1:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 3.2s
+ ○ Compiling / ...
+ ✓ Compiled / in 4.4s (1083 modules)
+ GET / 200 in 6303ms
+ GET / 200 in 388ms
+ GET / 200 in 424ms
+ ○ Compiling /icon.svg ...
+ ✓ Compiled /icon.svg in 779ms (682 modules)
+ GET /icon.svg?acf2c7b52417a9b6 200 in 1054ms
+ GET / 200 in 361ms
+ GET / 200 in 499ms
+ GET /icon.svg?acf2c7b52417a9b6 200 in 26ms
+[?25h

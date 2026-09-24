@@ -1,0 +1,96 @@
+﻿Aarambha (आरम्भ) — Free Architecture & Nepal Payments Deployment Guide
+Project Name: Aarambha (आरम्भ) — Nepal's First Beta Launchpad & Startup Discovery
+Author: Technical Architecture Team
+Target: 100% Free Hosting Stack + eSewa & Khalti Merchant Setup
+________________
+
+
+1. Unique Brand Name & Concept
+Primary Brand: Aarambha (आरम्भ)
+* Meaning: "The Beginning / Genesis / Launch" in Nepali.
+* Tagline: नेपालको पहिलो बेटा लञ्चप्याड (Nepal's First Beta Launchpad).
+* Why it works: Short, evocative, culturally authentic, and immediately conveys the purpose: where Nepali startups, student projects, and indie tools take their first breath.
+* Alternative Candidates:
+   * Chautari (चौतारी): Traditional gathering place under the shade of a banyan tree where communities share news and ideas.
+   * Udhyam (उद्यम): Enterprise and venture builder.
+   * Prayas (प्रयास): The endeavor and early prototype.
+________________
+
+
+2. 100% Free Production Architecture (Zero Dollar Stack)
+You can launch and operate Aarambha at scale without spending a single rupee:
+Service
+	Free Tier Provider
+	What it Provides
+	Cost
+	Domain
+	Mercantile Nepal (register.com.np)
+	Free .com.np domain (e.g. aarambha.com.np) for any Nepali citizen.
+	NPR 0 / Free
+	Web Hosting & Edge
+	Vercel Hobby Tier
+	Automated GitHub CI/CD, global CDN, Serverless functions, SSL.
+	NPR 0 / Free
+	Database & Auth
+	Supabase Free Tier
+	500 MB PostgreSQL 16 database, 50,000 monthly active users, RLS.
+	NPR 0 / Free
+	File / Media Storage
+	Supabase Storage
+	1 GB file storage (enough for 10,000+ compressed WebP logos & banners).
+	NPR 0 / Free
+	Redis Rate Limiting
+	Upstash Redis Free
+	10,000 commands/day (anti-spam, upvote rate limiting).
+	NPR 0 / Free
+	Email Service
+	Resend Free Tier
+	3,000 emails/month (waitlist confirmations, launch alerts).
+	NPR 0 / Free
+	________________
+
+
+3. Domestic Nepal Payment Gateway Setup (eSewa & Khalti)
+Starting monetization is designed strictly for Nepal via paid startup featured banners and weekly launch boosts (e.g., NPR 1,500 for 48h spotlight).
+3.1 eSewa EPAY v2 Integration
+* Test Credentials (Sandbox):
+   * Merchant Code: EPAYTEST
+   * Secret Key: 8gBm/:&EnhH.1/q
+   * Form Action: https://rc-epay.esewa.com.np/api/epay/main/v2/form
+   * Verification API: https://rc-epay.esewa.com.np/api/epay/transaction/status/
+* Security: Requires HMAC-SHA256 signature generated server-side using total_amount, transaction_uuid, and product_code.
+* Live Onboarding: Register free at merchant.esewa.com.np. Once verified, replace EPAYTEST and secret key in your environment variables.
+3.2 Khalti ePay v2 Integration
+* Test Credentials (Sandbox):
+   * Developer portal: https://test-admin.khalti.com/
+   * Public Key: test_public_key_...
+   * Secret Key: test_secret_key_...
+   * API Gateway: https://a.khalti.com/api/v2/epay/initiate/ & lookup/
+* Security: Server initiates transaction with Authorization: Key <secret_key>, returns payment_url and pidx. Once customer pays, verify via POST /lookup/ with pidx.
+* Live Onboarding: Register at admin.khalti.com (free merchant account).
+________________
+
+
+4. How to Deploy in 3 Simple Steps
+Step 1: Claim Free Domain
+1. Visit https://register.com.np/.
+2. Search for aarambha.com.np (or your preferred name).
+3. Upload a scan of your Nepali Citizenship Card (नागरिकता) or college student ID.
+4. Set Name Servers to Cloudflare or Vercel:
+   * ns1.vercel-dns.com
+   * ns2.vercel-dns.com
+Step 2: Set Up Free Supabase Backend
+1. Go to https://supabase.com and create a free project in the Singapore (ap-southeast-1) or Mumbai (ap-south-1) region.
+2. Open the SQL Editor and paste the schema from TRD.md.
+3. Copy your project URL, anon key, and service role key into your .env.local.
+Step 3: Push to GitHub & Deploy on Vercel
+1. Push the code repository to GitHub.
+2. Go to https://vercel.com/new and import the repository.
+3. Add your environment variables:
+   * NEXT_PUBLIC_SUPABASE_URL
+   * NEXT_PUBLIC_SUPABASE_ANON_KEY
+   * SUPABASE_SERVICE_ROLE_KEY
+   * ESEWA_MERCHANT_CODE
+   * ESEWA_SECRET_KEY
+   * KHALTI_SECRET_KEY
+4. Click Deploy. Your platform is live worldwide!

@@ -1,0 +1,290 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@config "../tailwind.config.ts";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * WEFOUNDER.DEV — GODLY.DESIGN & TRANSITIONS.DEV PREMIUM DESIGN SYSTEM
+ */
+@layer base {
+  :root {
+    --background: #FAFAFA;
+    --surface: #F4F4F5;
+    --surface-hover: #E4E4E7;
+    --text: #09090B;
+    --text-secondary: #52525B;
+    --text-muted: #71717A;
+    --border: #E4E4E7;
+    --border-strong: #D4D4D8;
+
+    --accent: #DF8F7C;
+    --accent-soft: #FDF2F0;
+
+    --success: #10B981;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+
+    --card: #FFFFFF;
+    --card-foreground: #09090B;
+    --popover: #FFFFFF;
+    --popover-foreground: #09090B;
+    --foreground: #09090B;
+    --primary: #18181B;
+    --primary-foreground: #FAFAFA;
+    --secondary: #F4F4F5;
+    --secondary-foreground: #18181B;
+    --muted: #F4F4F5;
+    --muted-foreground: #71717A;
+    --input: #E4E4E7;
+    --ring: #DF8F7C;
+
+    --radius: 1rem;
+
+    /* Badge tokens */
+    --badge-nepal: #DF8F7C;
+    --badge-global: #52525B;
+    --badge-esewa: #10B981;
+    --badge-khalti: #8B5CF6;
+    --badge-fonepay: #EF4444;
+    --badge-verified: #10B981;
+
+    /* Motion Tokens (Transitions.dev) */
+    --motion-instant: 120ms;
+    --motion-quick: 200ms;
+    --motion-standard: 320ms;
+    --motion-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .dark {
+    --background: #09090B;
+    --surface: #141417;
+    --surface-hover: #1F1F23;
+    --text: #F4F4F5;
+    --text-secondary: #A1A1AA;
+    --text-muted: #71717A;
+    --border: #27272A;
+    --border-strong: #3F3F46;
+
+    --accent: #DF8F7C;
+    --accent-soft: #2E1B18;
+
+    --card: #121215;
+    --card-foreground: #F4F4F5;
+    --popover: #121215;
+    --popover-foreground: #F4F4F5;
+    --foreground: #F4F4F5;
+    --primary: #FAFAFA;
+    --primary-foreground: #09090B;
+    --secondary: #1C1C20;
+    --secondary-foreground: #F4F4F5;
+    --muted: #1C1C20;
+    --muted-foreground: #A1A1AA;
+    --input: #27272A;
+    --ring: #DF8F7C;
+
+    --badge-nepal: #DF8F7C;
+    --badge-global: #A1A1AA;
+    --badge-esewa: #34D399;
+    --badge-khalti: #A78BFA;
+    --badge-fonepay: #F87171;
+    --badge-verified: #34D399;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "cv02", "ss01";
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    @apply bg-primary/25 text-foreground;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+}
+
+/*
+ * TRANSITIONS.DEV ANIMATION KEYFRAMES
+ */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes floatSubtle {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/*
+ * GODLY.DESIGN & DECK.GALLERY UTILITY CLASSES
+ */
+@layer components {
+  /* Container Max Width */
+  .site-container {
+    width: min(calc(100% - 32px), 1120px);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  @media (min-width: 640px) {
+    .site-container {
+      width: min(calc(100% - 48px), 1120px);
+    }
+  }
+
+  /* Godly Glass Header */
+  .material-header {
+    background: rgba(250, 250, 250, 0.85);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid rgba(228, 228, 231, 0.8);
+  }
+
+  .dark .material-header {
+    background: rgba(9, 9, 11, 0.85);
+    border-bottom: 1px solid rgba(39, 39, 42, 0.8);
+  }
+
+  /* Transitions.dev Micro-Interactions */
+  .press-scale {
+    transition: transform var(--motion-quick) var(--motion-spring), box-shadow var(--motion-quick) ease;
+  }
+
+  .press-scale:hover {
+    transform: translateY(-1px);
+  }
+
+  .press-scale:active {
+    transform: scale(0.97) translateY(0);
+  }
+
+  /* Godly Card Styling */
+  .godly-card {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: transform 250ms var(--motion-spring), border-color 200ms ease, box-shadow 250ms ease;
+  }
+
+  .godly-card:hover {
+    border-color: var(--border-strong);
+    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.08), 0 0 0 1px var(--border-strong);
+    transform: translateY(-2px);
+  }
+
+  .dark .godly-card:hover {
+    box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-strong);
+  }
+
+  /* Deck.gallery Card Stack Effect */
+  .deck-card {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    transition: all 280ms var(--motion-spring);
+  }
+
+  .deck-card:hover {
+    transform: translateY(-3px) scale(1.005);
+    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.12), 0 0 0 1px var(--ring);
+  }
+
+  .dark .deck-card:hover {
+    box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--ring);
+  }
+
+  /* Transitions.dev Entry Animations */
+  .animate-fade-in-up {
+    animation: fadeInUp 360ms var(--motion-spring) forwards;
+  }
+
+  .animate-scale-up {
+    animation: scaleUp 300ms var(--motion-spring) forwards;
+  }
+
+  .animate-float {
+    animation: floatSubtle 4s ease-in-out infinite;
+  }
+
+  .animate-glow {
+    animation: glowPulse 3s ease-in-out infinite;
+  }
+
+  /* Stagger Delays */
+  .stagger-1 { animation-delay: 60ms; }
+  .stagger-2 { animation-delay: 120ms; }
+  .stagger-3 { animation-delay: 180ms; }
+  .stagger-4 { animation-delay: 240ms; }
+
+  /* Ambient Godly Glow Background */
+  .godly-bg-glow {
+    background: radial-gradient(circle at 50% -20%, rgba(223, 143, 124, 0.12), transparent 70%);
+  }
+
+  .dark .godly-bg-glow {
+    background: radial-gradient(circle at 50% -20%, rgba(223, 143, 124, 0.18), transparent 70%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+
+  .press-scale:active, .godly-card:hover, .deck-card:hover {
+    transform: none !important;
+  }
+}
