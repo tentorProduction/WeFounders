@@ -49,10 +49,10 @@ export function TagPill({
   const chipClass = cn(
     "inline-flex h-[24px] items-center gap-1.5 rounded-full border px-2.5 text-caption font-medium transition-all",
     active
-      ? "border-[#FEC40B] bg-[#FEC40B]/20 text-[#FEC40B] font-semibold"
+      ? "border-[#C6A68D] bg-[#C6A68D]/20 text-[#C6A68D] font-semibold"
       : "border-border bg-card text-foreground",
     onSelect &&
-      "cursor-pointer hover:border-[#FEC40B]/60 hover:bg-[#FEC40B]/10",
+      "cursor-pointer hover:border-[#C6A68D]/60 hover:bg-[#C6A68D]/10",
     className
   );
 

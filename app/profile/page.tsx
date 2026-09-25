@@ -50,13 +50,13 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <div className="site-container py-12 max-w-xl text-center space-y-6">
-        <div className="rounded-lg border border-[#142963] bg-[#07194A] p-8 md:p-10 shadow-xs space-y-6">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-lg bg-[#FEC40B] text-[#04123F] font-mono text-display font-bold shadow-xs">
+        <div className="rounded-lg border border-[#4A3B34] bg-[#2B221E] p-8 md:p-10 shadow-xs space-y-6">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-lg bg-[#C6A68D] text-[#1E1815] font-mono text-display font-bold shadow-xs">
             W
           </div>
 
           <div className="space-y-2">
-            <Badge variant="outline" className="border-[#FEC40B]/40 text-[#FEC40B] font-mono font-bold text-caption px-3 py-1 rounded-full bg-[#04123F]">
+            <Badge variant="outline" className="border-[#C6A68D]/40 text-[#F5E1C1] font-mono font-bold text-caption px-3 py-1 rounded-full bg-[#1E1815]">
               Founder Analytics &amp; Builder Profile
             </Badge>
             <h1 className="text-display font-bold text-foreground">
@@ -84,7 +84,7 @@ export default function ProfilePage() {
               size="lg"
               onClick={handleSignIn}
               disabled={isSigningIn}
-              className="w-full max-w-xs gap-3 bg-[#FEC40B] text-[#04123F] font-bold py-6 text-body rounded-full shadow-xs hover:bg-[#FEC40B]/90"
+              className="w-full max-w-xs gap-3 bg-[#C6A68D] text-[#1E1815] font-bold py-6 text-body rounded-full shadow-xs hover:bg-[#C6A68D]/90"
             >
               <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
                 <path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032 s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2 C7.021,2,2.545,6.477,2.545,12s4.476,10,10,10c5.768,0,9.756-4.056,9.756-9.924c0-0.697-0.075-1.372-0.198-2.037L12.545,10.239z" />
@@ -96,7 +96,7 @@ export default function ProfilePage() {
               variant="outline"
               size="sm"
               onClick={() => signInDemoUser()}
-              className="w-full max-w-xs border-[#142963] bg-[#04123F] text-muted-foreground hover:text-foreground font-mono rounded-full"
+              className="w-full max-w-xs border-[#4A3B34] bg-[#1E1815] text-muted-foreground hover:text-foreground font-mono rounded-full"
             >
               Use Demo Founder Account
             </Button>
@@ -112,7 +112,7 @@ export default function ProfilePage() {
   return (
     <div className="site-container py-8 max-w-5xl space-y-8">
       {/* Profile Header */}
-      <div className="rounded-3xl border border-[#142963] bg-[#07194A] p-6 md:p-8 shadow-apple-md">
+      <div className="rounded-3xl border border-[#4A3B34] bg-[#2B221E] p-6 md:p-8 shadow-apple-md">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             {user.photoURL ? (
@@ -120,10 +120,10 @@ export default function ProfilePage() {
               <img
                 src={user.photoURL}
                 alt={user.displayName || "User"}
-                className="h-20 w-20 rounded-2xl border-2 border-[#142963] object-cover shadow-apple-sm"
+                className="h-20 w-20 rounded-2xl border-2 border-[#4A3B34] object-cover shadow-apple-sm"
               />
             ) : (
-              <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-[#FEC40B] text-[#04123F] font-bold text-display shadow-apple-sm">
+              <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-[#C6A68D] text-[#1E1815] font-bold text-display shadow-apple-sm">
                 {(user.displayName || user.email || "U")[0].toUpperCase()}
               </div>
             )}
@@ -133,7 +133,7 @@ export default function ProfilePage() {
                 <h1 className="text-display font-bold text-foreground">
                   {user.displayName || "WeFounder Builder"}
                 </h1>
-                <Badge variant="secondary" className="text-tiny font-semibold gap-1 bg-[#04123F] border-[#142963]">
+                <Badge variant="secondary" className="text-tiny font-semibold gap-1 bg-[#1E1815] border-[#4A3B34]">
                   <Shield className="h-3 w-3 text-emerald-500" /> Verified
                 </Badge>
               </div>
@@ -143,13 +143,13 @@ export default function ProfilePage() {
               <div className="flex flex-wrap items-center gap-3 pt-1 text-tiny text-muted-foreground font-mono">
                 <span>UID: {user.uid.slice(0, 8)}...</span>
                 <span>•</span>
-                <span>Karma Points: <strong className="text-[#FEC40B]">120 pts</strong></span>
+                <span>Karma Points: <strong className="text-[#C6A68D]">120 pts</strong></span>
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <Button asChild variant="outline" size="sm" className="border-[#142963] bg-[#04123F]">
+            <Button asChild variant="outline" size="sm" className="border-[#4A3B34] bg-[#1E1815]">
               <Link href="/submit">
                 <Plus className="h-4 w-4 mr-1.5" /> Submit Beta
               </Link>
@@ -168,12 +168,12 @@ export default function ProfilePage() {
       </div>
 
       {/* Tabs Navigation */}
-      <div className="border-b border-[#142963] flex gap-4 overflow-x-auto font-mono text-caption">
+      <div className="border-b border-[#4A3B34] flex gap-4 overflow-x-auto font-mono text-caption">
         <button
           onClick={() => setActiveTab("analytics")}
           className={`pb-3 font-semibold flex items-center gap-2 border-b-2 transition-all uppercase tracking-wider ${
             activeTab === "analytics"
-              ? "border-[#FEC40B] text-[#FEC40B] font-bold"
+              ? "border-[#C6A68D] text-[#F5E1C1] font-bold"
               : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
@@ -184,7 +184,7 @@ export default function ProfilePage() {
           onClick={() => setActiveTab("upvoted")}
           className={`pb-3 font-semibold flex items-center gap-2 border-b-2 transition-all uppercase tracking-wider ${
             activeTab === "upvoted"
-              ? "border-[#FEC40B] text-[#FEC40B] font-bold"
+              ? "border-[#C6A68D] text-[#F5E1C1] font-bold"
               : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
@@ -195,7 +195,7 @@ export default function ProfilePage() {
           onClick={() => setActiveTab("submissions")}
           className={`pb-3 font-semibold flex items-center gap-2 border-b-2 transition-all uppercase tracking-wider ${
             activeTab === "submissions"
-              ? "border-[#FEC40B] text-[#FEC40B] font-bold"
+              ? "border-[#C6A68D] text-[#F5E1C1] font-bold"
               : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
@@ -206,7 +206,7 @@ export default function ProfilePage() {
           onClick={() => setActiveTab("bounties")}
           className={`pb-3 font-semibold flex items-center gap-2 border-b-2 transition-all uppercase tracking-wider ${
             activeTab === "bounties"
-              ? "border-[#FEC40B] text-[#FEC40B] font-bold"
+              ? "border-[#C6A68D] text-[#F5E1C1] font-bold"
               : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
@@ -217,7 +217,7 @@ export default function ProfilePage() {
           onClick={() => setActiveTab("settings")}
           className={`pb-3 font-semibold flex items-center gap-2 border-b-2 transition-all uppercase tracking-wider ${
             activeTab === "settings"
-              ? "border-[#FEC40B] text-[#FEC40B] font-bold"
+              ? "border-[#C6A68D] text-[#F5E1C1] font-bold"
               : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
@@ -230,33 +230,33 @@ export default function ProfilePage() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-h2 font-bold text-foreground">Launch Performance Analytics</h2>
-            <Badge variant="outline" className="font-mono text-tiny border-[#FEC40B]/40 text-[#FEC40B] bg-[#04123F]">
+            <Badge variant="outline" className="font-mono text-tiny border-[#C6A68D]/40 text-[#F5E1C1] bg-[#1E1815]">
               Live Feed Metrics
             </Badge>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="rounded-lg border border-[#142963] bg-[#07194A] p-5 space-y-1">
+            <div className="rounded-lg border border-[#4A3B34] bg-[#2B221E] p-5 space-y-1">
               <span className="text-tiny font-mono text-muted-foreground uppercase">Launch Views</span>
               <p className="text-h1 font-bold text-foreground font-mono">1,480</p>
               <p className="text-tiny text-emerald-500 font-mono">+18% this batch</p>
             </div>
 
-            <div className="rounded-lg border border-[#142963] bg-[#07194A] p-5 space-y-1">
+            <div className="rounded-lg border border-[#4A3B34] bg-[#2B221E] p-5 space-y-1">
               <span className="text-tiny font-mono text-muted-foreground uppercase">Total Upvotes</span>
-              <p className="text-h1 font-bold text-[#FEC40B] font-mono">184</p>
+              <p className="text-h1 font-bold text-[#C6A68D] font-mono">184</p>
               <p className="text-tiny text-muted-foreground font-mono">Verified platform votes</p>
             </div>
 
-            <div className="rounded-lg border border-[#142963] bg-[#07194A] p-5 space-y-1">
+            <div className="rounded-lg border border-[#4A3B34] bg-[#2B221E] p-5 space-y-1">
               <span className="text-tiny font-mono text-muted-foreground uppercase">Waitlist Leads</span>
               <p className="text-h1 font-bold text-foreground font-mono">320</p>
               <p className="text-tiny text-emerald-500 font-mono">Double opt-in leads</p>
             </div>
 
-            <div className="rounded-lg border border-[#142963] bg-[#07194A] p-5 space-y-1">
+            <div className="rounded-lg border border-[#4A3B34] bg-[#2B221E] p-5 space-y-1">
               <span className="text-tiny font-mono text-muted-foreground uppercase">Waitlist Conv. Rate</span>
-              <p className="text-h1 font-bold text-[#FEC40B] font-mono">21.6%</p>
+              <p className="text-h1 font-bold text-[#F5E1C1] font-mono">21.6%</p>
               <p className="text-tiny text-muted-foreground font-mono">Click-to-lead conversion</p>
             </div>
           </div>

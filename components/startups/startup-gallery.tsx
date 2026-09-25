@@ -113,7 +113,7 @@ export function StartupGallery({
             <p className="px-6 text-caption font-medium text-white/90">
               {current.caption}
             </p>
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-[#FEC40B]/40 bg-[#04123F]/90 px-3 py-1 text-tiny font-mono font-bold text-[#FEC40B]">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-[#C6A68D]/40 bg-[#1E1815]/90 px-3 py-1 text-tiny font-mono font-bold text-[#F5E1C1]">
               Verified Product Interface
             </div>
           </div>
