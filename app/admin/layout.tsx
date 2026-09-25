@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen bg-[#FAFAFA] pb-[calc(60px+env(safe-area-inset-bottom))] text-[#18181B] md:pb-0">
+    <div className="flex min-h-screen bg-[#0A0A0C] pb-[calc(60px+env(safe-area-inset-bottom))] text-[#F4F4F5] md:pb-0">
       <AdminSidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <AdminHeader />

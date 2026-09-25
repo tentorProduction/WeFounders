@@ -15,7 +15,7 @@ const items = [
   { href: "/admin/settings", label: "Platform Settings", icon: Settings },
 ];
 
-export function AdminSidebarNav({ pendingCount }: { pendingCount: number }) {
+export function AdminSidebarNav({ pendingCount, collapsed }: { pendingCount: number; collapsed: boolean }) {
   const pathname = usePathname();
 
   return (
@@ -27,14 +27,16 @@ export function AdminSidebarNav({ pendingCount }: { pendingCount: number }) {
             key={href}
             href={href}
             aria-current={active ? "page" : undefined}
+            title={collapsed ? label : undefined}
             className={cn(
-              "flex min-h-11 items-center justify-between rounded-lg px-3 text-sm font-medium transition-colors",
-              active ? "bg-[#FEF2F2] text-[#991B1B]" : "text-[#52525B] hover:bg-white hover:text-[#18181B]",
+              "flex min-h-11 items-center justify-between rounded-lg text-sm font-medium transition-colors",
+              collapsed ? "justify-center px-0" : "px-3",
+              active ? "bg-[#2A2208] text-[#FACC15]" : "text-[#A1A1AA] hover:bg-[#121215] hover:text-[#F4F4F5]",
             )}
           >
-            <span className="flex items-center gap-3"><Icon aria-hidden className="h-4 w-4" />{label}</span>
-            {href === "/admin/submissions" && pendingCount > 0 && (
-              <Badge variant="outline" className="min-w-5 border-[#DC2626]/30 bg-[#FEF2F2] px-1.5 text-center text-[#991B1B]">
+            <span className={cn("flex items-center", collapsed ? "justify-center" : "gap-3")}><Icon aria-hidden className="h-4 w-4 shrink-0" />{!collapsed && label}</span>
+            {!collapsed && href === "/admin/submissions" && pendingCount > 0 && (
+              <Badge variant="outline" className="min-w-5 border-[#FACC15]/30 bg-[#2A2208] px-1.5 text-center text-[#FACC15]">
                 {pendingCount}
               </Badge>
             )}

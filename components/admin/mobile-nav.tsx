@@ -18,7 +18,7 @@ export function AdminMobileNav() {
   const pathname = usePathname();
 
   return (
-    <nav aria-label="Admin navigation" className="fixed inset-x-0 bottom-0 z-50 border-t border-[#E4E4E7] bg-white pb-[env(safe-area-inset-bottom)] md:hidden">
+    <nav aria-label="Admin navigation" className="fixed inset-x-0 bottom-0 z-50 border-t border-[#27272A] bg-[#121215] pb-[env(safe-area-inset-bottom)] md:hidden">
       <ul className="mx-auto flex max-w-xl items-stretch justify-between px-1 pt-1">
         {items.map(({ href, label, icon: Icon }) => {
           const active = href === "/admin" ? pathname === href : pathname.startsWith(href);
@@ -29,7 +29,7 @@ export function AdminMobileNav() {
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "flex min-h-14 flex-col items-center justify-center gap-1 rounded-md px-0.5 text-[10px] font-medium leading-none",
-                  active ? "text-[#B91C1C]" : "text-[#71717A] hover:text-[#18181B]",
+                  active ? "text-[#FACC15]" : "text-[#A1A1AA] hover:text-[#F4F4F5]",
                 )}
               >
                 <Icon aria-hidden className="h-[18px] w-[18px]" strokeWidth={active ? 2.25 : 1.8} />
