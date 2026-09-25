@@ -81,10 +81,10 @@ export default function LeaderboardPage() {
       </div>
 
       {/* Public "How ranking works" Methodology Banner */}
-      <div className="rounded-lg border border-[#322A1F] bg-card p-6 shadow-xs godly-bg-glow flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="rounded-lg border border-[#142963] bg-[#07194A] p-6 shadow-xs godly-bg-glow flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-subheading font-bold text-foreground">
-            <ShieldCheck className="h-5 w-5 text-[#B98A45]" />
+            <ShieldCheck className="h-5 w-5 text-[#FEC40B]" />
             <span>How Ranking Works — Public Verifiable Methodology</span>
           </div>
           <p className="text-caption text-muted-foreground max-w-3xl leading-relaxed">
@@ -92,7 +92,7 @@ export default function LeaderboardPage() {
           </p>
         </div>
 
-        <Button asChild variant="outline" size="sm" className="shrink-0 rounded-full border-[#322A1F]">
+        <Button asChild variant="outline" size="sm" className="shrink-0 rounded-full border-[#142963] bg-[#04123F]">
           <Link href="/about#curation">Read 21% Curation Standard</Link>
         </Button>
       </div>

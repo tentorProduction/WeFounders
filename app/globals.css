@@ -5,9 +5,9 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * WEFOUNDERS — AURALIS CLEAN PAPER WORKFLOW DESIGN SYSTEM
- * Primary: #B98A45 (Brass Amber) | Secondary/Bg: #15171C (Charcoal Obsidian)
- * Accent: #FFE8B8 (Soft Cream Gold) | Surface: #231E17 (Espresso Paper)
+ * WEFOUNDERS — ENTERPRISE DEEP NAVY & HONEY GOLD DESIGN SYSTEM
+ * Deep Navy: #04123F (Core Brand Navy Background & Surfaces)
+ * Honey Gold: #FEC40B (Primary High-Contrast Accent & Actions)
  */
 @layer base {
   :root {
@@ -19,36 +19,37 @@
     --control-height: 40px;
     --border-radius: 8px;
 
-    --background: #FDFBF7;
-    --surface: #F5EFE6;
-    --surface-hover: #EAE1D3;
+    /* Enterprise Light Mode */
+    --background: #F4F6FB;
+    --surface: #FFFFFF;
+    --surface-hover: #EBF0F9;
     --surface-elevated: #FFFFFF;
-    --text: #15171C;
-    --text-secondary: #5C5245;
-    --text-muted: #8C8070;
-    --border: #E5DCCF;
-    --border-strong: #C8BBA8;
+    --text: #04123F;
+    --text-secondary: #475569;
+    --text-muted: #64748B;
+    --border: #CBD5E1;
+    --border-strong: #94A3B8;
 
-    --primary: #B98A45;
-    --primary-foreground: #FFFFFF;
-    --accent: #FFE8B8;
-    --accent-foreground: #15171C;
+    --primary: #FEC40B;
+    --primary-foreground: #04123F;
+    --accent: #FEC40B;
+    --accent-foreground: #04123F;
 
     --success: #10B981;
     --warning: #F59E0B;
     --danger: #EF4444;
 
     --card: #FFFFFF;
-    --card-foreground: #15171C;
+    --card-foreground: #04123F;
     --popover: #FFFFFF;
-    --popover-foreground: #15171C;
-    --foreground: #15171C;
-    --secondary: #F5EFE6;
-    --secondary-foreground: #15171C;
-    --muted: #F5EFE6;
-    --muted-foreground: #8C8070;
-    --input: #E5DCCF;
-    --ring: #B98A45;
+    --popover-foreground: #04123F;
+    --foreground: #04123F;
+    --secondary: #EBF0F9;
+    --secondary-foreground: #04123F;
+    --muted: #EBF0F9;
+    --muted-foreground: #64748B;
+    --input: #CBD5E1;
+    --ring: #FEC40B;
 
     --radius: 8px;
 
@@ -68,32 +69,33 @@
     --control-height: 40px;
     --border-radius: 8px;
 
-    --background: #15171C;
-    --surface: #231E17;
-    --surface-hover: #2C261F;
-    --surface-elevated: #1C1914;
+    /* Enterprise Deep Navy Dark Theme */
+    --background: #04123F;
+    --surface: #07194A;
+    --surface-hover: #0E2463;
+    --surface-elevated: #0A1C4D;
     --text: #FFFFFF;
-    --text-secondary: #A1A1AA;
-    --text-muted: #71717A;
-    --border: #322A1F;
-    --border-strong: #4A3E2F;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+    --border: #142963;
+    --border-strong: #1F3B84;
 
-    --primary: #B98A45;
-    --primary-foreground: #15171C;
-    --accent: #FFE8B8;
-    --accent-foreground: #15171C;
+    --primary: #FEC40B;
+    --primary-foreground: #04123F;
+    --accent: #FEC40B;
+    --accent-foreground: #04123F;
 
-    --card: #1C1914;
+    --card: #07194A;
     --card-foreground: #FFFFFF;
-    --popover: #1C1914;
+    --popover: #07194A;
     --popover-foreground: #FFFFFF;
     --foreground: #FFFFFF;
-    --secondary: #231E17;
+    --secondary: #0E2463;
     --secondary-foreground: #FFFFFF;
-    --muted: #231E17;
-    --muted-foreground: #A1A1AA;
-    --input: #322A1F;
-    --ring: #B98A45;
+    --muted: #0E2463;
+    --muted-foreground: #94A3B8;
+    --input: #142963;
+    --ring: #FEC40B;
   }
 
   * {
@@ -115,8 +117,8 @@
 
   h1, h2, h3, h4, h5, h6, .font-display {
     font-family: var(--font-archivo), sans-serif;
-    font-weight: 500;
-    line-height: 1.04;
+    font-weight: 600;
+    line-height: 1.05;
   }
 
   .font-mono, kbd, code, .font-mono-label {
@@ -124,12 +126,12 @@
   }
 
   ::selection {
-    background: #B98A45;
-    color: #FFFFFF;
+    background: #FEC40B;
+    color: #04123F;
   }
 
   :focus-visible {
-    outline: 2px solid #B98A45;
+    outline: 2px solid #FEC40B;
     outline-offset: 2px;
     border-radius: 8px;
   }
@@ -158,16 +160,16 @@
   }
 }
 
-@keyframes paperGlow {
+@keyframes goldGlow {
   0%, 100% {
-    box-shadow: 0 0 0 1px rgba(185, 138, 69, 0.2);
+    box-shadow: 0 0 0 1px rgba(254, 196, 11, 0.25);
   }
   50% {
-    box-shadow: 0 0 20px 2px rgba(185, 138, 69, 0.4);
+    box-shadow: 0 0 24px 4px rgba(254, 196, 11, 0.45);
   }
 }
 
-/* Auralis Paper & Motion Utilities */
+/* Enterprise Utilities */
 @layer components {
   .site-container {
     width: min(calc(100% - 32px), 1240px);
@@ -181,17 +183,17 @@
     }
   }
 
-  /* Auralis Clean Header */
+  /* Enterprise Deep Navy Header */
   .material-header {
-    background: rgba(21, 23, 28, 0.9);
+    background: rgba(4, 18, 63, 0.92);
     -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
-    border-bottom: 1px solid #322A1F;
+    border-bottom: 1px solid #142963;
   }
 
   :root:not(.dark) .material-header {
-    background: rgba(253, 251, 247, 0.9);
-    border-bottom: 1px solid #E5DCCF;
+    background: rgba(244, 246, 251, 0.92);
+    border-bottom: 1px solid #CBD5E1;
   }
 
   /* Press animation */
@@ -207,17 +209,17 @@
     transform: scale(0.98) translateY(0);
   }
 
-  /* Auralis Paper Card */
-  .godly-card, .auralis-card {
+  /* Enterprise Card */
+  .godly-card, .auralis-card, .enterprise-card {
     background-color: var(--card);
     border: 1px solid var(--border);
     border-radius: 8px;
     transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1), border-color 200ms ease, box-shadow 240ms ease;
   }
 
-  .godly-card:hover, .auralis-card:hover {
-    border-color: #B98A45;
-    box-shadow: 0 12px 32px -8px rgba(185, 138, 69, 0.15), 0 0 0 1px #B98A45;
+  .godly-card:hover, .auralis-card:hover, .enterprise-card:hover {
+    border-color: #FEC40B;
+    box-shadow: 0 14px 36px -8px rgba(254, 196, 11, 0.2), 0 0 0 1px #FEC40B;
     transform: translateY(-2px);
   }
 
@@ -232,8 +234,8 @@
 
   .deck-card:hover {
     transform: translateY(-3px);
-    border-color: #B98A45;
-    box-shadow: 0 16px 36px -8px rgba(185, 138, 69, 0.2);
+    border-color: #FEC40B;
+    box-shadow: 0 16px 40px -8px rgba(254, 196, 11, 0.25);
   }
 
   /* Entry Animations */
@@ -245,12 +247,12 @@
     animation: scaleUp 260ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
-  .animate-paper-glow {
-    animation: paperGlow 3s ease-in-out infinite;
+  .animate-gold-glow {
+    animation: goldGlow 3s ease-in-out infinite;
   }
 
   /* Ambient Gold Glow */
   .godly-bg-glow {
-    background: radial-gradient(circle at 50% -20%, rgba(185, 138, 69, 0.16), transparent 70%);
+    background: radial-gradient(circle at 50% -20%, rgba(254, 196, 11, 0.18), transparent 70%);
   }
 }

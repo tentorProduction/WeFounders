@@ -12,15 +12,15 @@ const badgeVariants = cva(
         secondary: "border-border bg-secondary text-secondary-foreground font-medium",
         outline: "border-border text-foreground bg-transparent font-medium",
         // Market badges mapped to Auralis Clean Paper palette
-        nepal: "border-[#B98A45]/40 bg-[#B98A45]/15 text-[#B98A45] dark:text-[#FFE8B8] font-bold shadow-xs",
-        global: "border-[#322A1F] bg-[#231E17] text-muted-foreground font-bold shadow-xs",
+        nepal: "border-[#FEC40B]/40 bg-[#FEC40B]/15 text-[#FEC40B] font-bold shadow-xs",
+        global: "border-[#142963] bg-[#07194A] text-muted-foreground font-bold shadow-xs",
         // Ecosystem gateway badges
         esewa: "border-transparent bg-[#2E4A35] text-[#A8E6B5] font-semibold",
         khalti: "border-transparent bg-[#4A2E4B] text-[#E6B5E8] font-semibold",
         fonepay: "border-transparent bg-[#5A2626] text-[#FFA8A8] font-semibold",
-        verified: "border-[#B98A45]/40 bg-[#B98A45]/15 text-[#B98A45] font-semibold",
+        verified: "border-[#FEC40B]/40 bg-[#FEC40B]/15 text-[#FEC40B] font-semibold",
         // Stage badges
-        stage: "border-[#322A1F] bg-[#231E17] text-[#FFE8B8] font-semibold",
+        stage: "border-[#142963] bg-[#07194A] text-[#FEC40B] font-semibold",
       },
     },
     defaultVariants: {

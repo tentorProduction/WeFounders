@@ -38,17 +38,17 @@ export function FeaturedSpotlight({
       )}
     >
       {/* Top Meta Header Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-4 mb-5">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#142963] pb-4 mb-5">
         <div className="flex items-center gap-2">
-          <Badge className="gap-1.5 bg-[#FFE8B8] text-[#15171C] font-mono font-bold text-badge uppercase tracking-wider px-3 py-1 rounded-full shadow-xs">
-            <Flame className="h-3.5 w-3.5 fill-current text-[#B98A45]" aria-hidden />
+          <Badge className="gap-1.5 bg-[#FEC40B] text-[#04123F] font-mono font-bold text-badge uppercase tracking-wider px-3 py-1 rounded-full shadow-xs">
+            <Flame className="h-3.5 w-3.5 fill-current text-[#04123F]" aria-hidden />
             FEATURED
           </Badge>
           <span className="text-meta font-medium text-text-secondary">
             Featured launch of the day
           </span>
         </div>
-        <span className="text-meta text-text-muted font-mono">
+        <span className="text-meta text-[#FEC40B] font-mono font-semibold">
           Spotlight
         </span>
       </div>

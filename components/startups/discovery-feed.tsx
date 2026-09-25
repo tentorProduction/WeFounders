@@ -159,18 +159,18 @@ export function DiscoveryFeed({
 
   return (
     <div className="space-y-8">
-      {/* Auralis Clean Paper Workflow — Hero Section */}
-      <section className="relative rounded-lg border border-[#322A1F] bg-card p-8 sm:p-12 shadow-sm text-center godly-bg-glow">
+      {/* Enterprise Deep Navy & Honey Gold Hero Section */}
+      <section className="relative rounded-lg border border-[#142963] bg-[#07194A] p-8 sm:p-12 shadow-md text-center godly-bg-glow">
         <div className="relative z-10 space-y-5">
           {/* Mono Eyebrow */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#B98A45]/40 bg-[#322A1F]/80 px-3.5 py-1 text-tiny font-mono font-bold uppercase tracking-widest text-[#FFE8B8]">
-            <Award className="h-3.5 w-3.5 text-[#B98A45]" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#FEC40B]/40 bg-[#04123F]/80 px-3.5 py-1 text-tiny font-mono font-bold uppercase tracking-widest text-[#FEC40B]">
+            <Award className="h-3.5 w-3.5 text-[#FEC40B]" />
             <span>NEPAL&apos;S STARTUP LAUNCH PLATFORM</span>
           </div>
 
           {/* Archivo Display Headline */}
           <h1 className="mx-auto max-w-4xl text-display font-medium tracking-tight text-foreground sm:text-display">
-            Launch your startup in front of <span className="text-[#B98A45]">Nepal&apos;s builders</span>
+            Launch your startup in front of <span className="text-[#FEC40B]">Nepal&apos;s builders</span>
           </h1>
 
           {/* Instrument Serif Subhead */}
@@ -182,14 +182,14 @@ export function DiscoveryFeed({
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <Button
               asChild
-              className="bg-[#B98A45] text-[#15171C] hover:bg-[#B98A45]/90 font-bold rounded-full px-6 py-5"
+              className="bg-[#FEC40B] text-[#04123F] hover:bg-[#FEC40B]/90 font-bold rounded-full px-6 py-5 shadow-sm transition-all hover:scale-[1.02]"
             >
               <a href="/submit">Submit Your Startup</a>
             </Button>
             <Button
               asChild
               variant="outline"
-              className="border-[#322A1F] text-foreground hover:bg-secondary rounded-full px-6 py-5"
+              className="border-[#142963] bg-[#04123F] text-foreground hover:bg-[#0E2463] rounded-full px-6 py-5"
             >
               <a href="/leaderboard">View Leaderboard</a>
             </Button>
@@ -197,25 +197,25 @@ export function DiscoveryFeed({
 
           {/* Real Verified Stats Ticker Bar */}
           <div className="pt-3 flex flex-wrap items-center justify-center gap-3 text-tiny font-mono text-muted-foreground">
-            <div className="flex items-center gap-1.5 rounded-lg border border-[#322A1F] bg-background/80 px-3 py-1.5">
-              <Calendar className="h-3.5 w-3.5 text-[#B98A45]" />
+            <div className="flex items-center gap-1.5 rounded-lg border border-[#142963] bg-[#04123F]/90 px-3 py-1.5">
+              <Calendar className="h-3.5 w-3.5 text-[#FEC40B]" />
               <span><time dateTime={new Date().toISOString()}>{batchDate}</time> Batch</span>
             </div>
 
-            <div className="flex items-center gap-1.5 rounded-lg border border-[#322A1F] bg-background/80 px-3 py-1.5">
-              <Rocket className="h-3.5 w-3.5 text-[#B98A45]" />
+            <div className="flex items-center gap-1.5 rounded-lg border border-[#142963] bg-[#04123F]/90 px-3 py-1.5">
+              <Rocket className="h-3.5 w-3.5 text-[#FEC40B]" />
               <span>{startups.length} Verified Launches</span>
             </div>
 
-            <div className="flex items-center gap-1.5 rounded-lg border border-[#322A1F] bg-background/80 px-3 py-1.5">
+            <div className="flex items-center gap-1.5 rounded-lg border border-[#142963] bg-[#04123F]/90 px-3 py-1.5">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#B98A45] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#B98A45]"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FEC40B] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FEC40B]"></span>
               </span>
               <span>{totalWaitlistCount} Waitlisted Testers</span>
             </div>
 
-            <div className="flex items-center gap-1.5 rounded-lg border border-[#322A1F] bg-background/80 px-3 py-1.5">
+            <div className="flex items-center gap-1.5 rounded-lg border border-[#142963] bg-[#04123F]/90 px-3 py-1.5">
               <span>▲ {totalUpvotesCount} Upvotes</span>
             </div>
           </div>
@@ -223,7 +223,7 @@ export function DiscoveryFeed({
           {/* Digest Email Capture Above the Fold */}
           <div className="mx-auto mt-4 max-w-md pt-2">
             {digestSubscribed ? (
-              <div className="rounded-lg border border-[#B98A45]/40 bg-[#B98A45]/15 p-3 text-caption font-medium text-[#FFE8B8]">
+              <div className="rounded-lg border border-[#FEC40B]/40 bg-[#FEC40B]/15 p-3 text-caption font-medium text-[#FEC40B]">
                 ✓ You&apos;re subscribed to daily WeFounders launches!
               </div>
             ) : (
@@ -234,9 +234,9 @@ export function DiscoveryFeed({
                   value={digestEmail}
                   onChange={(e) => setDigestEmail(e.target.value)}
                   placeholder="Get today's launches in your inbox…"
-                  className="h-10 flex-1 rounded-lg border border-[#322A1F] bg-background px-3.5 text-caption placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#B98A45]"
+                  className="h-10 flex-1 rounded-lg border border-[#142963] bg-[#04123F] px-3.5 text-caption placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#FEC40B]"
                 />
-                <Button type="submit" size="sm" className="bg-[#B98A45] text-[#15171C] font-bold rounded-lg shrink-0">
+                <Button type="submit" size="sm" className="bg-[#FEC40B] text-[#04123F] font-bold rounded-lg shrink-0 hover:bg-[#FEC40B]/90">
                   Subscribe
                 </Button>
               </form>
@@ -255,14 +255,14 @@ export function DiscoveryFeed({
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search ventures, technologies, eSewa, AI copilots…"
               aria-label="Search ventures"
-              className="h-11 w-full rounded-lg border border-[#322A1F] bg-background pl-11 pr-10 text-body font-medium shadow-sm transition-all placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B98A45]"
+              className="h-11 w-full rounded-lg border border-[#142963] bg-[#04123F] pl-11 pr-10 text-body font-medium shadow-sm transition-all placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FEC40B]"
             />
             {query && (
               <button
                 type="button"
                 onClick={() => setQuery("")}
                 aria-label="Clear search"
-                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer rounded-md p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer rounded-md p-1 text-muted-foreground transition-colors hover:bg-[#0E2463] hover:text-foreground"
               >
                 <X className="h-4 w-4" aria-hidden />
               </button>
@@ -288,8 +288,8 @@ export function DiscoveryFeed({
               className={cn(
                 "press-scale inline-flex h-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border px-4 text-caption font-semibold transition-all",
                 active
-                  ? "border-[#B98A45] bg-[#B98A45] text-[#15171C] font-bold shadow-sm"
-                  : "border-[#322A1F] bg-card text-muted-foreground hover:border-[#B98A45]/50 hover:text-foreground"
+                  ? "border-[#FEC40B] bg-[#FEC40B] text-[#04123F] font-bold shadow-sm"
+                  : "border-[#142963] bg-[#07194A] text-muted-foreground hover:border-[#FEC40B]/50 hover:text-foreground"
               )}
             >
               {label}
@@ -322,10 +322,10 @@ export function DiscoveryFeed({
 
       {/* Launch Feed List */}
       <section aria-label="Today's launches" className="space-y-4">
-        <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[#322A1F] pb-3">
+        <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[#142963] pb-3">
           <div className="flex items-baseline gap-3">
             <h2 className="text-heading font-bold text-foreground flex items-center gap-2">
-              <Flame className="h-4 w-4 text-[#B98A45]" /> Latest Community Launches
+              <Flame className="h-4 w-4 text-[#FEC40B]" /> Latest Community Launches
             </h2>
             <span className="text-caption text-muted-foreground font-mono">
               <time dateTime={new Date().toISOString()}>{batchDate}</time> · {feed.length} {feed.length === 1 ? "venture" : "ventures"}{hasFilters && " filtered"}
@@ -338,7 +338,7 @@ export function DiscoveryFeed({
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as "popular" | "newest" | "waitlist")}
-              className="rounded-lg border border-[#322A1F] bg-background px-3 py-1.5 text-caption font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-[#B98A45]"
+              className="rounded-lg border border-[#142963] bg-[#04123F] px-3 py-1.5 text-caption font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-[#FEC40B]"
             >
               <option value="popular">Top Upvoted</option>
               <option value="newest">Chronological</option>
@@ -364,7 +364,7 @@ export function DiscoveryFeed({
             ))}
           </div>
         ) : (
-          <div className="godly-card p-12 text-center border-dashed">
+          <div className="godly-card p-12 text-center border-dashed border-[#142963] bg-[#07194A]">
             <p className="text-subheading font-bold text-foreground">
               No ventures match your active search filter
             </p>
@@ -372,7 +372,7 @@ export function DiscoveryFeed({
               Modify your search keywords or clear your category selection.
             </p>
             <Button
-              className="mt-4 bg-[#B98A45] text-[#15171C] font-bold"
+              className="mt-4 bg-[#FEC40B] text-[#04123F] font-bold hover:bg-[#FEC40B]/90"
               size="sm"
               onClick={clearFilters}
             >
