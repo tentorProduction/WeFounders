@@ -53,17 +53,17 @@ export function SubmissionsClient({ submissions }: { submissions: AdminStartup[]
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        <Button variant={tab === "pending_approval" ? "default" : "outline"} onClick={() => setTab("pending_approval")} className={tab === "pending_approval" ? "bg-[#DC2626] text-[#FAFAFA] hover:bg-[#B91C1C]" : "border-[#E4E4E7] text-[#71717A] hover:text-[#18181B]"}>
+      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
+        <Button variant={tab === "pending_approval" ? "default" : "outline"} onClick={() => setTab("pending_approval")} className={`shrink-0 ${tab === "pending_approval" ? "bg-[#B91C1C] text-white hover:bg-[#991B1B]" : "border-[#E4E4E7] text-[#52525B] hover:text-[#18181B]"}`}>
           Pending Review ({pending.length})
         </Button>
-        <Button variant={tab === "scheduled" ? "default" : "outline"} onClick={() => setTab("scheduled")} className={tab === "scheduled" ? "bg-[#DC2626] text-[#FAFAFA] hover:bg-[#B91C1C]" : "border-[#E4E4E7] text-[#71717A] hover:text-[#18181B]"}>
+        <Button variant={tab === "scheduled" ? "default" : "outline"} onClick={() => setTab("scheduled")} className={`shrink-0 ${tab === "scheduled" ? "bg-[#B91C1C] text-white hover:bg-[#991B1B]" : "border-[#E4E4E7] text-[#52525B] hover:text-[#18181B]"}`}>
           Scheduled ({scheduled.length})
         </Button>
-        <Button variant={tab === "approved" ? "default" : "outline"} onClick={() => setTab("approved")} className={tab === "approved" ? "bg-[#DC2626] text-[#FAFAFA] hover:bg-[#B91C1C]" : "border-[#E4E4E7] text-[#71717A] hover:text-[#18181B]"}>
+        <Button variant={tab === "approved" ? "default" : "outline"} onClick={() => setTab("approved")} className={`shrink-0 ${tab === "approved" ? "bg-[#B91C1C] text-white hover:bg-[#991B1B]" : "border-[#E4E4E7] text-[#52525B] hover:text-[#18181B]"}`}>
           Approved & Live ({approvedLive.length})
         </Button>
-        <Button variant={tab === "rejected" ? "default" : "outline"} onClick={() => setTab("rejected")} className={tab === "rejected" ? "bg-[#DC2626] text-[#FAFAFA] hover:bg-[#B91C1C]" : "border-[#E4E4E7] text-[#71717A] hover:text-[#18181B]"}>
+        <Button variant={tab === "rejected" ? "default" : "outline"} onClick={() => setTab("rejected")} className={`shrink-0 ${tab === "rejected" ? "bg-[#B91C1C] text-white hover:bg-[#991B1B]" : "border-[#E4E4E7] text-[#52525B] hover:text-[#18181B]"}`}>
           Rejected ({rejected.length})
         </Button>
       </div>
@@ -76,18 +76,18 @@ export function SubmissionsClient({ submissions }: { submissions: AdminStartup[]
         )}
         
         {displayed.map((startup) => (
-          <div key={startup.id} className="godly-card bg-[#FFFFFF] border border-[#E4E4E7] rounded-2xl p-6 flex flex-col md:flex-row gap-6">
+          <div key={startup.id} className="rounded-xl border border-[#E4E4E7] bg-white p-4 sm:p-6 flex flex-col md:flex-row gap-5 sm:gap-6">
             {/* Info Section */}
             <div className="flex-1 space-y-4">
-              <div className="flex items-start gap-4">
+              <div className="flex min-w-0 items-start gap-3 sm:gap-4">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={startup.logo_url} alt={startup.name} className="w-16 h-16 rounded-xl object-cover bg-[#FAFAFA]" />
-                <div>
-                  <h3 className="text-xl font-bold text-[#18181B] flex items-center gap-2">
+                <img src={startup.logo_url} alt={startup.name} className="h-12 w-12 shrink-0 rounded-lg bg-[#FAFAFA] object-cover sm:h-16 sm:w-16" />
+                <div className="min-w-0">
+                  <h3 className="flex flex-wrap items-center gap-2 text-lg font-semibold text-[#18181B] sm:text-xl">
                     {startup.name}
                     {startup.is_featured && <Badge className="bg-[#DC2626]/20 text-[#DC2626] border border-[#DC2626]/30">Featured</Badge>}
                   </h3>
-                  <a href={startup.website_url} target="_blank" rel="noreferrer" className="text-sm text-[#DC2626] hover:underline font-mono">
+                  <a href={startup.website_url} target="_blank" rel="noreferrer" className="break-all text-sm text-[#B91C1C] hover:underline">
                     {startup.website_url}
                   </a>
                 </div>
@@ -95,7 +95,7 @@ export function SubmissionsClient({ submissions }: { submissions: AdminStartup[]
               
               <p className="text-[#18181B] font-medium">{startup.tagline}</p>
               
-              <div className="text-sm text-[#71717A] bg-[#FAFAFA] p-3 rounded-xl border border-[#E4E4E7] prose max-w-none">
+              <div className="break-words rounded-lg border border-[#E4E4E7] bg-[#FAFAFA] p-3 text-sm text-[#52525B]">
                 {startup.description}
               </div>
 
@@ -112,8 +112,8 @@ export function SubmissionsClient({ submissions }: { submissions: AdminStartup[]
             </div>
 
             {/* Actions Section */}
-            <div className="w-full md:w-64 flex flex-col gap-2 shrink-0 border-t md:border-t-0 md:border-l border-[#E4E4E7] pt-4 md:pt-0 md:pl-4">
-              <div className="text-sm text-[#71717A] mb-2 font-mono break-all">
+            <div className="w-full shrink-0 border-t border-[#E4E4E7] pt-4 md:w-64 md:border-l md:border-t-0 md:pl-4 md:pt-0 flex flex-col gap-2">
+              <div className="mb-2 break-words text-xs leading-relaxed text-[#52525B]">
                 Founder: {startup.profiles?.full_name} ({startup.profiles?.email})
               </div>
 

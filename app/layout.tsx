@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Instrument_Serif, IBM_Plex_Mono } from "next/font/google";
 
-import { MobileNav } from "@/components/layout/mobile-nav";
+import { SiteChrome } from "@/components/layout/site-chrome";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -136,12 +136,7 @@ export default function RootLayout({
       <body className="font-sans bg-background text-foreground min-h-screen">
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
-            <div className="flex min-h-screen flex-col pb-[calc(76px+env(safe-area-inset-bottom))] md:pb-0">
-              <SiteHeader />
-              <main className="flex-1">{children}</main>
-              <SiteFooter />
-            </div>
-            <MobileNav />
+            <SiteChrome header={<SiteHeader />} footer={<SiteFooter />}>{children}</SiteChrome>
           </ThemeProvider>
         </AuthProvider>
       </body>
