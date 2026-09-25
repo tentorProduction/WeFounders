@@ -145,7 +145,7 @@ export default async function StartupShowcasePage({
                 <MessageSquare className="h-4 w-4" aria-hidden />
                 <dt className="sr-only">Comments</dt>
                 <dd className="tabular-nums">
-                  {comments.length + startup.comments_count} comments
+                  {comments.length} {comments.length === 1 ? "comment" : "comments"}
                 </dd>
               </div>
               <p className="italic">

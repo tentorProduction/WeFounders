@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/firebase/auth-context";
 
 export interface UpvoteButtonProps {
   count: number;
@@ -17,8 +19,7 @@ export interface UpvoteButtonProps {
 
 /**
  * Interactive upvote pill (DESIGN.md §3.2):
- * ▲ count in a pill; filled crimson when voted, with a spring scale pop on
- * click. Touch targets stay ≥44px on mobile (DESIGN.md §5).
+ * ▲ count in a pill; requires auth to register verified vote.
  */
 export function UpvoteButton({
   count,
@@ -29,6 +30,8 @@ export function UpvoteButton({
   size = "default",
   className,
 }: UpvoteButtonProps) {
+  const { user } = useAuth();
+  const router = useRouter();
   const [popped, setPopped] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -40,6 +43,11 @@ export function UpvoteButton({
 
   function handleClick() {
     if (disabled) return;
+
+    if (!user) {
+      router.push("/profile");
+      return;
+    }
 
     setPopped(true);
     if (timerRef.current) clearTimeout(timerRef.current);

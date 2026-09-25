@@ -325,7 +325,7 @@ export function DiscoveryFeed({
         <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[#322A1F] pb-3">
           <div className="flex items-baseline gap-3">
             <h2 className="text-heading font-bold text-foreground flex items-center gap-2">
-              <Flame className="h-4 w-4 text-[#B98A45]" /> Today&apos;s Launches
+              <Flame className="h-4 w-4 text-[#B98A45]" /> Latest Community Launches
             </h2>
             <span className="text-caption text-muted-foreground font-mono">
               <time dateTime={new Date().toISOString()}>{batchDate}</time> · {feed.length} {feed.length === 1 ? "venture" : "ventures"}{hasFilters && " filtered"}

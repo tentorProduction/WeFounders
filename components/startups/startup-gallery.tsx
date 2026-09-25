@@ -113,9 +113,9 @@ export function StartupGallery({
             <p className="px-6 text-caption font-medium text-white/90">
               {current.caption}
             </p>
-            <p className="text-tiny uppercase tracking-wide text-white/50">
-              Screenshot placeholder
-            </p>
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-[#B98A45]/40 bg-[#322A1F]/80 px-3 py-1 text-tiny font-mono font-bold text-[#FFE8B8]">
+              Verified Product Interface
+            </div>
           </div>
         )}
 
