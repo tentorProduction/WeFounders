@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Instrument_Serif, IBM_Plex_Mono } from "next/font/google";
 
-import { AnnouncementBanner } from "@/components/layout/announcement-banner";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -146,7 +145,6 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <div className="flex min-h-screen flex-col pb-[calc(76px+env(safe-area-inset-bottom))] md:pb-0">
-              <AnnouncementBanner />
               <SiteHeader />
               <main className="flex-1">{children}</main>
               <SiteFooter />

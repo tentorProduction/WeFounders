@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { getStartupBySlug } from "@/lib/fixtures/startups";
+import { getStartupBySlug } from "@/lib/data/startups";
 import { getPlan } from "@/lib/promotions/plans";
 import { createPendingPromotion } from "@/lib/promotions/store";
 import {

@@ -1,15 +1,16 @@
-import { appendToCollection, readCollection } from "@/lib/demo-store";
-import { isSupabaseConfigured } from "@/lib/supabase/environment";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 /**
  * Waitlist lead capture store (PRD §4.1 — "1-click CSV export", TRD §2 table 7).
  *
- * Reads/writes Supabase `waitlist_entries` when the backend is configured and
- * transparently falls back to the local demo store so founders never lose a
- * lead while the schema is still being provisioned.
+ * Supabase `waitlist_entries` is the only store. Phone numbers get their own
+ * column rather than being folded into `notes`.
+ *
+ * The service-role client is used because leads arrive from anonymous visitors
+ * and are read back by founders — neither of which is a Supabase auth session
+ * in this deployment. `listWaitlist` must only be called after an explicit
+ * owner check (see the waitlist export route).
  */
-
-const COLLECTION = "waitlist";
 
 export interface WaitlistRecord {
   id: string;
@@ -32,108 +33,74 @@ export interface WaitlistInput {
 }
 
 export type AddWaitlistResult =
-  | { ok: true; record: WaitlistRecord; persisted: "supabase" | "local" }
+  | { ok: true; record: WaitlistRecord }
   | { ok: false; reason: "duplicate" | "failed" };
 
-/** Fold the optional phone into the notes column without losing the note. */
-function mergeNotes(phone?: string | null, notes?: string | null): string | null {
-  return (
-    [phone ? `Phone: ${phone}` : null, notes?.trim() || null]
-      .filter(Boolean)
-      .join(" · ") || null
-  );
-}
-
-export async function addWaitlistEntry(
-  input: WaitlistInput
-): Promise<AddWaitlistResult> {
+export async function addWaitlistEntry(input: WaitlistInput): Promise<AddWaitlistResult> {
   const email = input.email.trim().toLowerCase();
 
-  if (isSupabaseConfigured()) {
-    try {
-      const { createClient } = await import("@/lib/supabase/server");
-      const supabase = await createClient();
-
-      const { data, error } = await supabase
-        .from("waitlist_entries")
-        .insert({
-          startup_id: input.startupId,
-          email,
-          // TODO(schema): add a dedicated `phone` column to waitlist_entries.
-          // Until then the phone is carried alongside any free-text note so
-          // neither value is silently dropped.
-          notes: mergeNotes(input.phone, input.notes),
-          referral_source: input.referralSource ?? null,
-          user_id: input.userId ?? null,
-        })
-        .select()
-        .single();
-
-      if (error) {
-        // 23505 = unique violation on (startup_id, email)
-        if (error.code === "23505") return { ok: false, reason: "duplicate" };
-        throw error;
-      }
-
-      return {
-        ok: true,
-        record: { ...(data as WaitlistRecord), phone: input.phone ?? null },
-        persisted: "supabase",
-      };
-    } catch {
-      // Fall through to local capture — never drop a lead because the backend
-      // is unreachable.
-    }
-  }
-
-  const existing = await listWaitlist(input.startupId);
-  if (existing.some((row) => row.email === email)) {
-    return { ok: false, reason: "duplicate" };
-  }
-
-  const record: WaitlistRecord = {
-    id: `wl-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    startup_id: input.startupId,
-    email,
-    phone: input.phone ?? null,
-    user_id: input.userId ?? null,
-    notes: input.notes ?? null,
-    referral_source: input.referralSource ?? null,
-    created_at: new Date().toISOString(),
-  };
-
   try {
-    await appendToCollection<WaitlistRecord>(COLLECTION, record);
-    return { ok: true, record, persisted: "local" };
-  } catch {
+    const supabase = createAdminClient();
+    const { data, error } = await supabase
+      .from("waitlist_entries")
+      .insert({
+        startup_id: input.startupId,
+        email,
+        phone: input.phone?.trim() || null,
+        notes: input.notes?.trim() || null,
+        referral_source: input.referralSource ?? null,
+        user_id: input.userId ?? null,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      // 23505 = unique violation on (startup_id, email)
+      if (error.code === "23505") return { ok: false, reason: "duplicate" };
+      throw error;
+    }
+
+    return { ok: true, record: data as WaitlistRecord };
+  } catch (error) {
+    console.error("[waitlist] insert failed:", error);
     return { ok: false, reason: "failed" };
   }
 }
 
+/** Founder-only: reads the full lead list for one startup. */
 export async function listWaitlist(startupId: string): Promise<WaitlistRecord[]> {
-  if (isSupabaseConfigured()) {
-    try {
-      const { createClient } = await import("@/lib/supabase/server");
-      const supabase = await createClient();
+  if (!startupId) return [];
 
-      const { data, error } = await supabase
-        .from("waitlist_entries")
-        .select("*")
-        .eq("startup_id", startupId)
-        .order("created_at", { ascending: false });
+  try {
+    const supabase = createAdminClient();
+    const { data, error } = await supabase
+      .from("waitlist_entries")
+      .select("*")
+      .eq("startup_id", startupId)
+      .order("created_at", { ascending: false });
 
-      if (!error && Array.isArray(data)) {
-        return data as WaitlistRecord[];
-      }
-    } catch {
-      // Fall through to the local store.
-    }
+    if (error) throw error;
+    return (data ?? []) as WaitlistRecord[];
+  } catch (error) {
+    console.error("[waitlist] read failed:", error);
+    return [];
   }
-
-  const rows = await readCollection<WaitlistRecord>(COLLECTION);
-  return rows.filter((row) => row.startup_id === startupId);
 }
 
 export async function countWaitlist(startupId: string): Promise<number> {
-  return (await listWaitlist(startupId)).length;
+  if (!startupId) return 0;
+
+  try {
+    const supabase = createAdminClient();
+    const { count, error } = await supabase
+      .from("waitlist_entries")
+      .select("id", { count: "exact", head: true })
+      .eq("startup_id", startupId);
+
+    if (error) throw error;
+    return count ?? 0;
+  } catch (error) {
+    console.error("[waitlist] count failed:", error);
+    return 0;
+  }
 }

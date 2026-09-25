@@ -27,7 +27,9 @@ export type PaymentStatus = "pending" | "completed" | "failed" | "refunded";
 /* ------------------------------------------------------------------ */
 
 export interface Profile {
+  /** Plain uuid derived from the Firebase uid — Supabase Auth is not used. */
   id: string;
+  firebase_uid: string;
   email: string;
   full_name: string;
   username: string;
@@ -112,6 +114,7 @@ export interface WaitlistEntry {
   id: string;
   startup_id: string;
   email: string;
+  phone: string | null;
   user_id: string | null;
   notes: string | null;
   referral_source: string | null;
@@ -135,7 +138,9 @@ export interface TestingQuest {
 export interface QuestSubmission {
   id: string;
   quest_id: string;
-  tester_id: string;
+  /** Null when the report was filed before the tester signed in. */
+  tester_id: string | null;
+  tester_name: string;
   feedback_text: string;
   rating_ux: number; // 1–5
   rating_speed: number; // 1–5
@@ -149,7 +154,7 @@ export interface QuestSubmission {
 export interface CollabPost {
   id: string;
   startup_id: string | null;
-  author_id: string;
+  author_id: string | null;
   title: string;
   role_type: CollabType;
   description: string;
@@ -199,7 +204,7 @@ export interface CommentAuthor {
 
 /** Comment joined with its author — the shape rendered by the discussion thread. */
 export interface CommentWithAuthor extends Omit<Comment, "user_id"> {
-  /** Null when the row comes from the local demo store rather than a session. */
-  user_id: string | null;
+  /** The author's profile id — comments always carry a real author. */
+  user_id: string;
   author: CommentAuthor;
 }

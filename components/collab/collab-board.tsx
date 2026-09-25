@@ -5,7 +5,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { CollabType } from "@/types/database";
 import { CollabCard } from "@/components/collab/collab-card";
-import type { CollabPostWithAuthor } from "@/lib/fixtures/collab";
+import type { CollabPostWithAuthor } from "@/lib/data/collab";
 import { PostOpportunityModal } from "@/components/collab/post-opportunity-modal";
 
 const ROLE_FILTERS: { value: CollabType | "all"; label: string }[] = [

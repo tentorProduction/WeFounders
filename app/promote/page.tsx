@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Megaphone } from "lucide-react";
 
-import { getStartupFeed } from "@/lib/fixtures/startups";
+import { getStartupFeed } from "@/lib/data/startups";
 import { StartupLogo } from "@/components/startups/startup-logo";
 import { Button } from "@/components/ui/button";
 
@@ -11,7 +11,9 @@ export const metadata = {
     "Put your beta in the Featured Spotlight at the top of the WeFounders discovery feed, paid via eSewa or Khalti.",
 };
 
-/** Startup picker shown when a founder hits /promote from the banner. */
+export const dynamic = "force-dynamic";
+
+/** Startup picker shown when a founder asks to promote a launch. */
 export default async function PromoteIndexPage() {
   const startups = await getStartupFeed();
 

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { getQuestById } from "@/lib/fixtures/quests";
+import { getQuestById } from "@/lib/data/quests";
 import { addQuestSubmission } from "@/lib/quests/store";
 import { getViewer } from "@/lib/auth/viewer";
 // Type/initial value live outside this "use server" module — see the file.

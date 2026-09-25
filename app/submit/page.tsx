@@ -5,7 +5,10 @@ import Link from "next/link";
 import { ArrowLeft, CheckCircle2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { SignInButton } from "@/components/auth/sign-in-button";
 import { useAuth } from "@/lib/firebase/auth-context";
+import { submitStartupAction } from "@/actions/startups";
+import { initialStartupSubmissionState } from "@/lib/action-state";
 
 const CATEGORIES = [
   "Fintech",
@@ -46,6 +49,8 @@ const POPULAR_TAGS = [
 export default function SubmitPage() {
   const { user } = useAuth();
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [created, setCreated] = useState<{ slug: string; name: string } | null>(null);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     tagline: "",
@@ -96,9 +101,34 @@ export default function SubmitPage() {
     if (!validateStep1()) return;
 
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    setSubmissionError(null);
+
+    // The server action owns persistence: it writes a `pending_approval`
+    // startup owned by the signed-in founder and attaches the chosen tags.
+    const payload = new FormData();
+    payload.set("name", formData.name);
+    payload.set("tagline", formData.tagline);
+    payload.set("description", formData.description);
+    payload.set("category", formData.category);
+    payload.set("stage", formData.stage);
+    payload.set("market", formData.market);
+    payload.set("websiteUrl", formData.websiteUrl);
+    payload.set("demoVideoUrl", formData.demoVideoUrl);
+    payload.set("tags", JSON.stringify(formData.selectedTags));
+
+    const result = await submitStartupAction(initialStartupSubmissionState, payload);
     setIsSubmitting(false);
-    setSubmitted(true);
+
+    if (result.status === "success") {
+      setCreated({
+        slug: result.slug ?? "",
+        name: result.startupName ?? formData.name,
+      });
+      setSubmitted(true);
+      return;
+    }
+
+    setSubmissionError(result.message ?? "We couldn't save your submission.");
   };
 
   return (
@@ -112,27 +142,54 @@ export default function SubmitPage() {
         Back to Feed
       </Link>
 
-      {submitted ? (
+      {!user ? (
+        <div className="space-y-4 rounded-3xl border border-border bg-card p-8 text-center shadow-apple-md md:p-12">
+          <h1 className="text-display font-bold text-foreground">
+            Sign in to submit your startup
+          </h1>
+          <p className="mx-auto max-w-md text-body text-muted-foreground">
+            A submission is attached to your account so you can manage the launch,
+            export waitlist leads, and promote it later.
+          </p>
+          <div className="flex justify-center pt-2">
+            <SignInButton size="lg" />
+          </div>
+        </div>
+      ) : submitted ? (
         <div className="rounded-3xl border border-border bg-card p-8 md:p-12 text-center shadow-apple-md space-y-4">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
             <CheckCircle2 className="h-10 w-10" />
           </div>
           <Badge variant="outline" className="border-[rgba(185,138,69,0.3)] bg-[#0E0F13] text-[#B98A45] font-mono font-bold text-caption px-4 py-1.5 rounded-full">
-            🚀 You&apos;re #4 in tomorrow&apos;s queue!
+            🚀 Submitted for review
           </Badge>
           <h1 className="text-display font-bold text-foreground">
-            {formData.name} is scheduled for launch!
+            {created?.name ?? formData.name} is in the review queue
           </h1>
           <p className="mx-auto max-w-md text-body text-muted-foreground">
-            Thank you for submitting to WeFounders. Your submission has been validated and queued for review against our curation standard. Confirmation sent to <strong className="text-foreground">{formData.founderEmail || "your email"}</strong>.
+            Your submission is saved and owned by{" "}
+            <strong className="text-foreground">{user?.email}</strong>. A moderator
+            reviews new launches against the curation standard before they appear
+            in the public feed.
           </p>
+          {created?.slug && (
+            <p className="text-caption text-muted-foreground">
+              Showcase URL (visible to you until approved):{" "}
+              <span className="font-mono text-foreground">/startups/{created.slug}</span>
+            </p>
+          )}
           <div className="flex flex-wrap justify-center gap-3 pt-4">
             <Button asChild variant="outline">
+              <Link href="/profile">View my submissions</Link>
+            </Button>
+            <Button asChild variant="ghost">
               <Link href="/">Return to Feed</Link>
             </Button>
             <Button
               onClick={() => {
                 setSubmitted(false);
+                setCreated(null);
+                setSubmissionError(null);
                 setStep(1);
                 setFormData({
                   name: "",
@@ -473,9 +530,15 @@ export default function SubmitPage() {
                     disabled={isSubmitting}
                     className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold px-8 py-6 text-body rounded-2xl shadow-apple-sm"
                   >
-                    {isSubmitting ? "Submitting..." : "🚀 Launch Beta Product"}
+                    {isSubmitting ? "Submitting..." : "🚀 Submit for review"}
                   </Button>
                 </div>
+
+                {submissionError && (
+                  <p role="alert" className="text-caption font-medium text-destructive">
+                    {submissionError}
+                  </p>
+                )}
               </div>
             )}
           </form>

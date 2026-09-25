@@ -6,7 +6,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { Menu, Search, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { STARTUP_FIXTURES } from "@/lib/fixtures/startups";
 import { UserButton } from "@/components/auth/user-button";
 
 const NAV_LINKS = [
@@ -14,6 +13,18 @@ const NAV_LINKS = [
   { href: "/leaderboard", label: "Leaderboard" },
   { href: "/about", label: "About" },
 ] as const;
+
+/** Shape returned by /api/search — only what the dropdown renders. */
+interface SearchSuggestion {
+  id: string;
+  slug: string;
+  name: string;
+  tagline: string;
+  upvotes: number;
+}
+
+/** Debounce for the type-ahead, in ms. */
+const SEARCH_DEBOUNCE_MS = 180;
 
 /**
  * Mobile-First Responsive Navbar (Spec: 390px/mobile single-row, 60px height, logo-only left, 44px touch targets right, 56px stacked links)
@@ -35,6 +46,9 @@ export function SiteHeader() {
   // Mobile Menu state
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+
+  // Live type-ahead results
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
 
   // Handle Scroll behavior (hide on scroll down, reveal on scroll up, shadow past 24px)
   useEffect(() => {
@@ -104,14 +118,34 @@ export function SiteHeader() {
     }
   }
 
-  // Filter search matches for quick dropdown preview
-  const searchResults = searchQuery.trim()
-    ? STARTUP_FIXTURES.filter(
-        (s) =>
-          s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          s.tagline.toLowerCase().includes(searchQuery.toLowerCase())
-      ).slice(0, 4)
-    : [];
+  // Debounced type-ahead against the live search API. Only runs while a search
+  // surface is open, and aborts in-flight requests so keystrokes never race.
+  useEffect(() => {
+    if (!searchExpanded && !mobileSearchOpen) {
+      setSuggestions([]);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      const term = searchQuery.trim();
+      fetch(`/api/search?q=${encodeURIComponent(term)}&limit=5`, {
+        signal: controller.signal,
+      })
+        .then((res) => (res.ok ? res.json() : { results: [] }))
+        .then((data: { results?: SearchSuggestion[] }) =>
+          setSuggestions(data.results ?? [])
+        )
+        .catch(() => {
+          // Aborted or offline — keep the previous suggestions.
+        });
+    }, SEARCH_DEBOUNCE_MS);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [searchQuery, searchExpanded, mobileSearchOpen]);
 
   return (
     <>
@@ -198,9 +232,9 @@ export function SiteHeader() {
                   </button>
 
                   {/* Quick Live Preview Dropdown */}
-                  {searchResults.length > 0 && (
+                  {suggestions.length > 0 && (
                     <div className="absolute top-full left-0 right-0 mt-2 rounded-[10px] border border-[#26282F] bg-[#15171C] p-2 shadow-2xl z-50 space-y-1">
-                      {searchResults.map((st) => (
+                      {suggestions.map((st) => (
                         <Link
                           key={st.id}
                           href={`/startups/${st.slug}`}
@@ -211,7 +245,7 @@ export function SiteHeader() {
                             <p className="text-[14px] font-archivo font-bold text-[#F5F1E8]">{st.name}</p>
                             <p className="text-[12px] text-[#9A958A] truncate max-w-[180px]">{st.tagline}</p>
                           </div>
-                          <span className="text-[12px] font-mono text-[#B98A45]">▲ {st.upvotes_count}</span>
+                          <span className="text-[12px] font-mono text-[#B98A45]">▲ {st.upvotes}</span>
                         </Link>
                       ))}
                     </div>
@@ -292,9 +326,9 @@ export function SiteHeader() {
             </button>
           </form>
 
-          {searchResults.length > 0 && (
+          {suggestions.length > 0 && (
             <div className="mt-2 space-y-1 rounded-[10px] border border-[#26282F] bg-[#0E0F13] p-2">
-              {searchResults.map((st) => (
+              {suggestions.map((st) => (
                 <Link
                   key={st.id}
                   href={`/startups/${st.slug}`}
@@ -305,7 +339,7 @@ export function SiteHeader() {
                     <p className="text-[14px] font-archivo font-bold text-[#F5F1E8]">{st.name}</p>
                     <p className="text-[12px] text-[#9A958A] truncate max-w-[240px]">{st.tagline}</p>
                   </div>
-                  <span className="text-[12px] font-mono text-[#B98A45]">▲ {st.upvotes_count}</span>
+                  <span className="text-[12px] font-mono text-[#B98A45]">▲ {st.upvotes}</span>
                 </Link>
               ))}
             </div>

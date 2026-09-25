@@ -1,17 +1,12 @@
-import type { QuestWithStartup } from "@/types/database";
-
-import { appendToCollection, readCollection } from "@/lib/demo-store";
-import { isSupabaseConfigured } from "@/lib/supabase/environment";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 /**
- * Testing-quest store (TRD §2 tables 8–9).
+ * Quest submission store (TRD §2 table 9).
  *
- * Quest definitions are fixtures until the schema lands; submissions are
- * written to Supabase `quest_submissions` when configured, else to the local
- * demo store. Counts on the board reconcile from both sources.
+ * Supabase `quest_submissions` is the only store. `testing_quests` and
+ * `startups.submissions_count` are maintained by database triggers, so the
+ * board never needs to add up local rows to know how full a quest is.
  */
-
-const COLLECTION = "quest-submissions";
 
 export interface QuestSubmissionInput {
   questId: string;
@@ -20,7 +15,7 @@ export interface QuestSubmissionInput {
   feedbackText: string;
   ratingUx: number; // 1–5
   ratingSpeed: number; // 1–5
-  /** Screenshot file names captured client-side until Storage is wired. */
+  /** Public Storage URLs for the tester's proof screenshots. */
   proofScreenshots: string[];
   deviceInfo: Record<string, unknown> | null;
 }
@@ -35,6 +30,7 @@ export interface StoredQuestSubmission {
   rating_speed: number;
   proof_screenshots: string[];
   device_info: Record<string, unknown> | null;
+  founder_feedback: string | null;
   status: "pending" | "accepted" | "rejected";
   created_at: string;
 }
@@ -42,76 +38,46 @@ export interface StoredQuestSubmission {
 export async function addQuestSubmission(
   input: QuestSubmissionInput
 ): Promise<StoredQuestSubmission> {
-  const record: StoredQuestSubmission = {
-    id: `qs-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    quest_id: input.questId,
-    tester_id: input.testerId,
-    tester_name: input.testerName,
-    feedback_text: input.feedbackText,
-    rating_ux: input.ratingUx,
-    rating_speed: input.ratingSpeed,
-    proof_screenshots: input.proofScreenshots,
-    device_info: input.deviceInfo,
-    status: "pending",
-    created_at: new Date().toISOString(),
-  };
+  const supabase = createAdminClient();
 
-  if (isSupabaseConfigured()) {
-    try {
-      const { createClient } = await import("@/lib/supabase/server");
-      const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("quest_submissions")
+    .insert({
+      quest_id: input.questId,
+      tester_id: input.testerId,
+      tester_name: input.testerName,
+      feedback_text: input.feedbackText,
+      rating_ux: input.ratingUx,
+      rating_speed: input.ratingSpeed,
+      proof_screenshots: input.proofScreenshots,
+      device_info: input.deviceInfo,
+      status: "pending",
+    })
+    .select()
+    .single();
 
-      const { data, error } = await supabase
-        .from("quest_submissions")
-        .insert({
-          quest_id: record.quest_id,
-          tester_id: record.tester_id,
-          feedback_text: record.feedback_text,
-          rating_ux: record.rating_ux,
-          rating_speed: record.rating_speed,
-          proof_screenshots: record.proof_screenshots,
-          device_info: record.device_info,
-          status: "pending",
-        })
-        .select()
-        .single();
-
-      if (!error && data) {
-        return { ...record, ...(data as Partial<StoredQuestSubmission>) } as StoredQuestSubmission;
-      }
-    } catch {
-      // Fall through to the local store.
-    }
-  }
-
-  await appendToCollection<StoredQuestSubmission>(COLLECTION, record);
-  return record;
+  if (error) throw new Error(`Could not file that report: ${error.message}`);
+  return data as StoredQuestSubmission;
 }
 
-/** Locally captured submissions for one quest (fixture counts live on quests). */
+/** Submissions filed against one quest, newest first. */
 export async function listQuestSubmissions(
   questId: string
 ): Promise<StoredQuestSubmission[]> {
-  const rows = await readCollection<StoredQuestSubmission>(COLLECTION);
-  return rows.filter((row) => row.quest_id === questId);
-}
+  if (!questId) return [];
 
-/** Extra submissions recorded locally on top of a quest's fixture count. */
-export async function extraSubmissionCount(questId: string): Promise<number> {
-  return (await listQuestSubmissions(questId)).length;
-}
+  try {
+    const supabase = createAdminClient();
+    const { data, error } = await supabase
+      .from("quest_submissions")
+      .select("*")
+      .eq("quest_id", questId)
+      .order("created_at", { ascending: false });
 
-/** Board quests with locally-submitted counts folded in. */
-export async function withLocalSubmissionCounts(
-  quests: QuestWithStartup[]
-): Promise<QuestWithStartup[]> {
-  const rows = await readCollection<StoredQuestSubmission>(COLLECTION);
-  if (rows.length === 0) return quests;
-
-  return quests.map((quest) => {
-    const extra = rows.filter((row) => row.quest_id === quest.id).length;
-    return extra === 0
-      ? quest
-      : { ...quest, submissions_count: quest.submissions_count + extra };
-  });
+    if (error) throw error;
+    return (data ?? []) as StoredQuestSubmission[];
+  } catch (error) {
+    console.error("[quests] submission read failed:", error);
+    return [];
+  }
 }

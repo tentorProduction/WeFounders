@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Swords } from "lucide-react";
 
-import { getQuestBoard } from "@/lib/fixtures/quests";
-import { withLocalSubmissionCounts } from "@/lib/quests/store";
+import { getQuestBoard } from "@/lib/data/quests";
 import { QuestCard } from "@/components/quests/quest-card";
 
 export const metadata: Metadata = {
@@ -11,9 +10,11 @@ export const metadata: Metadata = {
     "Test real Nepali betas on real Nepali networks. Founders post the task; you file the report and earn NPR bounties and Karma.",
 };
 
+export const dynamic = "force-dynamic";
+
 /** Testing Quests board (PRD §4.1 Should-Have, DESIGN.md §4.4). */
 export default async function QuestsPage() {
-  const quests = await withLocalSubmissionCounts(await getQuestBoard());
+  const quests = await getQuestBoard();
 
   const active = quests.filter((q) => q.status === "active");
   const openSlots = active.reduce(

@@ -7,7 +7,6 @@ import {
   Download,
   Globe,
   MessageSquare,
-  ShieldCheck,
   TrendingUp,
   Users,
 } from "lucide-react";
@@ -16,10 +15,8 @@ import { cn, timeAgo } from "@/lib/utils";
 import { renderMarkdown } from "@/lib/markdown";
 import { getViewer, isFounderViewer } from "@/lib/auth/viewer";
 import { getCommentThread } from "@/lib/comments";
-import { getStartupBySlug } from "@/lib/fixtures/startups";
-import { getStartupMedia, getStartupVideoUrl } from "@/lib/fixtures/media";
-import { getStartupPitch } from "@/lib/fixtures/pitches";
-import { countWaitlist } from "@/lib/waitlist/store";
+import { getStartupBySlug } from "@/lib/data/startups";
+import { getStartupMedia, getStartupVideoUrl } from "@/lib/data/media";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CommentThread } from "@/components/discussion/comment-thread";
@@ -32,8 +29,10 @@ import { WaitlistCta, WaitlistForm } from "@/components/startups/waitlist";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ as?: string }>;
 }
+
+// Reads the viewer's session to decide whether founder tools are shown.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
@@ -48,33 +47,28 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 /** Startup showcase page (PRD Flow 1 & 2 / DESIGN.md §4.2). */
-export default async function StartupShowcasePage({
-  params,
-  searchParams,
-}: PageProps) {
-  const [{ slug }, { as }] = await Promise.all([params, searchParams]);
+export default async function StartupShowcasePage({ params }: PageProps) {
+  const { slug } = await params;
   const startup = await getStartupBySlug(slug);
 
   if (!startup) notFound();
 
-  const [media, videoUrl, comments, localWaitlist, viewer] = await Promise.all([
-    getStartupMedia(slug),
-    getStartupVideoUrl(slug),
-    getCommentThread(slug, startup.id),
-    countWaitlist(startup.id),
+  const [media, videoUrl, comments, viewer] = await Promise.all([
+    getStartupMedia(startup.id),
+    getStartupVideoUrl(startup.id),
+    getCommentThread(startup.id),
     getViewer(),
   ]);
 
-  const pitch = getStartupPitch(startup);
-  const canManage = isFounderViewer(viewer, startup, as === "founder");
-  const totalWaitlist = startup.waitlist_count + localWaitlist;
+  // The founder's own markdown is the "About the Product" copy.
+  const pitch = startup.description;
+  const canManage = isFounderViewer(viewer, startup);
+  const totalWaitlist = startup.waitlist_count;
   const founderReplies = comments.filter((comment) => comment.is_founder_reply).length;
   const primaryTag =
     startup.tags.find((tag) => tag.category === "industry") ?? startup.tags[0];
 
-  const exportHref = viewer.backendConfigured
-    ? `/startups/${startup.slug}/waitlist/export`
-    : `/startups/${startup.slug}/waitlist/export?as=founder`;
+  const exportHref = `/startups/${startup.slug}/waitlist/export`;
 
   return (
     <div className="site-container py-8 max-w-4xl space-y-6">
@@ -191,11 +185,17 @@ export default async function StartupShowcasePage({
       {/* About the product */}
       <section aria-label="About the product" className="rounded-lg border border-[#322A1F] bg-card p-5 sm:p-6 space-y-3">
         <h2 className="text-h2 font-bold text-foreground">About the Product</h2>
-        <div
-          className="mt-3 leading-relaxed text-body"
-          // Rendered from escaped markdown — see lib/markdown.ts.
-          dangerouslySetInnerHTML={{ __html: renderMarkdown(pitch) }}
-        />
+        {pitch.trim() ? (
+          <div
+            className="mt-3 leading-relaxed text-body"
+            // Rendered from escaped markdown — see lib/markdown.ts.
+            dangerouslySetInnerHTML={{ __html: renderMarkdown(pitch) }}
+          />
+        ) : (
+          <p className="mt-3 text-body text-muted-foreground">
+            The founder hasn&apos;t written up {startup.name} yet.
+          </p>
+        )}
       </section>
 
       {/* Verified Founder Card */}
@@ -262,13 +262,6 @@ export default async function StartupShowcasePage({
           className="mt-4"
         />
 
-        {canManage && !viewer.backendConfigured && (
-          <p className="mt-3 flex items-center gap-1.5 text-tiny text-muted-foreground">
-            <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
-            Founder preview (demo mode) — once auth is wired, this panel is
-            gated by the owner check on `startups.founder_id`.
-          </p>
-        )}
       </section>
 
       {/* Discussion */}

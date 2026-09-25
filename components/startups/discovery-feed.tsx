@@ -86,9 +86,6 @@ export function DiscoveryFeed({
   const [filter, setFilter] = useState<FeedFilter>("all");
   const [activeTag, setActiveTag] = useState<TagPillTag | null>(null);
   const [sortBy, setSortBy] = useState<"popular" | "newest" | "waitlist">("popular");
-  const [digestEmail, setDigestEmail] = useState("");
-  const [digestSubscribed, setDigestSubscribed] = useState(false);
-
   const { getUpvote, toggleUpvote } = useOptimisticUpvotes();
 
   const totalWaitlistCount = useMemo(
@@ -148,13 +145,6 @@ export function DiscoveryFeed({
 
   function handleTagSelect(tag: TagPillTag) {
     setActiveTag((current) => (current?.slug === tag.slug ? null : tag));
-  }
-
-  function handleDigestSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (digestEmail.trim()) {
-      setDigestSubscribed(true);
-    }
   }
 
   return (
@@ -218,29 +208,6 @@ export function DiscoveryFeed({
             <div className="flex items-center gap-1.5 rounded-[10px] border border-[#26282F] bg-[#0E0F13] px-3 py-1.5">
               <span>▲ {totalUpvotesCount} Upvotes</span>
             </div>
-          </div>
-
-          {/* Digest Email Capture Above the Fold */}
-          <div className="mx-auto mt-4 max-w-md pt-2">
-            {digestSubscribed ? (
-              <div className="rounded-[10px] border border-[rgba(185,138,69,0.3)] bg-[#0E0F13] p-3 text-caption font-medium text-[#B98A45]">
-                ✓ You&apos;re subscribed to daily WeFounders launches!
-              </div>
-            ) : (
-              <form onSubmit={handleDigestSubmit} className="flex gap-2">
-                <input
-                  type="email"
-                  required
-                  value={digestEmail}
-                  onChange={(e) => setDigestEmail(e.target.value)}
-                  placeholder="Get today's launches in your inbox…"
-                  className="h-10 flex-1 rounded-[10px] border border-[#26282F] bg-[#0E0F13] px-3.5 text-caption text-[#F5F1E8] placeholder:text-[#9A958A] focus:outline-none focus:ring-2 focus:ring-[#B98A45]"
-                />
-                <Button type="submit" size="sm" className="bg-[#B98A45] text-[#0E0F13] font-archivo font-semibold rounded-[10px] shrink-0 hover:bg-[#c99a55]">
-                  Subscribe
-                </Button>
-              </form>
-            )}
           </div>
 
           {/* Search Input Bar */}
@@ -363,8 +330,27 @@ export function DiscoveryFeed({
               />
             ))}
           </div>
+        ) : startups.length === 0 ? (
+          // Genuinely no launches yet — don't blame the visitor's filters.
+          <div className="godly-card border-dashed border-[#26282F] bg-[#15171C] p-12 text-center">
+            <Rocket className="mx-auto h-8 w-8 text-[#B98A45]" aria-hidden />
+            <p className="mt-3 text-subheading font-bold text-[#F5F1E8]">
+              The first launches land soon
+            </p>
+            <p className="mx-auto mt-1 max-w-md text-body text-[#9A958A]">
+              WeFounders opens with a curated batch. Be in it — submit your beta
+              and we&apos;ll get it in front of Nepal&apos;s builders.
+            </p>
+            <Button
+              asChild
+              className="mt-4 bg-[#B98A45] font-archivo font-semibold text-[#0E0F13] hover:bg-[#c99a55]"
+              size="sm"
+            >
+              <a href="/submit">Submit your startup</a>
+            </Button>
+          </div>
         ) : (
-          <div className="godly-card p-12 text-center border-dashed border-[#26282F] bg-[#15171C]">
+          <div className="godly-card border-dashed border-[#26282F] bg-[#15171C] p-12 text-center">
             <p className="text-subheading font-bold text-[#F5F1E8]">
               No ventures match your active search filter
             </p>
@@ -372,7 +358,7 @@ export function DiscoveryFeed({
               Modify your search keywords or clear your category selection.
             </p>
             <Button
-              className="mt-4 bg-[#B98A45] text-[#0E0F13] font-archivo font-semibold hover:bg-[#c99a55]"
+              className="mt-4 bg-[#B98A45] font-archivo font-semibold text-[#0E0F13] hover:bg-[#c99a55]"
               size="sm"
               onClick={clearFilters}
             >

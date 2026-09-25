@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { getStartupById } from "@/lib/fixtures/startups";
+import { getStartupById } from "@/lib/data/startups";
 import {
   verifyEsewaCallback,
   verifyEsewaTransaction,

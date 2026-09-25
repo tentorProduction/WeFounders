@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { getStartupBySlug } from "@/lib/fixtures/startups";
+import { getStartupBySlug } from "@/lib/data/startups";
 import { getViewer } from "@/lib/auth/viewer";
 import { addWaitlistEntry, countWaitlist } from "@/lib/waitlist/store";
 import { isEmailConfigured, sendEmail } from "@/lib/email/resend";
@@ -16,8 +16,7 @@ import type { WaitlistActionState } from "@/lib/action-state";
  * Waitlist lead capture (PRD §4.1 flow, TRD §5 anti-abuse).
  *
  * Validates input with zod, applies a best-effort per-IP throttle, then writes
- * through lib/waitlist/store (Supabase when configured, local demo store
- * otherwise).
+ * through lib/waitlist/store into Supabase, and fires a Resend confirmation.
  */
 
 const waitlistSchema = z.object({

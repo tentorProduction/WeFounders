@@ -1,8 +1,13 @@
 import type { MetadataRoute } from "next";
-import { STARTUP_FIXTURES } from "@/lib/fixtures/startups";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.wefounders.dev";
+import { getStartupFeed } from "@/lib/data/startups";
+
+/** Rebuilt hourly so newly approved launches appear without a redeploy. */
+export const revalidate = 3600;
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://www.wefounders.dev";
   const now = new Date();
 
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -56,9 +61,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  const startupRoutes: MetadataRoute.Sitemap = STARTUP_FIXTURES.map((startup) => ({
+  // Approved launches straight from the database — no static list to maintain.
+  const startups = await getStartupFeed({ orderBy: "newest" });
+  const startupRoutes: MetadataRoute.Sitemap = startups.map((startup) => ({
     url: `${baseUrl}/startups/${startup.slug}`,
-    lastModified: new Date(startup.updated_at || startup.created_at),
+    lastModified: new Date(startup.updated_at || startup.created_at || now),
     changeFrequency: "weekly",
     priority: 0.8,
   }));

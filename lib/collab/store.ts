@@ -1,19 +1,14 @@
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { CollabType } from "@/types/database";
+import type { CollabPostWithAuthor } from "@/lib/data/collab";
 
-import { appendToCollection, readCollection } from "@/lib/demo-store";
-import type { CollabPostWithAuthor } from "@/lib/fixtures/collab";
-import { isSupabaseConfigured } from "@/lib/supabase/environment";
+export { listCollabPosts } from "@/lib/data/collab";
+export type { CollabPostWithAuthor } from "@/lib/data/collab";
 
 /**
- * Collab board store (TRD §2 table 10).
- *
- * Writes go to Supabase `collab_posts` when configured, else the local demo
- * store (`.data/collab.json` — gitignored, in-memory fallback on read-only
- * filesystems). Reads merge store posts with the fixture board so nothing
- * posted during the demo ever disappears.
+ * Collab board writes (TRD §2 table 11). Reads live in lib/data/collab.ts;
+ * Supabase is the only store.
  */
-
-const COLLECTION = "collab";
 
 export interface CollabPostInput {
   roleType: CollabType;
@@ -22,7 +17,8 @@ export interface CollabPostInput {
   equityOrCompensation: string | null;
   /** Normalized contact channel: wa.me link, t.me handle, or mailto. */
   contactChannel: string;
-  authorId: string | null;
+  /** Required — only authenticated viewers may post. */
+  authorId: string;
   authorName: string;
 }
 
@@ -77,99 +73,41 @@ export function normalizeContactChannel(raw: string): string | null {
 
 export async function addCollabPost(
   input: CollabPostInput
-): Promise<StoredCollabPost> {
-  const record: StoredCollabPost = {
-    id: `cb-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    role_type: input.roleType,
+): Promise<CollabPostWithAuthor> {
+  const supabase = createAdminClient();
+
+  const { data, error } = await supabase
+    .from("collab_posts")
+    .insert({
+      role_type: input.roleType,
+      title: input.title,
+      description: input.description,
+      equity_or_compensation: input.equityOrCompensation,
+      contact_channel: input.contactChannel,
+      author_id: input.authorId,
+      author_name: input.authorName,
+      is_active: true,
+    })
+    .select("id, created_at")
+    .single();
+
+  if (error) throw new Error(`Could not publish that listing: ${error.message}`);
+
+  return {
+    id: data.id,
+    startup_id: null,
+    author_id: input.authorId,
     title: input.title,
+    role_type: input.roleType,
     description: input.description,
     equity_or_compensation: input.equityOrCompensation,
     contact_channel: input.contactChannel,
     is_active: true,
-    author_id: input.authorId,
+    created_at: data.created_at,
     author_name: input.authorName,
-    created_at: new Date().toISOString(),
-  };
-
-  if (isSupabaseConfigured()) {
-    try {
-      const { createClient } = await import("@/lib/supabase/server");
-      const supabase = await createClient();
-
-      const { data, error } = await supabase
-        .from("collab_posts")
-        .insert({
-          role_type: record.role_type,
-          title: record.title,
-          description: record.description,
-          equity_or_compensation: record.equity_or_compensation,
-          contact_channel: record.contact_channel,
-          author_id: record.author_id,
-          is_active: true,
-        })
-        .select()
-        .single();
-
-      if (!error && data) {
-        return { ...record, ...(data as Partial<StoredCollabPost>) } as StoredCollabPost;
-      }
-    } catch {
-      // Fall through to the local store — never lose a listing to an outage.
-    }
-  }
-
-  await appendToCollection<StoredCollabPost>(COLLECTION, record);
-  return record;
-}
-
-/** Fixture board merged with locally/Supabase-posted listings (newest first). */
-export async function listCollabPosts(): Promise<CollabPostWithAuthor[]> {
-  const fixtures = await import("@/lib/fixtures/collab").then(
-    (mod) => mod.getCollabBoard()
-  );
-
-  let stored: StoredCollabPost[] = [];
-
-  if (isSupabaseConfigured()) {
-    try {
-      const { createClient } = await import("@/lib/supabase/server");
-      const supabase = await createClient();
-
-      const { data, error } = await supabase
-        .from("collab_posts")
-        .select("*")
-        .eq("is_active", true)
-        .order("created_at", { ascending: false });
-
-      if (!error && Array.isArray(data)) {
-        stored = data.map((row) => ({
-          ...(row as StoredCollabPost),
-          author_name:
-            (row as StoredCollabPost).author_name ?? "Wefounder builder",
-        }));
-      }
-    } catch {
-      // Fall through to the local store.
-    }
-  }
-
-  if (stored.length === 0) {
-    stored = await readCollection<StoredCollabPost>(COLLECTION);
-  }
-
-  // Store rows aren't attached to a startup; fixtures may be.
-  const merged: CollabPostWithAuthor[] = stored.map((row) => ({
-    ...row,
-    // Demo-mode posts have no signed-in author; keep the row shape strict.
-    author_id: row.author_id ?? "demo-author",
-    author_username: `demo-${row.id.slice(-6)}`,
-    startup_id: null,
+    author_username:
+      input.authorName.toLowerCase().replace(/[^a-z0-9]+/g, "") || "builder",
     startup_name: null,
     startup_slug: null,
-  }));
-
-  return [...merged, ...fixtures].sort((a, b) => {
-    if (a.is_active !== b.is_active) return Number(b.is_active) - Number(a.is_active);
-    return b.created_at.localeCompare(a.created_at);
-  });
+  };
 }

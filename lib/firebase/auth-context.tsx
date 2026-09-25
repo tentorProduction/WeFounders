@@ -1,152 +1,213 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 import {
-  User,
+  type User,
+  getRedirectResult,
+  onAuthStateChanged,
   signInWithPopup,
   signInWithRedirect,
-  getRedirectResult,
   signOut,
-  onAuthStateChanged,
 } from "firebase/auth";
-import { auth, googleProvider } from "./config";
+
+import { getFirebaseAuth, getGoogleProvider, isFirebaseConfigured } from "./config";
+
+/**
+ * Google sign-in via Firebase, plus the server session that makes the identity
+ * trustworthy on the backend.
+ *
+ * Flow: Firebase popup → Firebase ID token → POST /api/auth/session, where the
+ * server verifies the token against Google's JWKS, upserts the profile and sets
+ * a signed HttpOnly cookie. Server components and actions then read that cookie
+ * (see lib/auth/viewer.ts) instead of Supabase Auth.
+ *
+ * There is no demo/bypass account: if Google sign-in fails, the error is shown.
+ */
+
+interface SessionUser {
+  userId: string;
+  email: string;
+  name: string | null;
+}
 
 interface AuthContextType {
+  /** The Firebase user, for display purposes (name, avatar, uid). */
   user: User | null;
+  /** The server-verified session, once the token exchange succeeds. */
+  session: SessionUser | null;
+  /** True while the initial auth state is still resolving. */
   loading: boolean;
+  /** True while the ID token is being exchanged for a server session. */
+  syncing: boolean;
+  /** False when the Firebase environment variables are missing. */
+  configured: boolean;
   authError: string | null;
   signInWithGoogle: () => Promise<void>;
   signOutUser: () => Promise<void>;
-  signInDemoUser: () => void;
   clearAuthError: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
+  session: null,
   loading: true,
+  syncing: false,
+  configured: false,
   authError: null,
   signInWithGoogle: async () => {},
   signOutUser: async () => {},
-  signInDemoUser: () => {},
   clearAuthError: () => {},
 });
 
+async function exchangeTokenForSession(idToken: string): Promise<SessionUser> {
+  const response = await fetch("/api/auth/session", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ idToken }),
+    credentials: "same-origin",
+  });
+
+  if (!response.ok) {
+    const body = (await response.json().catch(() => ({}))) as { error?: string };
+    throw new Error(body.error ?? "Could not establish a server session.");
+  }
+
+  return (await response.json()) as SessionUser;
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<SessionUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
+  const configured = isFirebaseConfigured();
+
   useEffect(() => {
-    // Catch redirect auth results if user signed in via redirect
-    getRedirectResult(auth)
-      .then((result) => {
-        if (result?.user) {
-          setUser(result.user);
-        }
-      })
-      .catch((err) => {
-        console.warn("Firebase redirect auth error:", err);
-      });
+    const auth = getFirebaseAuth();
+    if (!auth) {
+      setLoading(false);
+      return;
+    }
+
+    // Complete a redirect-based sign-in if the popup was blocked.
+    getRedirectResult(auth).catch((error: unknown) => {
+      console.warn("Firebase redirect sign-in failed:", error);
+    });
 
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        // Clear demo user if real auth is present
-        if (typeof window !== "undefined") {
-          localStorage.removeItem("wefounder_demo_user");
-        }
-      } else {
-        // Check if demo user was saved
-        const storedDemo = typeof window !== "undefined" ? localStorage.getItem("wefounder_demo_user") : null;
-        if (storedDemo) {
-          try {
-            setUser(JSON.parse(storedDemo));
-          } catch {
-            setUser(null);
-          }
-        } else {
-          setUser(null);
-        }
-      }
+      setUser(currentUser);
       setLoading(false);
+
+      if (!currentUser) {
+        setSession(null);
+        void fetch("/api/auth/session", {
+          method: "DELETE",
+          credentials: "same-origin",
+        }).catch(() => {
+          // The cookie is HttpOnly; a failed clear is harmless and retried on
+          // the next sign-out.
+        });
+        return;
+      }
+
+      setSyncing(true);
+      currentUser
+        .getIdToken()
+        .then((idToken) => exchangeTokenForSession(idToken))
+        .then((next) => {
+          setSession(next);
+          setAuthError(null);
+        })
+        .catch((error: Error) => {
+          setSession(null);
+          setAuthError(error.message);
+        })
+        .finally(() => setSyncing(false));
     });
 
     return () => unsubscribe();
   }, []);
 
-  const clearAuthError = () => setAuthError(null);
+  const clearAuthError = useCallback(() => setAuthError(null), []);
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = useCallback(async () => {
     setAuthError(null);
+    const auth = getFirebaseAuth();
+    const provider = getGoogleProvider();
+
+    if (!auth) {
+      setAuthError(
+        "Google sign-in is unavailable: the Firebase environment variables are missing."
+      );
+      return;
+    }
+
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      if (result?.user) {
-        setUser(result.user);
-      }
+      await signInWithPopup(auth, provider);
     } catch (error: unknown) {
-      console.error("Firebase signInWithPopup error:", error);
       const authErr = error as { code?: string; message?: string };
-      
+
+      // A blocked popup is common in embedded browsers — retry as a redirect.
       if (
         authErr.code === "auth/popup-blocked" ||
-        authErr.code === "auth/popup-closed-by-user" ||
-        authErr.code === "auth/cancelled-popup-request"
+        authErr.code === "auth/operation-not-supported-in-this-environment"
       ) {
         try {
-          await signInWithRedirect(auth, googleProvider);
+          await signInWithRedirect(auth, provider);
           return;
         } catch (redirectError) {
-          console.error("Redirect auth error:", redirectError);
-          setAuthError("Sign in popup was closed. Please try again.");
+          console.error("Redirect sign-in failed:", redirectError);
         }
+      }
+
+      if (authErr.code === "auth/popup-closed-by-user") {
+        setAuthError("Sign-in window closed before finishing.");
+      } else if (authErr.code === "auth/cancelled-popup-request") {
+        // A second popup superseded this one — not worth surfacing.
       } else if (authErr.code === "auth/operation-not-allowed") {
-        setAuthError("Google Sign-In is not enabled in your Firebase Console under Authentication settings.");
+        setAuthError(
+          "Google sign-in is disabled for this Firebase project. Enable it under Authentication → Sign-in method."
+        );
       } else if (authErr.code === "auth/unauthorized-domain") {
-        setAuthError("This domain is not authorized in your Firebase Console. Please add localhost under Authorized Domains.");
+        setAuthError(
+          "This domain is not authorised in the Firebase console. Add it under Authentication → Settings → Authorized domains."
+        );
       } else {
-        setAuthError(authErr.message || "Failed to sign in with Google.");
+        setAuthError(authErr.message ?? "Could not sign in with Google.");
       }
     }
-  };
+  }, []);
 
-  const signInDemoUser = () => {
-    const demoUser = {
-      uid: "demo-founder-2026",
-      displayName: "Aman Founder",
-      email: "aman@wefounder.dev",
-      photoURL: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-    } as unknown as User;
-
-    setUser(demoUser);
-    setAuthError(null);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("wefounder_demo_user", JSON.stringify(demoUser));
-    }
-  };
-
-  const signOutUser = async () => {
+  const signOutUser = useCallback(async () => {
     try {
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("wefounder_demo_user");
-      }
-      await signOut(auth);
+      await fetch("/api/auth/session", {
+        method: "DELETE",
+        credentials: "same-origin",
+      });
+      const auth = getFirebaseAuth();
+      if (auth) await signOut(auth);
+    } catch (error) {
+      console.error("Sign-out failed:", error);
+    } finally {
+      setSession(null);
       setUser(null);
       setAuthError(null);
-    } catch (error) {
-      console.error("Error signing out:", error);
-      setUser(null);
     }
-  };
+  }, []);
 
   return (
     <AuthContext.Provider
       value={{
         user,
+        session,
         loading,
+        syncing,
+        configured,
         authError,
         signInWithGoogle,
         signOutUser,
-        signInDemoUser,
         clearAuthError,
       }}
     >

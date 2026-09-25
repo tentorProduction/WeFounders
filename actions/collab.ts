@@ -9,9 +9,9 @@ import { getViewer } from "@/lib/auth/viewer";
 import type { CollabPostActionState } from "@/lib/action-state";
 
 /**
- * Post a collab/co-founder opportunity (PRD §4.1, TRD §2 table 10,
- * DESIGN.md §4.5). Requires a signed-in founder once auth is wired; in demo
- * mode the post is captured with a placeholder author.
+ * Post a collab/co-founder opportunity (PRD §4.1, TRD §2 table 11,
+ * DESIGN.md §4.5). Requires a signed-in viewer; the author is taken from the
+ * verified session, never from the form.
  */
 
 const collabSchema = z.object({
@@ -65,18 +65,27 @@ export async function postOpportunityAction(
   }
 
   const viewer = await getViewer();
+  if (!viewer.userId) {
+    return {
+      status: "error",
+      message: "Sign in with Google to post an opportunity.",
+    };
+  }
 
-  await addCollabPost({
-    roleType: parsed.data.roleType,
-    title: parsed.data.title,
-    description: parsed.data.description,
-    equityOrCompensation: parsed.data.equityOrCompensation || null,
-    contactChannel: contact,
-    authorId: viewer.userId,
-    authorName: viewer.backendConfigured
-      ? "Founder"
-      : "WeFounders builder (demo)",
-  });
+  try {
+    await addCollabPost({
+      roleType: parsed.data.roleType,
+      title: parsed.data.title,
+      description: parsed.data.description,
+      equityOrCompensation: parsed.data.equityOrCompensation || null,
+      contactChannel: contact,
+      authorId: viewer.userId,
+      authorName: viewer.fullName ?? viewer.email?.split("@")[0] ?? "WeFounders builder",
+    });
+  } catch (error) {
+    console.error("[collab] post failed:", error);
+    return { status: "error", message: "We couldn't publish that. Please try again." };
+  }
 
   revalidatePath("/collab");
 

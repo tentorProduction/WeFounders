@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 
 import { getViewer, isFounderViewer } from "@/lib/auth/viewer";
-import { getStartupBySlug } from "@/lib/fixtures/startups";
+import { getStartupBySlug } from "@/lib/data/startups";
 import { listWaitlist } from "@/lib/waitlist/store";
 
 /**
  * 1-click waitlist CSV export (PRD §4.1) — founder only.
  *
- * With a configured backend the gate is the real session owner check; the
- * `?as=founder` flag is only honoured in backend-less demo mode.
+ * The gate is a real owner check against the signed session: the startup's
+ * `founder_id` must match the authenticated viewer. There is no query-string
+ * override, so lead data cannot be pulled by guessing a slug.
  */
 
 function csvCell(value: string | null): string {
@@ -17,7 +18,7 @@ function csvCell(value: string | null): string {
 }
 
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
@@ -27,13 +28,16 @@ export async function GET(
     return NextResponse.json({ error: "Startup not found" }, { status: 404 });
   }
 
-  const asFounder = new URL(request.url).searchParams.get("as") === "founder";
   const viewer = await getViewer();
 
-  if (!isFounderViewer(viewer, startup, asFounder)) {
+  if (!isFounderViewer(viewer, startup)) {
     return NextResponse.json(
-      { error: "Only the startup founder can export this waitlist." },
-      { status: 403 }
+      {
+        error: viewer.authenticated
+          ? "Only the startup founder can export this waitlist."
+          : "Sign in with the founder's account to export this waitlist.",
+      },
+      { status: viewer.authenticated ? 403 : 401 }
     );
   }
 

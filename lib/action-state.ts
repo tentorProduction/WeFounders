@@ -39,3 +39,16 @@ export interface CollabPostActionState {
 }
 
 export const initialCollabPostState: CollabPostActionState = { status: "idle" };
+
+export interface StartupSubmissionActionState {
+  status: "idle" | "success" | "error";
+  message?: string;
+  /** Slug of the created startup, for linking to its showcase page. */
+  slug?: string;
+  /** The submitted startup's name, for the confirmation screen. */
+  startupName?: string;
+}
+
+export const initialStartupSubmissionState: StartupSubmissionActionState = {
+  status: "idle",
+};

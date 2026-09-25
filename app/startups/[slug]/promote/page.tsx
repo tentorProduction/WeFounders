@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CheckCircle2, PartyPopper, XCircle } from "lucide-react";
 
-import { getStartupBySlug } from "@/lib/fixtures/startups";
+import { getStartupBySlug } from "@/lib/data/startups";
 import { PROMOTION_PLANS } from "@/lib/promotions/plans";
 import {
   getActiveFeatured,

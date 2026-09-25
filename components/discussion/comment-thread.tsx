@@ -7,9 +7,10 @@ import { cn, timeAgo } from "@/lib/utils";
 import type { CommentWithAuthor } from "@/types/database";
 import { initialCommentState } from "@/lib/action-state";
 import { postCommentAction } from "@/actions/comments";
+import { useAuth } from "@/lib/firebase/auth-context";
+import { SignInButton } from "@/components/auth/sign-in-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 export interface CommentThreadProps {
   slug: string;
@@ -38,6 +39,7 @@ export function CommentThread({
   isFounderView,
   className,
 }: CommentThreadProps) {
+  const { session } = useAuth();
   const [state, formAction, isPending] = useActionState(
     postCommentAction,
     initialCommentState
@@ -107,27 +109,24 @@ export function CommentThread({
         )}
       </ul>
 
-      {/* Composer */}
+      {/* Composer — signed-in viewers only; the author comes from the session,
+          so there is no name field to spoof. */}
+      {!session ? (
+        <div className="space-y-3 rounded-xl border bg-card p-4 text-center">
+          <p className="text-caption text-muted-foreground">
+            Sign in to share feedback with {startupName}.
+          </p>
+          <div className="flex justify-center">
+            <SignInButton size="sm" label="Sign in to comment" />
+          </div>
+        </div>
+      ) : (
       <form
         key={formKey}
         action={formAction}
         className="space-y-3 rounded-xl border bg-card p-4"
       >
         <input type="hidden" name="slug" value={slug} />
-
-        <div className="space-y-1.5">
-          <label htmlFor="comment-author" className="text-caption font-medium">
-            Your name
-          </label>
-          <Input
-            id="comment-author"
-            name="authorName"
-            required
-            minLength={2}
-            maxLength={40}
-            placeholder="Rohit Shrestha"
-          />
-        </div>
 
         <div className="space-y-1.5">
           <label htmlFor="comment-content" className="text-caption font-medium">
@@ -179,6 +178,7 @@ export function CommentThread({
           )}
         </div>
       </form>
+      )}
     </section>
   );
 }

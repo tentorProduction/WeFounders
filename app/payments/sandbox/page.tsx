@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ShieldAlert } from "lucide-react";
 
-import { getStartupById } from "@/lib/fixtures/startups";
+import { getStartupById } from "@/lib/data/startups";
 import { formatPlanPrice, getPlan } from "@/lib/promotions/plans";
 import { getPromotionByReference } from "@/lib/promotions/store";
 import { isSandboxPayments } from "@/lib/payments/config";

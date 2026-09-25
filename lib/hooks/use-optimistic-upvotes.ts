@@ -2,17 +2,15 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { isSupabaseConfigured } from "@/lib/supabase/environment";
-
 /**
  * Optimistic upvote engine (PRD §4.1, TRD §5).
  *
  * Toggling a vote updates the UI immediately, then persists in two layers:
  *  1. localStorage — instant, survives reloads, works signed-out (Nepal's
  *     low-bandwidth reality: the feed stays usable offline).
- *  2. Supabase `upvotes` — only attempted when the backend is configured and a
- *     user session exists. Counters are recomputed by the Postgres triggers,
- *     so a dropped request self-heals on the next feed load.
+ *  2. Supabase `upvotes`, via POST /api/upvotes — signed-in viewers only. The
+ *     `upvotes_counter` trigger owns the totals, so a dropped request self-heals
+ *     on the next feed load.
  */
 
 const VOTES_STORAGE_KEY = "wefounder.votes";
@@ -55,35 +53,19 @@ function writeStoredVotes(votes: VoteRecord): void {
   }
 }
 
-/** Best-effort remote sync against the `upvotes` table (TRD §2, table 5). */
-async function syncUpvoteWithRemote(
-  startupId: string,
-  voted: boolean
-): Promise<void> {
-  if (!isSupabaseConfigured()) return;
-
+/**
+ * Best-effort remote sync against the `upvotes` table (TRD §2, table 6).
+ * A 401 simply means the visitor is signed out — their vote stays on the
+ * device, which is expected rather than an error.
+ */
+async function syncUpvoteWithRemote(startupId: string, voted: boolean): Promise<void> {
   try {
-    // Loaded lazily so supabase-js stays out of the initial bundle.
-    const { createClient } = await import("@/lib/supabase/client");
-    const supabase = createClient();
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) return; // Signed-out votes live on this device only.
-
-    if (voted) {
-      await supabase
-        .from("upvotes")
-        .insert({ startup_id: startupId, user_id: user.id });
-    } else {
-      await supabase
-        .from("upvotes")
-        .delete()
-        .eq("startup_id", startupId)
-        .eq("user_id", user.id);
-    }
+    await fetch("/api/upvotes", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ startupId, voted }),
+      credentials: "same-origin",
+    });
   } catch {
     // Non-fatal: the optimistic vote stays, and the count reconciles from the
     // `upvotes` table on the next feed load.
