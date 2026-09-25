@@ -195,8 +195,8 @@ export function DiscoveryFeed({
             </Button>
           </div>
 
-          {/* Real Verified Stats Ticker Bar */}
-          <div className="pt-3 flex flex-wrap items-center justify-center gap-3 text-tiny font-mono text-[#9A958A]">
+          {/* Real Verified Stats Ticker Bar (Stacked vertically on mobile, row on sm+) */}
+          <div className="pt-3 flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2 sm:gap-3 text-tiny font-mono text-[#9A958A]">
             <div className="flex items-center gap-1.5 rounded-[10px] border border-[#26282F] bg-[#0E0F13] px-3 py-1.5">
               <Calendar className="h-3.5 w-3.5 text-[#B98A45]" />
               <span><time dateTime={new Date().toISOString()}>{batchDate}</time> Batch</span>

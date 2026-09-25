@@ -15,6 +15,9 @@ const NAV_LINKS = [
   { href: "/about", label: "About" },
 ] as const;
 
+/**
+ * Mobile-First Responsive Navbar (Spec: 390px/mobile single-row, 60px height, logo-only left, 44px touch targets right, 56px stacked links)
+ */
 export function SiteHeader() {
   const pathname = usePathname();
   const router = useRouter();
@@ -31,6 +34,7 @@ export function SiteHeader() {
 
   // Mobile Menu state
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   // Handle Scroll behavior (hide on scroll down, reveal on scroll up, shadow past 24px)
   useEffect(() => {
@@ -43,7 +47,7 @@ export function SiteHeader() {
         setScrolled(false);
       }
 
-      if (currentScrollY > lastScrollY.current && currentScrollY > 80) {
+      if (currentScrollY > lastScrollY.current && currentScrollY > 80 && !mobileOpen) {
         // Scrolling down
         setVisible(false);
       } else {
@@ -56,7 +60,7 @@ export function SiteHeader() {
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [mobileOpen]);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -76,6 +80,7 @@ export function SiteHeader() {
       if (e.key === "Escape") {
         setMobileOpen(false);
         setSearchExpanded(false);
+        setMobileSearchOpen(false);
       }
     }
     window.addEventListener("keydown", handleKeyDown);
@@ -95,6 +100,7 @@ export function SiteHeader() {
       router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
       setSearchExpanded(false);
       setMobileOpen(false);
+      setMobileSearchOpen(false);
     }
   }
 
@@ -111,36 +117,36 @@ export function SiteHeader() {
     <>
       <header
         className={cn(
-          "sticky top-0 z-50 w-full bg-[#15171C]/92 backdrop-blur-md border-b border-[#26282F] transition-all duration-300",
-          "h-[64px] lg:h-[72px]",
+          "sticky top-0 z-50 w-full bg-[#15171C] backdrop-blur-md border-b border-[#26282F] transition-transform duration-300",
+          "h-[60px] md:h-[72px]",
           !visible && "-translate-y-full",
           scrolled && "shadow-[0_4px_24px_rgba(0,0,0,0.5)]"
         )}
       >
-        <div className="site-container h-full flex items-center justify-between gap-4">
-          {/* LEFT: Logo & Wordmark */}
-          <div className="flex items-center gap-3">
+        <div className="site-container h-full flex items-center justify-between gap-2 overflow-x-hidden">
+          {/* LEFT: Logo ONLY on mobile, Logo + Wordmark on desktop */}
+          <div className="flex items-center shrink-0">
             <Link
               href="/"
-              className="press-scale flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-[#B98A45] rounded-md"
+              className="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-[#B98A45] rounded-md"
               onClick={() => setMobileOpen(false)}
             >
-              {/* Gold rounded square icon */}
+              {/* Gold rounded square icon: 30px on mobile, 32px on desktop */}
               <span
                 aria-hidden
-                className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-[#B98A45] font-archivo text-[15px] font-black text-[#0E0F13] shadow-xs"
+                className="flex h-[30px] w-[30px] md:h-[32px] md:w-[32px] items-center justify-center rounded-[8px] bg-[#B98A45] font-archivo text-[14px] md:text-[15px] font-black text-[#0E0F13] shadow-xs"
               >
                 W
               </span>
-              {/* Wordmark */}
-              <span className="font-archivo font-bold text-[18px] text-[#F5F1E8] tracking-tight">
+              {/* Wordmark: hidden on mobile (<640px) to prevent horizontal overflow */}
+              <span className="hidden sm:inline-block font-archivo font-bold text-[18px] text-[#F5F1E8] tracking-tight">
                 WeFounders
               </span>
             </Link>
           </div>
 
-          {/* CENTER LINKS (Desktop) */}
-          <nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-8">
+          {/* CENTER LINKS (Desktop ONLY >= 768px) */}
+          <nav aria-label="Primary navigation" className="hidden md:flex items-center gap-6 lg:gap-8">
             {NAV_LINKS.map((link) => {
               const isActive =
                 link.href === "/"
@@ -165,8 +171,8 @@ export function SiteHeader() {
             })}
           </nav>
 
-          {/* RIGHT (Desktop): Search, User Button, Launch CTA */}
-          <div className="hidden lg:flex items-center gap-4">
+          {/* RIGHT (Desktop >= 768px): Search, User Button, Launch CTA */}
+          <div className="hidden md:flex items-center gap-3 lg:gap-4">
             {/* Expandable Live Search */}
             <div className="relative">
               {searchExpanded ? (
@@ -176,8 +182,8 @@ export function SiteHeader() {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search launches by name..."
-                    className="h-[40px] w-[260px] rounded-[10px] border border-[#26282F] bg-[#0E0F13] pl-9 pr-8 text-[14px] text-[#F5F1E8] placeholder:text-[#9A958A] focus:outline-none focus:ring-2 focus:ring-[#B98A45]"
+                    placeholder="Search launches..."
+                    className="h-[40px] w-[220px] lg:w-[260px] rounded-[10px] border border-[#26282F] bg-[#0E0F13] pl-9 pr-8 text-[14px] text-[#F5F1E8] placeholder:text-[#9A958A] focus:outline-none focus:ring-2 focus:ring-[#B98A45]"
                   />
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9A958A]" />
                   <button
@@ -203,7 +209,7 @@ export function SiteHeader() {
                         >
                           <div>
                             <p className="text-[14px] font-archivo font-bold text-[#F5F1E8]">{st.name}</p>
-                            <p className="text-[12px] text-[#9A958A] truncate max-w-[200px]">{st.tagline}</p>
+                            <p className="text-[12px] text-[#9A958A] truncate max-w-[180px]">{st.tagline}</p>
                           </div>
                           <span className="text-[12px] font-mono text-[#B98A45]">▲ {st.upvotes_count}</span>
                         </Link>
@@ -223,45 +229,101 @@ export function SiteHeader() {
               )}
             </div>
 
-            {/* Ghost Sign In / User Control */}
+            {/* User Control / Sign In */}
             <UserButton />
 
             {/* Primary Gold CTA "Launch Your Startup" */}
             <Link
               href="/submit"
-              className="inline-flex items-center justify-center rounded-[10px] bg-[#B98A45] px-[20px] py-[10px] font-archivo text-[15px] font-semibold text-[#0E0F13] transition-all duration-200 hover:bg-[#c99a55] hover:-translate-y-0.5 active:translate-y-0 shadow-sm"
+              className="inline-flex items-center justify-center rounded-[10px] bg-[#B98A45] px-[20px] py-[10px] font-archivo text-[15px] font-semibold text-[#0E0F13] transition-all duration-200 hover:bg-[#c99a55] hover:-translate-y-0.5 active:translate-y-0 shadow-sm shrink-0"
             >
               Launch Your Startup
             </Link>
           </div>
 
-          {/* MOBILE RIGHT: Hamburger */}
-          <div className="flex items-center gap-3 lg:hidden">
-            <UserButton />
+          {/* MOBILE RIGHT (< 768px): Search Icon Button (44px) + Hamburger Icon Button (44px) with 8px gap */}
+          <div className="flex items-center gap-2 md:hidden shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                setMobileSearchOpen(!mobileSearchOpen);
+                setMobileOpen(false);
+              }}
+              aria-label="Toggle search input"
+              className="flex h-[44px] w-[44px] items-center justify-center rounded-[8px] border border-[#26282F] bg-[#0E0F13] text-[#F5F1E8] active:scale-95 transition-transform"
+            >
+              <Search className="h-5 w-5 text-[#F5F1E8]" />
+            </button>
 
             <button
               type="button"
-              onClick={() => setMobileOpen(!mobileOpen)}
+              onClick={() => {
+                setMobileOpen(!mobileOpen);
+                setMobileSearchOpen(false);
+              }}
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
-              className="flex h-[40px] w-[40px] items-center justify-center rounded-[8px] border border-[#26282F] bg-[#0E0F13] text-[#F5F1E8]"
+              className="flex h-[44px] w-[44px] items-center justify-center rounded-[8px] border border-[#26282F] bg-[#0E0F13] text-[#F5F1E8] active:scale-95 transition-transform"
             >
-              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {mobileOpen ? <X className="h-5 w-5 text-[#F5F1E8]" /> : <Menu className="h-5 w-5 text-[#F5F1E8]" />}
             </button>
           </div>
         </div>
       </header>
 
-      {/* MOBILE SLIDE-DOWN PANEL */}
+      {/* QUICK MOBILE SEARCH INPUT INLINE DROP DOWN */}
+      {mobileSearchOpen && (
+        <div className="fixed top-[60px] inset-x-0 z-40 bg-[#15171C] border-b border-[#26282F] p-3 shadow-xl md:hidden animate-fade-in-up">
+          <form onSubmit={handleSearchSubmit} className="relative flex items-center">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search launches by name..."
+              className="h-[44px] w-full rounded-[10px] border border-[#26282F] bg-[#0E0F13] pl-10 pr-10 text-[15px] text-[#F5F1E8] placeholder:text-[#9A958A] focus:outline-none focus:ring-2 focus:ring-[#B98A45]"
+              autoFocus
+            />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9A958A]" />
+            <button
+              type="button"
+              onClick={() => setMobileSearchOpen(false)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9A958A] hover:text-[#F5F1E8]"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </form>
+
+          {searchResults.length > 0 && (
+            <div className="mt-2 space-y-1 rounded-[10px] border border-[#26282F] bg-[#0E0F13] p-2">
+              {searchResults.map((st) => (
+                <Link
+                  key={st.id}
+                  href={`/startups/${st.slug}`}
+                  onClick={() => setMobileSearchOpen(false)}
+                  className="flex items-center justify-between p-2 rounded-md hover:bg-[#1C1E24]"
+                >
+                  <div>
+                    <p className="text-[14px] font-archivo font-bold text-[#F5F1E8]">{st.name}</p>
+                    <p className="text-[12px] text-[#9A958A] truncate max-w-[240px]">{st.tagline}</p>
+                  </div>
+                  <span className="text-[12px] font-mono text-[#B98A45]">▲ {st.upvotes_count}</span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* MOBILE SLIDE-DOWN HAMBURGER PANEL */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs lg:hidden"
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs md:hidden"
           onClick={() => setMobileOpen(false)}
         >
           <div
-            className="fixed top-[64px] inset-x-0 bg-[#15171C] border-b border-[#26282F] p-6 space-y-6 shadow-2xl animate-fade-in-up"
+            className="fixed top-[60px] inset-x-0 bg-[#15171C] border-b border-[#26282F] p-5 space-y-5 shadow-2xl transition-all duration-250 ease-in-out max-h-[calc(100vh-60px)] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Search Input on Top */}
+            {/* Search Input on Top (Full Width, 44px height) */}
             <form onSubmit={handleSearchSubmit} className="relative">
               <input
                 type="text"
@@ -274,8 +336,8 @@ export function SiteHeader() {
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9A958A]" />
             </form>
 
-            {/* Stacked 18px Links */}
-            <nav className="flex flex-col gap-4">
+            {/* Stacked 18px Links, 56px Row Height Each */}
+            <nav className="flex flex-col divide-y divide-[#26282F]">
               {NAV_LINKS.map((link) => {
                 const isActive =
                   link.href === "/"
@@ -288,7 +350,7 @@ export function SiteHeader() {
                     href={link.href}
                     onClick={() => setMobileOpen(false)}
                     className={cn(
-                      "font-archivo text-[18px] font-semibold py-1 transition-colors",
+                      "h-[56px] flex items-center font-archivo text-[18px] font-semibold transition-colors px-1",
                       isActive ? "text-[#B98A45]" : "text-[#F5F1E8] hover:text-[#B98A45]"
                     )}
                   >
@@ -298,12 +360,17 @@ export function SiteHeader() {
               })}
             </nav>
 
-            {/* Full-width Sign In + Gold CTA at Bottom */}
-            <div className="pt-2 flex flex-col gap-3">
+            <div className="border-t border-[#26282F] pt-4 space-y-3">
+              {/* Full-width Sign In ghost button */}
+              <div className="w-full flex justify-center">
+                <UserButton />
+              </div>
+
+              {/* Gold "Launch Your Startup" CTA Full Width (44px height, 10px radius) */}
               <Link
                 href="/submit"
                 onClick={() => setMobileOpen(false)}
-                className="w-full text-center rounded-[10px] bg-[#B98A45] py-3 font-archivo text-[16px] font-semibold text-[#0E0F13] shadow-md hover:bg-[#c99a55]"
+                className="w-full h-[44px] flex items-center justify-center rounded-[10px] bg-[#B98A45] font-archivo text-[16px] font-semibold text-[#0E0F13] shadow-md hover:bg-[#c99a55] active:scale-[0.99] transition-all"
               >
                 Launch Your Startup
               </Link>
