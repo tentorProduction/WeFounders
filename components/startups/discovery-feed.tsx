@@ -73,14 +73,19 @@ function matchesQuery(startup: StartupWithTags, query: string): boolean {
 export interface DiscoveryFeedProps {
   startups: StartupWithTags[];
   featured?: StartupWithTags | null;
-  /** Pre-formatted on the server to avoid hydration mismatch. */
   batchDate: string;
+  siteStats: {
+    verifiedLaunches: number;
+    waitlistedTesters: number;
+    totalUpvotes: number;
+  };
 }
 
 export function DiscoveryFeed({
   startups,
   featured = null,
   batchDate,
+  siteStats,
 }: DiscoveryFeedProps) {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<FeedFilter>("all");
@@ -88,15 +93,11 @@ export function DiscoveryFeed({
   const [sortBy, setSortBy] = useState<"popular" | "newest" | "waitlist">("popular");
   const { getUpvote, toggleUpvote } = useOptimisticUpvotes();
 
-  const totalWaitlistCount = useMemo(
-    () => startups.reduce((sum, s) => sum + s.waitlist_count, 0),
-    [startups]
-  );
+  const { verifiedLaunches, waitlistedTesters, totalUpvotes } = siteStats;
 
-  const totalUpvotesCount = useMemo(
-    () => startups.reduce((sum, s) => sum + s.upvotes_count, 0),
-    [startups]
-  );
+
+
+
 
   const results = useMemo(
     () =>
@@ -150,21 +151,21 @@ export function DiscoveryFeed({
   return (
     <div className="space-y-8">
       {/* Spec-Compliant Hero Section */}
-      <section className="relative rounded-[10px] border border-[#26282F] bg-[#15171C] p-8 sm:p-12 shadow-md text-center godly-bg-glow">
+      <section className="relative rounded-[10px] border border-[#E4E4E7] bg-[#FFFFFF] p-8 sm:p-12 shadow-md text-center godly-bg-glow">
         <div className="relative z-10 space-y-5">
           {/* Eyebrow */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(185,138,69,0.3)] bg-[#0E0F13] px-3.5 py-1 text-tiny font-mono font-bold uppercase tracking-widest text-[#B98A45]">
-            <Award className="h-3.5 w-3.5 text-[#B98A45]" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(220,38,38,0.18)] bg-[#FAFAFA] px-3.5 py-1 text-tiny font-mono font-bold uppercase tracking-widest text-[#DC2626]">
+            <Award className="h-3.5 w-3.5 text-[#DC2626]" />
             <span>NEPAL&apos;S STARTUP LAUNCH PLATFORM</span>
           </div>
 
           {/* Archivo Display Headline */}
-          <h1 className="mx-auto max-w-4xl text-display font-archivo font-bold tracking-tight text-[#F5F1E8] sm:text-display">
-            Launch your startup in front of <span className="text-[#B98A45]">Nepal&apos;s builders</span>
+          <h1 className="mx-auto max-w-4xl text-display font-archivo font-bold tracking-tight text-[#18181B] sm:text-display">
+            Launch your startup in front of <span className="text-[#DC2626]">Nepal&apos;s builders</span>
           </h1>
 
           {/* Subhead */}
-          <p className="mx-auto max-w-2xl text-body text-[#9A958A] leading-relaxed italic">
+          <p className="mx-auto max-w-2xl text-body text-[#71717A] leading-relaxed">
             Connecting early-stage founders with beta users, verified community traction, and proof-of-work engagement across Nepal and global export markets.
           </p>
 
@@ -172,48 +173,48 @@ export function DiscoveryFeed({
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <Button
               asChild
-              className="bg-[#B98A45] text-[#0E0F13] hover:bg-[#c99a55] font-archivo font-semibold rounded-[10px] px-6 py-5 shadow-sm transition-all hover:-translate-y-0.5"
+              className="bg-[#DC2626] text-[#FAFAFA] hover:bg-[#B91C1C] font-archivo font-semibold rounded-[10px] px-6 py-5 shadow-sm transition-all hover:-translate-y-0.5"
             >
               <a href="/submit">Submit Your Startup</a>
             </Button>
             <Button
               asChild
               variant="outline"
-              className="border-[#26282F] bg-[#0E0F13] text-[#F5F1E8] hover:bg-[#1C1E24] font-archivo font-medium rounded-[10px] px-6 py-5"
+              className="border-[#E4E4E7] bg-[#FAFAFA] text-[#18181B] hover:bg-[#F4F4F5] font-archivo font-medium rounded-[10px] px-6 py-5"
             >
               <a href="/leaderboard">View Leaderboard</a>
             </Button>
           </div>
 
           {/* Real Verified Stats Ticker Bar (Stacked vertically on mobile, row on sm+) */}
-          <div className="pt-3 flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2 sm:gap-3 text-tiny font-mono text-[#9A958A]">
-            <div className="flex items-center gap-1.5 rounded-[10px] border border-[#26282F] bg-[#0E0F13] px-3 py-1.5">
-              <Calendar className="h-3.5 w-3.5 text-[#B98A45]" />
+          <div className="pt-3 flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2 sm:gap-3 text-tiny font-mono text-[#71717A]">
+            <div className="flex items-center gap-1.5 rounded-[10px] border border-[#E4E4E7] bg-[#FAFAFA] px-3 py-1.5">
+              <Calendar className="h-3.5 w-3.5 text-[#DC2626]" />
               <span><time dateTime={new Date().toISOString()}>{batchDate}</time> Batch</span>
             </div>
 
-            <div className="flex items-center gap-1.5 rounded-[10px] border border-[#26282F] bg-[#0E0F13] px-3 py-1.5">
-              <Rocket className="h-3.5 w-3.5 text-[#B98A45]" />
-              <span>{startups.length} Verified Launches</span>
+            <div className="flex items-center gap-1.5 rounded-[10px] border border-[#E4E4E7] bg-[#FAFAFA] px-3 py-1.5">
+              <Rocket className="h-3.5 w-3.5 text-[#DC2626]" />
+              <span>{verifiedLaunches} Verified Launches</span>
             </div>
 
-            <div className="flex items-center gap-1.5 rounded-[10px] border border-[#26282F] bg-[#0E0F13] px-3 py-1.5">
+            <div className="flex items-center gap-1.5 rounded-[10px] border border-[#E4E4E7] bg-[#FAFAFA] px-3 py-1.5">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#B98A45] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#B98A45]"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#DC2626] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#DC2626]"></span>
               </span>
-              <span>{totalWaitlistCount} Waitlisted Testers</span>
+              <span>{waitlistedTesters} Waitlisted Testers</span>
             </div>
 
-            <div className="flex items-center gap-1.5 rounded-[10px] border border-[#26282F] bg-[#0E0F13] px-3 py-1.5">
-              <span>▲ {totalUpvotesCount} Upvotes</span>
+            <div className="flex items-center gap-1.5 rounded-[10px] border border-[#E4E4E7] bg-[#FAFAFA] px-3 py-1.5">
+              <span>▲ {totalUpvotes} Upvotes</span>
             </div>
           </div>
 
           {/* Search Input Bar */}
           <div className="relative mx-auto mt-4 max-w-xl">
             <Search
-              className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9A958A]"
+              className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#71717A]"
               aria-hidden
             />
             <input
@@ -222,14 +223,14 @@ export function DiscoveryFeed({
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search ventures, technologies, eSewa, AI copilots…"
               aria-label="Search ventures"
-              className="h-11 w-full rounded-[10px] border border-[#26282F] bg-[#0E0F13] pl-11 pr-10 text-body font-medium shadow-sm transition-all text-[#F5F1E8] placeholder:text-[#9A958A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B98A45]"
+              className="h-11 w-full rounded-[10px] border border-[#E4E4E7] bg-[#FAFAFA] pl-11 pr-10 text-body font-medium shadow-sm transition-all text-[#18181B] placeholder:text-[#71717A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#DC2626]"
             />
             {query && (
               <button
                 type="button"
                 onClick={() => setQuery("")}
                 aria-label="Clear search"
-                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer rounded-md p-1 text-[#9A958A] transition-colors hover:bg-[#1C1E24] hover:text-[#F5F1E8]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer rounded-md p-1 text-[#71717A] transition-colors hover:bg-[#F4F4F5] hover:text-[#18181B]"
               >
                 <X className="h-4 w-4" aria-hidden />
               </button>
@@ -255,8 +256,8 @@ export function DiscoveryFeed({
               className={cn(
                 "press-scale inline-flex h-9 shrink-0 cursor-pointer items-center justify-center rounded-[10px] border px-4 text-caption font-semibold transition-all",
                 active
-                  ? "border-[#B98A45] bg-[#B98A45] text-[#0E0F13] font-archivo font-bold shadow-sm"
-                  : "border-[#26282F] bg-[#15171C] text-[#9A958A] hover:border-[rgba(185,138,69,0.4)] hover:text-[#F5F1E8]"
+                  ? "border-[#DC2626] bg-[#DC2626] text-[#FAFAFA] font-archivo font-bold shadow-sm"
+                  : "border-[#E4E4E7] bg-[#FFFFFF] text-[#71717A] hover:border-[rgba(220,38,38,0.2)] hover:text-[#18181B]"
               )}
             >
               {label}
@@ -267,7 +268,7 @@ export function DiscoveryFeed({
 
       {activeTag && (
         <div className="flex items-center justify-center gap-2">
-          <span className="text-caption text-[#9A958A] font-mono">
+          <span className="text-caption text-[#71717A] font-mono">
             Active Filter Tag:
           </span>
           <TagPill tag={activeTag} active onRemove={() => setActiveTag(null)} />
@@ -289,23 +290,23 @@ export function DiscoveryFeed({
 
       {/* Launch Feed List */}
       <section aria-label="Today's launches" className="space-y-4">
-        <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[#26282F] pb-3">
+        <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[#E4E4E7] pb-3">
           <div className="flex items-baseline gap-3">
-            <h2 className="text-heading font-archivo font-bold text-[#F5F1E8] flex items-center gap-2">
-              <Flame className="h-4 w-4 text-[#B98A45]" /> Latest Community Launches
+            <h2 className="text-heading font-archivo font-bold text-[#18181B] flex items-center gap-2">
+              <Flame className="h-4 w-4 text-[#DC2626]" /> Latest Community Launches
             </h2>
-            <span className="text-caption text-[#9A958A] font-mono">
+            <span className="text-caption text-[#71717A] font-mono">
               <time dateTime={new Date().toISOString()}>{batchDate}</time> · {feed.length} {feed.length === 1 ? "venture" : "ventures"}{hasFilters && " filtered"}
             </span>
           </div>
 
           {/* Real Sort Dropdown */}
           <div className="flex items-center gap-2 font-mono text-tiny">
-            <span className="text-[#9A958A] uppercase">Sort:</span>
+            <span className="text-[#71717A] uppercase">Sort:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as "popular" | "newest" | "waitlist")}
-              className="rounded-[8px] border border-[#26282F] bg-[#0E0F13] px-3 py-1.5 text-caption font-semibold text-[#F5F1E8] focus:outline-none focus:ring-1 focus:ring-[#B98A45]"
+              className="rounded-[8px] border border-[#E4E4E7] bg-[#FAFAFA] px-3 py-1.5 text-caption font-semibold text-[#18181B] focus:outline-none focus:ring-1 focus:ring-[#DC2626]"
             >
               <option value="popular">Top Upvoted</option>
               <option value="newest">Chronological</option>
@@ -332,33 +333,33 @@ export function DiscoveryFeed({
           </div>
         ) : startups.length === 0 ? (
           // Genuinely no launches yet — don't blame the visitor's filters.
-          <div className="godly-card border-dashed border-[#26282F] bg-[#15171C] p-12 text-center">
-            <Rocket className="mx-auto h-8 w-8 text-[#B98A45]" aria-hidden />
-            <p className="mt-3 text-subheading font-bold text-[#F5F1E8]">
+          <div className="godly-card border-dashed border-[#E4E4E7] bg-[#FFFFFF] p-12 text-center">
+            <Rocket className="mx-auto h-8 w-8 text-[#DC2626]" aria-hidden />
+            <p className="mt-3 text-subheading font-bold text-[#18181B]">
               The first launches land soon
             </p>
-            <p className="mx-auto mt-1 max-w-md text-body text-[#9A958A]">
+            <p className="mx-auto mt-1 max-w-md text-body text-[#71717A]">
               WeFounders opens with a curated batch. Be in it — submit your beta
               and we&apos;ll get it in front of Nepal&apos;s builders.
             </p>
             <Button
               asChild
-              className="mt-4 bg-[#B98A45] font-archivo font-semibold text-[#0E0F13] hover:bg-[#c99a55]"
+              className="mt-4 bg-[#DC2626] font-archivo font-semibold text-[#FAFAFA] hover:bg-[#B91C1C]"
               size="sm"
             >
               <a href="/submit">Submit your startup</a>
             </Button>
           </div>
         ) : (
-          <div className="godly-card border-dashed border-[#26282F] bg-[#15171C] p-12 text-center">
-            <p className="text-subheading font-bold text-[#F5F1E8]">
+          <div className="godly-card border-dashed border-[#E4E4E7] bg-[#FFFFFF] p-12 text-center">
+            <p className="text-subheading font-bold text-[#18181B]">
               No ventures match your active search filter
             </p>
-            <p className="mt-1 text-body text-[#9A958A]">
+            <p className="mt-1 text-body text-[#71717A]">
               Modify your search keywords or clear your category selection.
             </p>
             <Button
-              className="mt-4 bg-[#B98A45] font-archivo font-semibold text-[#0E0F13] hover:bg-[#c99a55]"
+              className="mt-4 bg-[#DC2626] font-archivo font-semibold text-[#FAFAFA] hover:bg-[#B91C1C]"
               size="sm"
               onClick={clearFilters}
             >

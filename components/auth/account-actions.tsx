@@ -31,7 +31,7 @@ export function AccountActions() {
         asChild
         variant="outline"
         size="sm"
-        className="rounded-[10px] border-[#26282F] bg-[#0E0F13] text-[#F5F1E8]"
+        className="rounded-[10px] border-[#E4E4E7] bg-[#FAFAFA] text-[#18181B]"
       >
         <Link href="/submit">
           <Plus className="mr-1.5 h-4 w-4" /> Submit Beta

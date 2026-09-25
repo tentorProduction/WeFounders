@@ -18,8 +18,8 @@ function shell(title: string, bodyHtml: string): string {
           <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#FFFFFF;border:1px solid #E4E4E7;border-radius:12px;overflow:hidden;">
             <tr>
               <td style="background:${BLACK};padding:16px 24px;">
-                <span style="display:inline-block;width:28px;height:28px;line-height:28px;text-align:center;background:#B98A45;border-radius:8px;color:#15171C;font-weight:700;font-size:14px;">W</span>
-                <span style="color:#FFFFFF;font-weight:700;font-size:16px;margin-left:8px;">WeFounders<span style="color:#B98A45;">.dev</span></span>
+                <span style="display:inline-block;width:28px;height:28px;line-height:28px;text-align:center;background:#DC2626;border-radius:8px;color:#FFFFFF;font-weight:700;font-size:14px;">W</span>
+                <span style="color:#FFFFFF;font-weight:700;font-size:16px;margin-left:8px;">WeFounders<span style="color:#DC2626;">.dev</span></span>
               </td>
             </tr>
             <tr>
@@ -68,7 +68,7 @@ export function waitlistConfirmationEmail(
       &ldquo;${input.startup.tagline}&rdquo;
     </p>
     <p style="margin:0 0 24px;">
-      <a href="${cta}" style="display:inline-block;background:#B98A45;color:#15171C;text-decoration:none;font-weight:700;font-size:14px;padding:10px 20px;border-radius:9999px;">
+      <a href="${cta}" style="display:inline-block;background:#DC2626;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:14px;padding:10px 20px;border-radius:9999px;">
         View the launch &rarr;
       </a>
     </p>

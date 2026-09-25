@@ -89,13 +89,13 @@ export function LeaderboardView({ startups }: LeaderboardViewProps) {
       </div>
 
       {/* Public "How ranking works" Methodology Banner */}
-      <div className="rounded-[10px] border border-[#26282F] bg-[#15171C] p-6 shadow-xs godly-bg-glow flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="rounded-[10px] border border-[#E4E4E7] bg-[#FFFFFF] p-6 shadow-xs godly-bg-glow flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="flex items-center gap-2 text-subheading font-archivo font-bold text-[#F5F1E8]">
-            <ShieldCheck className="h-5 w-5 text-[#B98A45]" />
+          <div className="flex items-center gap-2 text-subheading font-archivo font-bold text-[#18181B]">
+            <ShieldCheck className="h-5 w-5 text-[#DC2626]" />
             <span>How Ranking Works — Public Verifiable Methodology</span>
           </div>
-          <p className="text-caption text-[#9A958A] max-w-3xl leading-relaxed">
+          <p className="text-caption text-[#71717A] max-w-3xl leading-relaxed">
             Every ranking on WeFounders is calculated in real time using verified
             on-platform engagement metrics (community upvotes, double opt-in waitlist
             requests, and validated testing quest reports). Zero self-reported ARR
@@ -107,7 +107,7 @@ export function LeaderboardView({ startups }: LeaderboardViewProps) {
           asChild
           variant="outline"
           size="sm"
-          className="shrink-0 rounded-[10px] border-[#26282F] bg-[#0E0F13] text-[#F5F1E8]"
+          className="shrink-0 rounded-[10px] border-[#E4E4E7] bg-[#FAFAFA] text-[#18181B]"
         >
           <Link href="/about#curation">Read 21% Curation Standard</Link>
         </Button>

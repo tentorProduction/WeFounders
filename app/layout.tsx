@@ -84,10 +84,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#FFFFFF" },
-    { media: "(prefers-color-scheme: dark)", color: "#15171C" },
-  ],
+  themeColor: "#FAFAFA",
 };
 
 const jsonLd = {
@@ -138,12 +135,7 @@ export default function RootLayout({
       </head>
       <body className="font-sans bg-background text-foreground min-h-screen">
         <AuthProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
+          <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
             <div className="flex min-h-screen flex-col pb-[calc(76px+env(safe-area-inset-bottom))] md:pb-0">
               <SiteHeader />
               <main className="flex-1">{children}</main>

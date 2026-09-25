@@ -28,7 +28,14 @@ export function UserButton() {
   }
 
   if (!user) {
-    return <SignInButton size="sm" showError={false} />;
+    return (
+      <SignInButton
+        size="sm"
+        variant="outline"
+        showError={false}
+        className="border-border bg-card text-foreground hover:bg-secondary"
+      />
+    );
   }
 
   const displayName = user.displayName || session?.name || user.email?.split("@")[0] || "You";

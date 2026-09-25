@@ -8,13 +8,13 @@ import { cn } from "@/lib/utils";
 import { parseVideoEmbed } from "@/lib/video";
 import type { StartupMedia } from "@/types/database";
 
-/** Placeholder backdrops for media that isn't uploaded yet. */
+/** Light, low-noise backdrops for media that isn't uploaded yet. */
 const PLACEHOLDER_BACKDROPS = [
-  "linear-gradient(135deg, #7F1D1D, #18181B)",
-  "linear-gradient(135deg, #1E3A8A, #18181B)",
-  "linear-gradient(135deg, #065F46, #18181B)",
-  "linear-gradient(135deg, #4C1D95, #18181B)",
-  "linear-gradient(135deg, #92400E, #18181B)",
+  "radial-gradient(ellipse at 50% 0%, rgba(220,38,38,0.12), transparent 58%), linear-gradient(145deg, #FEF2F2, #FFFFFF 55%, #F4F4F5)",
+  "radial-gradient(ellipse at 50% 0%, rgba(220,38,38,0.1), transparent 58%), linear-gradient(145deg, #FFFFFF, #FEF2F2 55%, #F4F4F5)",
+  "radial-gradient(ellipse at 50% 0%, rgba(220,38,38,0.09), transparent 58%), linear-gradient(145deg, #F4F4F5, #FFFFFF 55%, #FEF2F2)",
+  "radial-gradient(ellipse at 50% 0%, rgba(220,38,38,0.11), transparent 58%), linear-gradient(145deg, #FEF2F2, #F4F4F5 55%, #FFFFFF)",
+  "radial-gradient(ellipse at 50% 0%, rgba(220,38,38,0.1), transparent 58%), linear-gradient(145deg, #FFFFFF, #F4F4F5 55%, #FEF2F2)",
 ];
 
 export interface StartupGalleryProps {
@@ -44,6 +44,7 @@ export function StartupGallery({
 }: StartupGalleryProps) {
   const embed = parseVideoEmbed(videoUrl);
   const [index, setIndex] = useState(0);
+  const [failedImages, setFailedImages] = useState<string[]>([]);
 
   const slides: Slide[] = [
     ...(embed
@@ -72,6 +73,7 @@ export function StartupGallery({
   if (slides.length === 0) return null;
 
   const current = slides[Math.min(index, slides.length - 1)];
+  const imageFailed = failedImages.includes(current.key);
   const go = (next: number) =>
     setIndex((next + slides.length) % slides.length);
 
@@ -94,7 +96,7 @@ export function StartupGallery({
             allowFullScreen
             className="h-full w-full"
           />
-        ) : current.url ? (
+        ) : current.url && !imageFailed ? (
           <Image
             key={current.key}
             src={current.url}
@@ -102,6 +104,7 @@ export function StartupGallery({
             fill
             sizes="(max-width: 768px) 100vw, 768px"
             className="object-cover"
+            onError={() => setFailedImages((failed) => [...failed, current.key])}
           />
         ) : (
           <div
@@ -109,12 +112,12 @@ export function StartupGallery({
             className="flex h-full w-full flex-col items-center justify-center gap-2 text-center"
             style={{ backgroundImage: current.backdrop }}
           >
-            <Play className="h-6 w-6 text-white/70" aria-hidden />
-            <p className="px-6 text-caption font-medium text-white/90">
-              {current.caption}
+            <Play className="h-6 w-6 text-[#DC2626]/70" aria-hidden />
+            <p className="px-6 text-caption font-medium text-[#18181B]">
+              {imageFailed ? "Preview unavailable" : "Product preview coming soon"}
             </p>
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(185,138,69,0.4)] bg-[#15171C]/90 px-3 py-1 text-tiny font-mono font-bold text-[#B98A45]">
-              Verified Product Interface
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(220,38,38,0.2)] bg-[#FFFFFF]/90 px-3 py-1 text-tiny font-mono font-bold text-[#991B1B]">
+              MEDIA PREVIEW
             </div>
           </div>
         )}

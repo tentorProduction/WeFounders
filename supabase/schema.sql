@@ -75,6 +75,7 @@ create table public.startups (
   stage          public.startup_stage not null default 'concept',
   target_market  public.target_market not null default 'nepal_domestic',
   status         public.startup_status not null default 'pending_approval',
+  rejection_reason text,
   launch_date    timestamptz not null default now(),
   upvotes_count    integer not null default 0,
   comments_count   integer not null default 0,

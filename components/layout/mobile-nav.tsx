@@ -15,7 +15,7 @@ const NAV_ITEMS = [
 ] as const;
 
 /**
- * Mobile Bottom Nav Bar (Spec: background #15171C with blur, 1px border #26282F, 5 equal items, 44px+ tap targets, active gold #B98A45)
+ * Mobile Bottom Nav Bar (Spec: background #FFFFFF with blur, 1px border #E4E4E7, 5 equal items, 44px+ tap targets, active gold #DC2626)
  */
 export function MobileNav() {
   const pathname = usePathname();
@@ -23,7 +23,7 @@ export function MobileNav() {
   return (
     <nav
       aria-label="Mobile navigation"
-      className="fixed inset-x-0 bottom-0 z-50 md:hidden bg-[#15171C]/95 backdrop-blur-md border-t border-[#26282F] px-3 py-2 pb-[calc(8px+env(safe-area-inset-bottom))]"
+      className="fixed inset-x-0 bottom-0 z-50 md:hidden bg-[#FFFFFF]/95 backdrop-blur-md border-t border-[#E4E4E7] px-3 py-2 pb-[calc(8px+env(safe-area-inset-bottom))]"
     >
       <ul className="flex items-center justify-around gap-1 max-w-md mx-auto">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
@@ -39,8 +39,8 @@ export function MobileNav() {
                 className={cn(
                   "press-scale flex h-[44px] w-[44px] flex-col items-center justify-center rounded-[10px] transition-all duration-200",
                   active
-                    ? "bg-[#B98A45] text-[#0E0F13] font-bold shadow-sm"
-                    : "text-[#9A958A] hover:text-[#F5F1E8] hover:bg-[#1C1E24]"
+                    ? "bg-[#DC2626] text-[#FAFAFA] font-bold shadow-sm"
+                    : "text-[#71717A] hover:text-[#18181B] hover:bg-[#F4F4F5]"
                 )}
               >
                 <Icon className="h-5 w-5" aria-hidden />

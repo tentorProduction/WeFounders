@@ -160,7 +160,7 @@ export default function SubmitPage() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
             <CheckCircle2 className="h-10 w-10" />
           </div>
-          <Badge variant="outline" className="border-[rgba(185,138,69,0.3)] bg-[#0E0F13] text-[#B98A45] font-mono font-bold text-caption px-4 py-1.5 rounded-full">
+          <Badge variant="outline" className="border-[rgba(220,38,38,0.18)] bg-[#FAFAFA] text-[#DC2626] font-mono font-bold text-caption px-4 py-1.5 rounded-full">
             🚀 Submitted for review
           </Badge>
           <h1 className="text-display font-bold text-foreground">
@@ -222,7 +222,7 @@ export default function SubmitPage() {
               Submit Your Startup to WeFounders
             </h1>
             <p className="mt-1 text-body text-muted-foreground">
-              Get early beta users, feedback, and exposure from Nepal&apos;s 1,850+ daily builder community.
+              Get early beta users, feedback, and exposure from Nepal&apos;s early adopter community.
             </p>
           </div>
 

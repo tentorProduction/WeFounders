@@ -9,19 +9,19 @@ ________________
 1. Design Philosophy & Aesthetic Identity
 LaunchPad Nepal combines the clean, high-density discovery aesthetics of BetaList and Linear with culturally resonant Nepali accents. It is designed to feel modern, trustworthy, rapid, and delightfully organized.
 1.1 Core Principles
-* Clarity over Clutter: Products are the heroes. Clean white/charcoal cards, high-contrast typography, zero generic marketing noise.
-* Cultural Resonance Without Stereotypes: Modern Himalayan accents—rhododendron crimson accents (#E11D48), warm mountain stone neutrals, subtle border highlights, and native Devanagari typography support.
+* Clarity over Clutter: Products are the heroes. Clean paper-white cards, high-contrast typography, zero generic marketing noise.
+* Cultural Resonance Without Stereotypes: Modern Himalayan accents—rhododendron crimson accents (#DC2626), warm mountain stone neutrals, subtle border highlights, and native Devanagari typography support.
 * Mobile-First & Bandwidth Conscious: Optimized for 360px–420px mobile viewports (smartphones in Nepal). Lightweight icons, instant visual feedback, responsive bottom sheets for filters.
 ________________
 
 
 2. Design Tokens & Color Palette
 2.1 Color Palette
-/* Light Theme */
+/* WeFounders Light Theme */
 --background: #FAFAFA;          /* Crisp Off-White */
---foreground: #09090B;          /* Deep Carbon Black */
+--foreground: #18181B;          /* Deep Carbon Black */
 --card: #FFFFFF;                /* Pure White */
---card-foreground: #09090B;
+--card-foreground: #18181B;
 --popover: #FFFFFF;
 --primary: #DC2626;             /* Crimson Red (Nepal Rhododendron Accent) */
 --primary-foreground: #FFFFFF;
@@ -33,19 +33,6 @@ ________________
 --accent-foreground: #991B1B;
 --border: #E4E4E7;
 --ring: #DC2626;
-
-
-/* Dark Theme */
---background: #0A0A0C;          /* Obsidian Deep Night */
---foreground: #EDEDED;
---card: #121215;                /* Elevated Charcoal */
---card-foreground: #EDEDED;
---primary: #EF4444;             /* Vibrant Nepal Crimson */
---primary-foreground: #FFFFFF;
---secondary: #1E1E24;
---muted: #1E1E24;
---muted-foreground: #A1A1AA;
---border: #27272A;
 
 
 /* Ecosystem & Badge Colors */

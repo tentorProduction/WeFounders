@@ -64,7 +64,7 @@ export function StartupCard({
     <article
       className={cn(
         "godly-card deck-card animate-fade-in-up group relative transition-all duration-200 cursor-pointer shadow-apple-sm hover:shadow-apple-md",
-        "rounded-[16px] border border-[#26282F] bg-[#15171C] p-4",
+        "rounded-[16px] border border-[#E4E4E7] bg-[#FFFFFF] p-4",
         className
       )}
     >
@@ -91,13 +91,13 @@ export function StartupCard({
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5 flex-wrap">
                 {typeof rank === "number" && (
-                  <span className="text-[12px] font-mono font-medium text-[#9A958A]">
+                  <span className="text-[12px] font-mono font-medium text-[#71717A]">
                     #{rank}
                   </span>
                 )}
                 <Link
                   href={`/startups/${startup.slug}`}
-                  className="font-archivo text-[17px] font-bold text-[#F5F1E8] truncate hover:text-[#B98A45] transition-colors"
+                  className="font-archivo text-[17px] font-bold text-[#18181B] truncate hover:text-[#DC2626] transition-colors"
                 >
                   {startup.name}
                 </Link>
@@ -137,15 +137,15 @@ export function StartupCard({
           })}
         </div>
 
-        {/* DESCRIPTION: Full card width, high contrast #B5B0A4, line-height 1.6 */}
+        {/* DESCRIPTION: Full card width, high contrast #71717A, line-height 1.6 */}
         <Link
           href={`/startups/${startup.slug}`}
-          className="block text-[14px] font-sans text-[#B5B0A4] leading-relaxed w-full hover:text-[#F5F1E8] transition-colors"
+          className="block text-[14px] font-sans text-[#71717A] leading-relaxed w-full hover:text-[#18181B] transition-colors"
         >
           {startup.tagline}
         </Link>
 
-        {/* TAGS ROW: flex-wrap freely, 6px gap, 12px font #9A958A text on #0E0F13 bg */}
+        {/* TAGS ROW: flex-wrap freely, 6px gap, 12px font #71717A text on #FAFAFA bg */}
         {startup.tags.length > 0 && (
           <div className="flex flex-wrap items-center gap-[6px] pt-0.5">
             {ecosystemTags.map((tag) => (
@@ -154,11 +154,11 @@ export function StartupCard({
                 type="button"
                 onClick={() => onSelectTag?.(tag)}
                 className={cn(
-                  "inline-flex items-center gap-1 rounded-[8px] border border-[#26282F] bg-[#0E0F13] px-2.5 py-1 text-[12px] font-mono text-[#9A958A] transition-colors",
-                  activeTagSlug === tag.slug && "border-[#B98A45] text-[#B98A45] bg-[#B98A45]/10 font-semibold"
+                  "inline-flex items-center gap-1 rounded-[8px] border border-[#E4E4E7] bg-[#FAFAFA] px-2.5 py-1 text-[12px] font-mono text-[#71717A] transition-colors",
+                  activeTagSlug === tag.slug && "border-[#DC2626] text-[#DC2626] bg-[#DC2626]/10 font-semibold"
                 )}
               >
-                <span className="h-1.5 w-1.5 rounded-full bg-[#9A958A]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-[#71717A]" />
                 {tag.name}
               </button>
             ))}
@@ -166,18 +166,18 @@ export function StartupCard({
         )}
 
         {/* META ROW: Dedicated bottom row, single line truncated */}
-        <div className="pt-2 border-t border-[#26282F]/60 flex items-center justify-between text-[12px] font-mono text-[#9A958A] truncate">
+        <div className="pt-2 border-t border-[#E4E4E7]/60 flex items-center justify-between text-[12px] font-mono text-[#71717A] truncate">
           <div className="flex items-center gap-2 truncate">
             <Link
               href={`/startups/${startup.slug}#waitlist`}
-              className="hover:text-[#B98A45] hover:underline font-semibold"
+              className="hover:text-[#DC2626] hover:underline font-semibold"
             >
               Waitlist ({startup.waitlist_count})
             </Link>
             <span>·</span>
             <Link
               href={`/startups/${startup.slug}`}
-              className="hover:text-[#F5F1E8] flex items-center gap-1"
+              className="hover:text-[#18181B] flex items-center gap-1"
             >
               💬 {startup.comments_count}
             </Link>
@@ -219,7 +219,7 @@ export function StartupCard({
             )}
             <Link
               href={`/startups/${startup.slug}`}
-              className="text-product font-archivo font-bold text-[#F5F1E8] transition-colors hover:text-[#B98A45] focus:outline-none"
+              className="text-product font-archivo font-bold text-[#18181B] transition-colors hover:text-[#DC2626] focus:outline-none"
             >
               {startup.name}
             </Link>
@@ -234,7 +234,7 @@ export function StartupCard({
           </div>
 
           {/* Row 2 — Clamped Description */}
-          <Link href={`/startups/${startup.slug}`} className="block text-body text-[#9A958A] line-clamp-2 leading-relaxed hover:text-[#F5F1E8]">
+          <Link href={`/startups/${startup.slug}`} className="block text-body text-[#71717A] line-clamp-2 leading-relaxed hover:text-[#18181B]">
             {startup.tagline}
           </Link>
 
@@ -272,19 +272,19 @@ export function StartupCard({
           <div className="flex items-center gap-2 text-tiny font-mono text-muted-foreground">
             <Link
               href={`/startups/${startup.slug}#waitlist`}
-              className="hover:text-[#B98A45] hover:underline font-semibold"
+              className="hover:text-[#DC2626] hover:underline font-semibold"
             >
               Waitlist ({startup.waitlist_count})
             </Link>
             <span>•</span>
             <Link
               href={`/startups/${startup.slug}`}
-              className="hover:text-[#F5F1E8] flex items-center gap-1"
+              className="hover:text-[#18181B] flex items-center gap-1"
             >
               💬 {startup.comments_count}
             </Link>
           </div>
-          <span className="text-[11px] text-[#9A958A] font-mono text-right">
+          <span className="text-[11px] text-[#71717A] font-mono text-right">
             {timeAgo(startup.launch_date ?? startup.created_at)}
           </span>
         </div>

@@ -183,7 +183,7 @@ export default async function StartupShowcasePage({ params }: PageProps) {
       />
 
       {/* About the product */}
-      <section aria-label="About the product" className="rounded-lg border border-[#322A1F] bg-card p-5 sm:p-6 space-y-3">
+      <section aria-label="About the product" className="rounded-lg border border-border bg-card p-5 sm:p-6 space-y-3">
         <h2 className="text-h2 font-bold text-foreground">About the Product</h2>
         {pitch.trim() ? (
           <div
@@ -199,7 +199,7 @@ export default async function StartupShowcasePage({ params }: PageProps) {
       </section>
 
       {/* Verified Founder Card */}
-      <section aria-label="Founder profile" className="rounded-lg border border-[#322A1F] bg-card p-5 sm:p-6 space-y-3">
+      <section aria-label="Founder profile" className="rounded-lg border border-border bg-card p-5 sm:p-6 space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-tiny font-mono uppercase tracking-wider text-muted-foreground">
             Verified Founder &amp; Maker
@@ -210,13 +210,13 @@ export default async function StartupShowcasePage({ params }: PageProps) {
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#B98A45] text-[#15171C] font-bold text-h2 font-mono shrink-0">
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#DC2626] text-[#FFFFFF] font-bold text-h2 font-mono shrink-0">
             {startup.name[0].toUpperCase()}
           </div>
           <div className="min-w-0 flex-1 space-y-1">
             <h3 className="text-subheading font-bold text-foreground flex items-center gap-2">
               <span>{startup.name} Founding Team</span>
-              <Badge variant="outline" className="text-[10px] font-mono border-[#B98A45]/40 text-[#FFE8B8]">
+              <Badge variant="outline" className="text-[10px] font-mono border-[#DC2626]/40 text-[#991B1B]">
                 OP
               </Badge>
             </h3>

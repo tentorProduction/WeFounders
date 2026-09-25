@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 
 import { cn } from "@/lib/utils";
@@ -47,8 +50,9 @@ export function StartupLogo({
   className,
 }: StartupLogoProps) {
   const url = logoUrl?.trim();
+  const [imageFailed, setImageFailed] = useState(false);
 
-  if (url) {
+  if (url && !imageFailed) {
     return (
       <Image
         src={url}
@@ -57,6 +61,7 @@ export function StartupLogo({
         height={size}
         className={cn("shrink-0 rounded-lg border border-border object-cover grayscale", className)}
         style={{ width: size, height: size }}
+        onError={() => setImageFailed(true)}
       />
     );
   }

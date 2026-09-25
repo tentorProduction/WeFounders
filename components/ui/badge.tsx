@@ -12,15 +12,15 @@ const badgeVariants = cva(
         secondary: "border-border bg-secondary text-secondary-foreground font-medium",
         outline: "border-border text-foreground bg-transparent font-medium",
         // Market badges mapped to Auralis Clean Paper palette
-        nepal: "border-[rgba(185,138,69,0.4)] bg-[rgba(185,138,69,0.15)] text-[#B98A45] font-bold shadow-xs",
-        global: "border-[#26282F] bg-[#15171C] text-[#9A958A] font-bold shadow-xs",
+        nepal: "border-red-200 bg-red-50 text-red-800 font-bold shadow-xs",
+        global: "border-blue-200 bg-blue-50 text-blue-800 font-bold shadow-xs",
         // Ecosystem gateway badges
-        esewa: "border-transparent bg-[#2E4A35] text-[#A8E6B5] font-semibold",
-        khalti: "border-transparent bg-[#4A2E4B] text-[#E6B5E8] font-semibold",
-        fonepay: "border-transparent bg-[#5A2626] text-[#FFA8A8] font-semibold",
-        verified: "border-[rgba(185,138,69,0.4)] bg-[rgba(185,138,69,0.15)] text-[#B98A45] font-semibold",
+        esewa: "border-emerald-200 bg-emerald-50 text-emerald-800 font-semibold",
+        khalti: "border-violet-200 bg-violet-50 text-violet-800 font-semibold",
+        fonepay: "border-red-200 bg-red-50 text-red-800 font-semibold",
+        verified: "border-emerald-200 bg-emerald-50 text-emerald-800 font-semibold",
         // Stage badges
-        stage: "border-[#26282F] bg-[#15171C] text-[#F5F1E8] font-semibold",
+        stage: "border-[#E4E4E7] bg-[#FFFFFF] text-[#18181B] font-semibold",
       },
     },
     defaultVariants: {

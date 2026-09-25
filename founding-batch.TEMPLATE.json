@@ -1,0 +1,22 @@
+[
+  {
+    "slug": "chhito-delivery",
+    "name": "Chhito Delivery",
+    "tagline": "Same-day delivery across Kathmandu valley for e-commerce.",
+    "problem": "Local e-commerce businesses lose sales due to unreliable 2-3 day delivery times in Kathmandu, and high return rates on cash-on-delivery.",
+    "solution": "A modern logistics API and dashboard that assigns riders instantly. We guarantee same-day delivery inside the ring road or the delivery is free.",
+    "category": "logistics",
+    "tags": ["logistics", "esewa", "ntc-ncell"],
+    "websiteUrl": "https://chhito.com",
+    "logoUrl": "https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?w=200&h=200&fit=crop",
+    "screenshots": [
+      "https://images.unsplash.com/photo-1550569400-d86b225916de?w=800&h=450&fit=crop"
+    ],
+    "founder": {
+      "fullName": "Aarav Sharma",
+      "username": "aarav",
+      "email": "aarav@chhito.com"
+    },
+    "launchDate": "2026-09-25T10:00:00Z"
+  }
+]

@@ -60,6 +60,7 @@ export interface Startup {
   stage: StartupStage;
   target_market: TargetMarket;
   status: StartupStatus;
+  rejection_reason: string | null;
   launch_date: string | null;
   upvotes_count: number;
   comments_count: number;

@@ -4,108 +4,73 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/*
- * WEFOUNDERS — STRICT COLOR SYSTEM & DESIGN SPECIFICATION
- * Background: #0E0F13 (page base)
- * Surface: #15171C (cards, navbar, panels)
- * Gold Accent: #B98A45 (primary CTAs, active links, logo mark, highlights)
- * Text: #F5F1E8 (primary headings & text)
- * Muted: #9A958A / #B5B0A4 (secondary text)
- * Borders: #26282F (or rgba(185, 138, 69, 0.18) for gold tint/featured)
- * Gold Gradient: linear-gradient(135deg, #B98A45, #D4A95C)
- */
+/* WeFounders Himalaya palette: crisp surfaces, ink typography, rhododendron crimson. */
 @layer base {
-  :root {
+  :root,
+  .dark {
+    color-scheme: light;
     --page-padding: 32px;
     --content-max-width: 1240px;
     --section-gap: 48px;
     --card-padding: 24px;
     --component-gap: 16px;
     --control-height: 40px;
-    --border-radius: 10px;
+    --border-radius: 12px;
 
-    --background: #0E0F13;
-    --surface: #15171C;
-    --surface-hover: #1C1E24;
-    --surface-elevated: #191B21;
-    --text: #F5F1E8;
-    --text-secondary: #9A958A;
-    --text-muted: #B5B0A4;
-    --border: #26282F;
-    --border-strong: #3A3D46;
+    --background: #FAFAFA;
+    --surface: #FFFFFF;
+    --surface-hover: #F4F4F5;
+    --surface-elevated: #FFFFFF;
+    --text: #18181B;
+    --text-secondary: #52525B;
+    --text-muted: #71717A;
+    --border: #E4E4E7;
+    --border-strong: #D4D4D8;
 
-    --primary: #B98A45;
-    --primary-foreground: #0E0F13;
-    --accent: #B98A45;
-    --accent-foreground: #0E0F13;
+    --primary: #DC2626;
+    --primary-foreground: #FFFFFF;
+    --accent: #FEF2F2;
+    --accent-foreground: #991B1B;
+    --success: #059669;
+    --warning: #D97706;
+    --danger: #DC2626;
 
-    --success: #10B981;
-    --warning: #F59E0B;
-    --danger: #EF4444;
+    --card: #FFFFFF;
+    --card-foreground: #18181B;
+    --popover: #FFFFFF;
+    --popover-foreground: #18181B;
+    --foreground: #18181B;
+    --secondary: #F4F4F5;
+    --secondary-foreground: #18181B;
+    --muted: #F4F4F5;
+    --muted-foreground: #71717A;
+    --input: #E4E4E7;
+    --ring: #DC2626;
+    --badge-nepal: #DC2626;
+    --badge-global: #2563EB;
+    --badge-esewa: #059669;
+    --badge-khalti: #6D28D9;
+    --badge-fonepay: #DC2626;
+    --badge-verified: #059669;
+    --radius: 12px;
 
-    --card: #15171C;
-    --card-foreground: #F5F1E8;
-    --popover: #15171C;
-    --popover-foreground: #F5F1E8;
-    --foreground: #F5F1E8;
-    --secondary: #1C1E24;
-    --secondary-foreground: #F5F1E8;
-    --muted: #1C1E24;
-    --muted-foreground: #9A958A;
-    --input: #26282F;
-    --ring: #B98A45;
-
-    --radius: 10px;
-
-    /* Motion Tokens */
     --motion-instant: 120ms;
     --motion-quick: 200ms;
     --motion-standard: 320ms;
     --motion-spring: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .dark {
-    --background: #0E0F13;
-    --surface: #15171C;
-    --surface-hover: #1C1E24;
-    --surface-elevated: #191B21;
-    --text: #F5F1E8;
-    --text-secondary: #9A958A;
-    --text-muted: #B5B0A4;
-    --border: #26282F;
-    --border-strong: #3A3D46;
-
-    --primary: #B98A45;
-    --primary-foreground: #0E0F13;
-    --accent: #B98A45;
-    --accent-foreground: #0E0F13;
-
-    --card: #15171C;
-    --card-foreground: #F5F1E8;
-    --popover: #15171C;
-    --popover-foreground: #F5F1E8;
-    --foreground: #F5F1E8;
-    --secondary: #1C1E24;
-    --secondary-foreground: #F5F1E8;
-    --muted: #1C1E24;
-    --muted-foreground: #9A958A;
-    --input: #26282F;
-    --ring: #B98A45;
-  }
-
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
 
   html {
     @apply scroll-smooth;
-    background-color: #0E0F13;
-    color: #F5F1E8;
+    background-color: #FAFAFA;
+    color: #18181B;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: var(--font-instrument), Inter, system-ui, -apple-system, sans-serif;
+    font-family: var(--font-archivo), Inter, system-ui, -apple-system, sans-serif;
     font-size: 16px;
     line-height: 1.6;
     font-feature-settings: "cv02", "ss01";
@@ -115,58 +80,32 @@
   h1, h2, h3, h4, h5, h6, .font-display, .font-archivo {
     font-family: var(--font-archivo), sans-serif;
     font-weight: 600;
-    line-height: 1.05;
+    line-height: 1.1;
   }
 
   .font-mono, kbd, code, .font-mono-label {
     font-family: var(--font-ibm-mono), monospace;
   }
 
-  ::selection {
-    background: #B98A45;
-    color: #0E0F13;
-  }
+  ::selection { background: #DC2626; color: #FFFFFF; }
 
   :focus-visible {
-    outline: 2px solid #B98A45;
+    outline: 2px solid #DC2626;
     outline-offset: 2px;
-    border-radius: 10px;
+    border-radius: 8px;
   }
 }
 
-/* Keyframes */
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes scaleUp {
-  from {
-    opacity: 0;
-    transform: scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
 }
 
-@keyframes goldGlow {
-  0%, 100% {
-    box-shadow: 0 0 0 1px rgba(185, 138, 69, 0.25);
-  }
-  50% {
-    box-shadow: 0 0 24px 4px rgba(185, 138, 69, 0.4);
-  }
-}
-
-/* Utilities */
 @layer components {
   .site-container {
     width: min(calc(100% - 32px), 1240px);
@@ -175,20 +114,16 @@
   }
 
   @media (min-width: 640px) {
-    .site-container {
-      width: min(calc(100% - 48px), 1240px);
-    }
+    .site-container { width: min(calc(100% - 48px), 1240px); }
   }
 
-  /* Gold Gradient Band Utility */
   .bg-gold-gradient {
-    background: linear-gradient(135deg, #B98A45, #D4A95C);
+    background: linear-gradient(135deg, #B91C1C, #EF4444);
   }
 
-  /* Primary Button Standard Rule */
   .btn-primary-gold {
-    background-color: #B98A45;
-    color: #0E0F13;
+    background-color: #DC2626;
+    color: #FFFFFF;
     font-family: var(--font-archivo), sans-serif;
     font-weight: 600;
     border-radius: 10px;
@@ -196,15 +131,14 @@
   }
 
   .btn-primary-gold:hover {
-    background-color: #c99a55;
+    background-color: #B91C1C;
     transform: translateY(-2px);
   }
 
-  /* Secondary Button Standard Rule */
   .btn-secondary-ghost {
     background-color: transparent;
-    border: 1px solid #26282F;
-    color: #F5F1E8;
+    border: 1px solid #E4E4E7;
+    color: #18181B;
     font-family: var(--font-archivo), sans-serif;
     font-weight: 500;
     border-radius: 10px;
@@ -212,57 +146,49 @@
   }
 
   .btn-secondary-ghost:hover {
-    border-color: #3A3D46;
-    background-color: #1C1E24;
-    color: #F5F1E8;
+    border-color: #D4D4D8;
+    background-color: #F4F4F5;
+    color: #18181B;
   }
 
-  /* Sticky Navbar */
   .navbar-sticky {
-    background: rgba(21, 23, 28, 0.92);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid #26282F;
+    background: rgba(255, 255, 255, 0.9);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid #E4E4E7;
   }
 
-  /* Cards */
   .godly-card, .auralis-card, .enterprise-card {
-    background-color: #15171C;
-    border: 1px solid #26282F;
-    border-radius: 10px;
+    background-color: #FFFFFF;
+    border: 1px solid #E4E4E7;
+    border-radius: 12px;
     transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1), border-color 200ms ease, box-shadow 240ms ease;
   }
 
   .godly-card:hover, .auralis-card:hover, .enterprise-card:hover {
-    border-color: rgba(185, 138, 69, 0.4);
-    box-shadow: 0 14px 36px -8px rgba(185, 138, 69, 0.18), 0 0 0 1px rgba(185, 138, 69, 0.3);
+    border-color: rgba(220, 38, 38, 0.22);
+    box-shadow: 0 12px 30px -16px rgba(24, 24, 27, 0.22), 0 0 0 1px rgba(220, 38, 38, 0.08);
     transform: translateY(-2px);
   }
 
   .deck-card {
     position: relative;
-    background: #15171C;
-    border: 1px solid #26282F;
-    border-radius: 10px;
-    transition: all 260ms cubic-bezier(0.16, 1, 0.3, 1);
+    background: #FFFFFF;
+    border: 1px solid #E4E4E7;
+    border-radius: 12px;
+    transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1), border-color 200ms ease, box-shadow 240ms ease;
   }
 
   .deck-card:hover {
-    transform: translateY(-3px);
-    border-color: rgba(185, 138, 69, 0.4);
-    box-shadow: 0 16px 40px -8px rgba(185, 138, 69, 0.22);
+    transform: translateY(-2px);
+    border-color: rgba(220, 38, 38, 0.24);
+    box-shadow: 0 12px 30px -16px rgba(24, 24, 27, 0.24);
   }
 
-  /* Animations */
-  .animate-fade-in-up {
-    animation: fadeInUp 320ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  .animate-scale-up {
-    animation: scaleUp 260ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
+  .animate-fade-in-up { animation: fadeInUp 320ms cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .animate-scale-up { animation: scaleUp 260ms cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
   .godly-bg-glow {
-    background: radial-gradient(circle at 50% -20%, rgba(185, 138, 69, 0.14), transparent 70%);
+    background-image: radial-gradient(ellipse at 50% 0%, rgba(220, 38, 38, 0.055), transparent 62%);
   }
 }

@@ -151,10 +151,10 @@ export function SiteHeader() {
     <>
       <header
         className={cn(
-          "sticky top-0 z-50 w-full bg-[#15171C] backdrop-blur-md border-b border-[#26282F] transition-transform duration-300",
+          "sticky top-0 z-50 w-full bg-[#FFFFFF] backdrop-blur-md border-b border-[#E4E4E7] transition-transform duration-300",
           "h-[60px] md:h-[72px]",
           !visible && "-translate-y-full",
-          scrolled && "shadow-[0_4px_24px_rgba(0,0,0,0.5)]"
+          scrolled && "shadow-[0_4px_24px_rgba(24,24,27,0.08)]"
         )}
       >
         <div className="site-container h-full flex items-center justify-between gap-2 overflow-x-hidden">
@@ -162,18 +162,18 @@ export function SiteHeader() {
           <div className="flex items-center shrink-0">
             <Link
               href="/"
-              className="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-[#B98A45] rounded-md"
+              className="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-[#DC2626] rounded-md"
               onClick={() => setMobileOpen(false)}
             >
               {/* Gold rounded square icon: 30px on mobile, 32px on desktop */}
               <span
                 aria-hidden
-                className="flex h-[30px] w-[30px] md:h-[32px] md:w-[32px] items-center justify-center rounded-[8px] bg-[#B98A45] font-archivo text-[14px] md:text-[15px] font-black text-[#0E0F13] shadow-xs"
+                className="flex h-[30px] w-[30px] md:h-[32px] md:w-[32px] items-center justify-center rounded-[8px] bg-[#DC2626] font-archivo text-[14px] md:text-[15px] font-black text-[#FAFAFA] shadow-xs"
               >
                 W
               </span>
               {/* Wordmark: hidden on mobile (<640px) to prevent horizontal overflow */}
-              <span className="hidden sm:inline-block font-archivo font-bold text-[18px] text-[#F5F1E8] tracking-tight">
+              <span className="hidden sm:inline-block font-archivo font-bold text-[18px] text-[#18181B] tracking-tight">
                 WeFounders
               </span>
             </Link>
@@ -192,13 +192,13 @@ export function SiteHeader() {
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    "relative font-sans text-[15px] font-medium transition-colors duration-200 py-1 focus:outline-none focus:ring-1 focus:ring-[#B98A45] rounded-xs",
-                    isActive ? "text-[#B98A45] font-semibold" : "text-[#9A958A] hover:text-[#F5F1E8]"
+                    "relative font-sans text-[15px] font-medium transition-colors duration-200 py-1 focus:outline-none focus:ring-1 focus:ring-[#DC2626] rounded-xs",
+                    isActive ? "text-[#DC2626] font-semibold" : "text-[#71717A] hover:text-[#18181B]"
                   )}
                 >
                   {link.label}
                   {isActive && (
-                    <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#B98A45] rounded-full animate-scale-up" />
+                    <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#DC2626] rounded-full animate-scale-up" />
                   )}
                 </Link>
               );
@@ -217,35 +217,35 @@ export function SiteHeader() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search launches..."
-                    className="h-[40px] w-[220px] lg:w-[260px] rounded-[10px] border border-[#26282F] bg-[#0E0F13] pl-9 pr-8 text-[14px] text-[#F5F1E8] placeholder:text-[#9A958A] focus:outline-none focus:ring-2 focus:ring-[#B98A45]"
+                    className="h-[40px] w-[220px] lg:w-[260px] rounded-[10px] border border-[#E4E4E7] bg-[#FAFAFA] pl-9 pr-8 text-[14px] text-[#18181B] placeholder:text-[#71717A] focus:outline-none focus:ring-2 focus:ring-[#DC2626]"
                   />
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9A958A]" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#71717A]" />
                   <button
                     type="button"
                     onClick={() => {
                       setSearchExpanded(false);
                       setSearchQuery("");
                     }}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#9A958A] hover:text-[#F5F1E8]"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#71717A] hover:text-[#18181B]"
                   >
                     <X className="h-4 w-4" />
                   </button>
 
                   {/* Quick Live Preview Dropdown */}
                   {suggestions.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 mt-2 rounded-[10px] border border-[#26282F] bg-[#15171C] p-2 shadow-2xl z-50 space-y-1">
+                    <div className="absolute top-full left-0 right-0 mt-2 rounded-[10px] border border-[#E4E4E7] bg-[#FFFFFF] p-2 shadow-2xl z-50 space-y-1">
                       {suggestions.map((st) => (
                         <Link
                           key={st.id}
                           href={`/startups/${st.slug}`}
                           onClick={() => setSearchExpanded(false)}
-                          className="flex items-center justify-between p-2 rounded-md hover:bg-[#1C1E24] text-left"
+                          className="flex items-center justify-between p-2 rounded-md hover:bg-[#F4F4F5] text-left"
                         >
                           <div>
-                            <p className="text-[14px] font-archivo font-bold text-[#F5F1E8]">{st.name}</p>
-                            <p className="text-[12px] text-[#9A958A] truncate max-w-[180px]">{st.tagline}</p>
+                            <p className="text-[14px] font-archivo font-bold text-[#18181B]">{st.name}</p>
+                            <p className="text-[12px] text-[#71717A] truncate max-w-[180px]">{st.tagline}</p>
                           </div>
-                          <span className="text-[12px] font-mono text-[#B98A45]">▲ {st.upvotes}</span>
+                          <span className="text-[12px] font-mono text-[#DC2626]">▲ {st.upvotes}</span>
                         </Link>
                       ))}
                     </div>
@@ -256,7 +256,7 @@ export function SiteHeader() {
                   type="button"
                   onClick={() => setSearchExpanded(true)}
                   aria-label="Open search"
-                  className="flex h-[40px] w-[40px] items-center justify-center rounded-[10px] border border-[#26282F] bg-[#0E0F13] text-[#9A958A] transition-colors hover:text-[#F5F1E8] hover:border-[#3A3D46]"
+                  className="flex h-[40px] w-[40px] items-center justify-center rounded-[10px] border border-[#E4E4E7] bg-[#FAFAFA] text-[#71717A] transition-colors hover:text-[#18181B] hover:border-[#D4D4D8]"
                 >
                   <Search className="h-4 w-4" />
                 </button>
@@ -269,7 +269,7 @@ export function SiteHeader() {
             {/* Primary Gold CTA "Launch Your Startup" */}
             <Link
               href="/submit"
-              className="inline-flex items-center justify-center rounded-[10px] bg-[#B98A45] px-[20px] py-[10px] font-archivo text-[15px] font-semibold text-[#0E0F13] transition-all duration-200 hover:bg-[#c99a55] hover:-translate-y-0.5 active:translate-y-0 shadow-sm shrink-0"
+              className="inline-flex items-center justify-center rounded-[10px] bg-[#DC2626] px-[20px] py-[10px] font-archivo text-[15px] font-semibold text-[#FAFAFA] transition-all duration-200 hover:bg-[#B91C1C] hover:-translate-y-0.5 active:translate-y-0 shadow-sm shrink-0"
             >
               Launch Your Startup
             </Link>
@@ -284,9 +284,9 @@ export function SiteHeader() {
                 setMobileOpen(false);
               }}
               aria-label="Toggle search input"
-              className="flex h-[44px] w-[44px] items-center justify-center rounded-[8px] border border-[#26282F] bg-[#0E0F13] text-[#F5F1E8] active:scale-95 transition-transform"
+              className="flex h-[44px] w-[44px] items-center justify-center rounded-[8px] border border-[#E4E4E7] bg-[#FAFAFA] text-[#18181B] active:scale-95 transition-transform"
             >
-              <Search className="h-5 w-5 text-[#F5F1E8]" />
+              <Search className="h-5 w-5 text-[#18181B]" />
             </button>
 
             <button
@@ -296,9 +296,9 @@ export function SiteHeader() {
                 setMobileSearchOpen(false);
               }}
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
-              className="flex h-[44px] w-[44px] items-center justify-center rounded-[8px] border border-[#26282F] bg-[#0E0F13] text-[#F5F1E8] active:scale-95 transition-transform"
+              className="flex h-[44px] w-[44px] items-center justify-center rounded-[8px] border border-[#E4E4E7] bg-[#FAFAFA] text-[#18181B] active:scale-95 transition-transform"
             >
-              {mobileOpen ? <X className="h-5 w-5 text-[#F5F1E8]" /> : <Menu className="h-5 w-5 text-[#F5F1E8]" />}
+              {mobileOpen ? <X className="h-5 w-5 text-[#18181B]" /> : <Menu className="h-5 w-5 text-[#18181B]" />}
             </button>
           </div>
         </div>
@@ -306,40 +306,40 @@ export function SiteHeader() {
 
       {/* QUICK MOBILE SEARCH INPUT INLINE DROP DOWN */}
       {mobileSearchOpen && (
-        <div className="fixed top-[60px] inset-x-0 z-40 bg-[#15171C] border-b border-[#26282F] p-3 shadow-xl md:hidden animate-fade-in-up">
+        <div className="fixed top-[60px] inset-x-0 z-40 bg-[#FFFFFF] border-b border-[#E4E4E7] p-3 shadow-xl md:hidden animate-fade-in-up">
           <form onSubmit={handleSearchSubmit} className="relative flex items-center">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search launches by name..."
-              className="h-[44px] w-full rounded-[10px] border border-[#26282F] bg-[#0E0F13] pl-10 pr-10 text-[15px] text-[#F5F1E8] placeholder:text-[#9A958A] focus:outline-none focus:ring-2 focus:ring-[#B98A45]"
+              className="h-[44px] w-full rounded-[10px] border border-[#E4E4E7] bg-[#FAFAFA] pl-10 pr-10 text-[15px] text-[#18181B] placeholder:text-[#71717A] focus:outline-none focus:ring-2 focus:ring-[#DC2626]"
               autoFocus
             />
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9A958A]" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#71717A]" />
             <button
               type="button"
               onClick={() => setMobileSearchOpen(false)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9A958A] hover:text-[#F5F1E8]"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#71717A] hover:text-[#18181B]"
             >
               <X className="h-4 w-4" />
             </button>
           </form>
 
           {suggestions.length > 0 && (
-            <div className="mt-2 space-y-1 rounded-[10px] border border-[#26282F] bg-[#0E0F13] p-2">
+            <div className="mt-2 space-y-1 rounded-[10px] border border-[#E4E4E7] bg-[#FAFAFA] p-2">
               {suggestions.map((st) => (
                 <Link
                   key={st.id}
                   href={`/startups/${st.slug}`}
                   onClick={() => setMobileSearchOpen(false)}
-                  className="flex items-center justify-between p-2 rounded-md hover:bg-[#1C1E24]"
+                  className="flex items-center justify-between p-2 rounded-md hover:bg-[#F4F4F5]"
                 >
                   <div>
-                    <p className="text-[14px] font-archivo font-bold text-[#F5F1E8]">{st.name}</p>
-                    <p className="text-[12px] text-[#9A958A] truncate max-w-[240px]">{st.tagline}</p>
+                    <p className="text-[14px] font-archivo font-bold text-[#18181B]">{st.name}</p>
+                    <p className="text-[12px] text-[#71717A] truncate max-w-[240px]">{st.tagline}</p>
                   </div>
-                  <span className="text-[12px] font-mono text-[#B98A45]">▲ {st.upvotes}</span>
+                  <span className="text-[12px] font-mono text-[#DC2626]">▲ {st.upvotes}</span>
                 </Link>
               ))}
             </div>
@@ -354,7 +354,7 @@ export function SiteHeader() {
           onClick={() => setMobileOpen(false)}
         >
           <div
-            className="fixed top-[60px] inset-x-0 bg-[#15171C] border-b border-[#26282F] p-5 space-y-5 shadow-2xl transition-all duration-250 ease-in-out max-h-[calc(100vh-60px)] overflow-y-auto"
+            className="fixed top-[60px] inset-x-0 bg-[#FFFFFF] border-b border-[#E4E4E7] p-5 space-y-5 shadow-2xl transition-all duration-250 ease-in-out max-h-[calc(100vh-60px)] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Search Input on Top (Full Width, 44px height) */}
@@ -365,13 +365,13 @@ export function SiteHeader() {
                 aria-label="Search launches by name"
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search launches by name..."
-                className="h-[44px] w-full rounded-[10px] border border-[#26282F] bg-[#0E0F13] pl-10 pr-4 text-[15px] text-[#F5F1E8] placeholder:text-[#9A958A] focus:outline-none focus:ring-2 focus:ring-[#B98A45]"
+                className="h-[44px] w-full rounded-[10px] border border-[#E4E4E7] bg-[#FAFAFA] pl-10 pr-4 text-[15px] text-[#18181B] placeholder:text-[#71717A] focus:outline-none focus:ring-2 focus:ring-[#DC2626]"
               />
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9A958A]" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#71717A]" />
             </form>
 
             {/* Stacked 18px Links, 56px Row Height Each */}
-            <nav className="flex flex-col divide-y divide-[#26282F]">
+            <nav className="flex flex-col divide-y divide-[#E4E4E7]">
               {NAV_LINKS.map((link) => {
                 const isActive =
                   link.href === "/"
@@ -385,7 +385,7 @@ export function SiteHeader() {
                     onClick={() => setMobileOpen(false)}
                     className={cn(
                       "h-[56px] flex items-center font-archivo text-[18px] font-semibold transition-colors px-1",
-                      isActive ? "text-[#B98A45]" : "text-[#F5F1E8] hover:text-[#B98A45]"
+                      isActive ? "text-[#DC2626]" : "text-[#18181B] hover:text-[#DC2626]"
                     )}
                   >
                     {link.label}
@@ -394,7 +394,7 @@ export function SiteHeader() {
               })}
             </nav>
 
-            <div className="border-t border-[#26282F] pt-4 space-y-3">
+            <div className="border-t border-[#E4E4E7] pt-4 space-y-3">
               {/* Full-width Sign In ghost button */}
               <div className="w-full flex justify-center">
                 <UserButton />
@@ -404,7 +404,7 @@ export function SiteHeader() {
               <Link
                 href="/submit"
                 onClick={() => setMobileOpen(false)}
-                className="w-full h-[44px] flex items-center justify-center rounded-[10px] bg-[#B98A45] font-archivo text-[16px] font-semibold text-[#0E0F13] shadow-md hover:bg-[#c99a55] active:scale-[0.99] transition-all"
+                className="w-full h-[44px] flex items-center justify-center rounded-[10px] bg-[#DC2626] font-archivo text-[16px] font-semibold text-[#FAFAFA] shadow-md hover:bg-[#B91C1C] active:scale-[0.99] transition-all"
               >
                 Launch Your Startup
               </Link>

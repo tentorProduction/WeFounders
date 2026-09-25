@@ -35,10 +35,10 @@ function StatCard({
   hint: string;
 }) {
   return (
-    <div className="rounded-[10px] border border-[#26282F] bg-[#15171C] p-5 space-y-1">
-      <span className="text-tiny font-mono uppercase text-[#9A958A]">{label}</span>
-      <p className="font-mono text-h1 font-bold text-[#F5F1E8]">{value}</p>
-      <p className="text-tiny font-mono text-[#9A958A]">{hint}</p>
+    <div className="rounded-[10px] border border-[#E4E4E7] bg-[#FFFFFF] p-5 space-y-1">
+      <span className="text-tiny font-mono uppercase text-[#71717A]">{label}</span>
+      <p className="font-mono text-h1 font-bold text-[#18181B]">{value}</p>
+      <p className="text-tiny font-mono text-[#71717A]">{hint}</p>
     </div>
   );
 }
@@ -50,22 +50,22 @@ export default async function ProfilePage() {
   if (!viewer.authenticated || !viewer.userId) {
     return (
       <div className="site-container max-w-xl space-y-6 py-12 text-center">
-        <div className="space-y-6 rounded-[10px] border border-[#26282F] bg-[#15171C] p-8 shadow-xs md:p-10">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[10px] bg-[#B98A45] font-archivo text-display font-bold text-[#0E0F13] shadow-xs">
+        <div className="space-y-6 rounded-[10px] border border-[#E4E4E7] bg-[#FFFFFF] p-8 shadow-xs md:p-10">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[10px] bg-[#DC2626] font-archivo text-display font-bold text-[#FAFAFA] shadow-xs">
             W
           </div>
 
           <div className="space-y-2">
             <Badge
               variant="outline"
-              className="rounded-full border-[rgba(185,138,69,0.3)] bg-[#0E0F13] px-3 py-1 font-mono text-caption font-bold text-[#B98A45]"
+              className="rounded-full border-[rgba(220,38,38,0.18)] bg-[#FAFAFA] px-3 py-1 font-mono text-caption font-bold text-[#DC2626]"
             >
               Builder Profile
             </Badge>
-            <h1 className="font-archivo text-display font-bold text-[#F5F1E8]">
+            <h1 className="font-archivo text-display font-bold text-[#18181B]">
               Sign in to WeFounders
             </h1>
-            <p className="text-body text-[#9A958A]">
+            <p className="text-body text-[#71717A]">
               Track your launches, export waitlist leads, upvote products and earn
               testing bounties.
             </p>
@@ -88,7 +88,7 @@ export default async function ProfilePage() {
   return (
     <div className="site-container max-w-5xl space-y-8 py-8">
       {/* Profile header */}
-      <div className="rounded-[10px] border border-[#26282F] bg-[#15171C] p-6 shadow-apple-md md:p-8">
+      <div className="rounded-[10px] border border-[#E4E4E7] bg-[#FFFFFF] p-6 shadow-apple-md md:p-8">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
           <div className="flex items-center gap-4">
             {viewer.avatarUrl ? (
@@ -96,29 +96,29 @@ export default async function ProfilePage() {
               <img
                 src={viewer.avatarUrl}
                 alt=""
-                className="h-20 w-20 rounded-[10px] border-2 border-[#26282F] object-cover shadow-apple-sm"
+                className="h-20 w-20 rounded-[10px] border-2 border-[#E4E4E7] object-cover shadow-apple-sm"
               />
             ) : (
-              <div className="flex h-20 w-20 items-center justify-center rounded-[10px] bg-[#B98A45] font-archivo text-display font-bold text-[#0E0F13] shadow-apple-sm">
+              <div className="flex h-20 w-20 items-center justify-center rounded-[10px] bg-[#DC2626] font-archivo text-display font-bold text-[#FAFAFA] shadow-apple-sm">
                 {displayName[0]?.toUpperCase()}
               </div>
             )}
 
             <div className="space-y-1">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="font-archivo text-display font-bold text-[#F5F1E8]">
+                <h1 className="font-archivo text-display font-bold text-[#18181B]">
                   {displayName}
                 </h1>
                 <Badge
                   variant="secondary"
-                  className="gap-1 border-[#26282F] bg-[#0E0F13] text-tiny font-semibold"
+                  className="gap-1 border-[#E4E4E7] bg-[#FAFAFA] text-tiny font-semibold"
                 >
                   <Shield className="h-3 w-3 text-emerald-500" /> Google verified
                 </Badge>
               </div>
 
-              <p className="text-body text-[#9A958A]">{viewer.email}</p>
-              <p className="font-mono text-tiny text-[#9A958A]">
+              <p className="text-body text-[#71717A]">{viewer.email}</p>
+              <p className="font-mono text-tiny text-[#71717A]">
                 {liveCount} live {liveCount === 1 ? "launch" : "launches"}
               </p>
             </div>
@@ -149,7 +149,7 @@ export default async function ProfilePage() {
 
       {/* Your launches */}
       <section className="space-y-4">
-        <h2 className="text-h2 font-archivo font-bold text-[#F5F1E8]">
+        <h2 className="text-h2 font-archivo font-bold text-[#18181B]">
           Your submissions
         </h2>
 

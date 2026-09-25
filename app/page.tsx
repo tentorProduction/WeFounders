@@ -1,14 +1,16 @@
 import { DiscoveryFeed } from "@/components/startups/discovery-feed";
 import { getFeaturedStartup, getStartupFeed } from "@/lib/data/startups";
 import { getActiveFeatured } from "@/lib/promotions/store";
+import { getSiteStats } from "@/lib/data/siteStats";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [startups, featuredLaunch, activeFeatured] = await Promise.all([
+  const [startups, featuredLaunch, activeFeatured, siteStats] = await Promise.all([
     getStartupFeed(),
     getFeaturedStartup(),
     getActiveFeatured(),
+    getSiteStats(),
   ]);
   // A paid promotion wins the spotlight over the founder-flagged launch.
   const featured = activeFeatured?.startup ?? featuredLaunch;
@@ -26,6 +28,7 @@ export default async function HomePage() {
         startups={startups}
         featured={featured}
         batchDate={batchDate}
+        siteStats={siteStats}
       />
     </div>
   );

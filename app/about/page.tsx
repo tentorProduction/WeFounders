@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 export const metadata: Metadata = {
   title: "About & Manifesto — WeFounders",
   description:
-    "Learn about WeFounders.dev, our 21% curation acceptance bar, submission guidelines, and how we help Nepali founders reach their first 1,000 beta users.",
+    "Learn about WeFounders.dev, our curation acceptance bar, submission guidelines, and how we help Nepali founders reach early beta users.",
 };
 
 export default function AboutPage() {
@@ -23,7 +23,7 @@ export default function AboutPage() {
           Nepal&apos;s Launchpad for World-Class Startups
         </h1>
         <p className="text-body text-muted-foreground max-w-2xl leading-relaxed">
-          WeFounders is where founders in Nepal and globally launch their products, get their first 1,000 real beta users, collect feedback, and earn karma bounties.
+          WeFounders is where founders in Nepal and globally launch their products, get their real beta users, collect feedback, and earn karma bounties.
         </p>
       </div>
 
@@ -57,11 +57,11 @@ export default function AboutPage() {
             <Badge variant="outline" className="border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold">
               Quality Benchmark
             </Badge>
-            <span className="text-caption text-muted-foreground font-mono">21% Curation Standard</span>
+            <span className="text-caption text-muted-foreground font-mono">Strict Curation Standard</span>
           </div>
           <h2 className="text-display font-bold text-foreground">What Gets Featured on WeFounders</h2>
           <p className="text-body text-muted-foreground">
-            To protect our community of 1,850+ daily builders, every submission is reviewed against our 5 core quality criteria before appearing on today&apos;s feed:
+            To protect our community of early adopters, every submission is reviewed against our 5 core quality criteria before appearing on today&apos;s feed:
           </p>
         </div>
 
