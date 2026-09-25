@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-10 space-y-12">
+    <div className="site-container py-8 max-w-4xl space-y-12">
       {/* Hero */}
       <div className="space-y-4 text-center md:text-left">
         <Badge variant="outline" className="font-mono text-tiny border-accent/40 text-accent">

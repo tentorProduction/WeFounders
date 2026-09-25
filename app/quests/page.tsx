@@ -22,7 +22,7 @@ export default async function QuestsPage() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 pb-10 pt-6">
+    <div className="site-container py-8 space-y-8">
       <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="flex items-center gap-2 text-caption font-medium uppercase tracking-wide text-primary">

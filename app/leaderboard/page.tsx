@@ -26,7 +26,7 @@ export default function LeaderboardPage() {
   }, [timeframe]);
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-8 space-y-8">
+    <div className="site-container py-8 space-y-8">
       {/* Header */}
       <div className="space-y-4 text-center md:text-left">
         <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-tiny font-semibold text-amber-600 dark:text-amber-400">

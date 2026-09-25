@@ -56,7 +56,7 @@ export function CollabCard({ post, className }: CollabCardProps) {
   return (
     <article
       className={cn(
-        "flex flex-col rounded-xl border bg-card p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md",
+        "flex flex-col rounded-lg border border-border bg-card p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm",
         !post.is_active && "opacity-70",
         className
       )}
@@ -70,7 +70,7 @@ export function CollabCard({ post, className }: CollabCardProps) {
         )}
       </div>
 
-      <h3 className="mt-2 text-h2 leading-snug">{post.title}</h3>
+      <h3 className="mt-2 text-h3 font-bold text-foreground leading-snug">{post.title}</h3>
 
       <p className="mt-1 text-caption text-muted-foreground">
         by {post.author_name ?? "Wefounder builder"}

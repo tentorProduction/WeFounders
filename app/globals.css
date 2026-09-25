@@ -11,9 +11,18 @@
  */
 @layer base {
   :root {
+    --page-padding: 32px;
+    --content-max-width: 1240px;
+    --section-gap: 48px;
+    --card-padding: 24px;
+    --component-gap: 16px;
+    --control-height: 40px;
+    --border-radius: 8px;
+
     --background: #FDFBF7;
     --surface: #F5EFE6;
     --surface-hover: #EAE1D3;
+    --surface-elevated: #FFFFFF;
     --text: #15171C;
     --text-secondary: #5C5245;
     --text-muted: #8C8070;
@@ -51,9 +60,18 @@
   }
 
   .dark {
+    --page-padding: 32px;
+    --content-max-width: 1240px;
+    --section-gap: 48px;
+    --card-padding: 24px;
+    --component-gap: 16px;
+    --control-height: 40px;
+    --border-radius: 8px;
+
     --background: #15171C;
     --surface: #231E17;
     --surface-hover: #2C261F;
+    --surface-elevated: #1C1914;
     --text: #FFFFFF;
     --text-secondary: #A1A1AA;
     --text-muted: #71717A;
@@ -139,14 +157,14 @@
 /* Auralis Paper & Motion Utilities */
 @layer components {
   .site-container {
-    width: min(calc(100% - 32px), 1120px);
+    width: min(calc(100% - 32px), 1240px);
     margin-left: auto;
     margin-right: auto;
   }
 
   @media (min-width: 640px) {
     .site-container {
-      width: min(calc(100% - 48px), 1120px);
+      width: min(calc(100% - 48px), 1240px);
     }
   }
 

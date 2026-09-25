@@ -92,7 +92,7 @@ export default function ProfilePage() {
   const upvotedStartups = STARTUP_FIXTURES.slice(0, 3);
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-8 space-y-8">
+    <div className="site-container py-8 max-w-5xl space-y-8">
       {/* Profile Header */}
       <div className="rounded-3xl border border-border bg-card p-6 md:p-8 shadow-apple-md">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">

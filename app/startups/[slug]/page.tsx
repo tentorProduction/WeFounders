@@ -77,7 +77,7 @@ export default async function StartupShowcasePage({
     : `/startups/${startup.slug}/waitlist/export?as=founder`;
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-6 px-4 pb-10 pt-5 lg:max-w-4xl">
+    <div className="site-container py-8 max-w-4xl space-y-6">
       {/* Breadcrumbs */}
       <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-caption text-muted-foreground">
         <Link href="/" className="hover:text-foreground">

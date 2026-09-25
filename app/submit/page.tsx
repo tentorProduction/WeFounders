@@ -20,12 +20,7 @@ const CATEGORIES = [
   "Healthcare",
 ];
 
-const STAGES = [
-  { id: "public_beta", label: "Public Beta (Open Testing)" },
-  { id: "launched", label: "Launched Product" },
-  { id: "closed_alpha", label: "Closed Alpha" },
-  { id: "concept", label: "Idea / Prototype" },
-];
+
 
 const TARGET_MARKETS = [
   { id: "nepal_domestic", label: "Made for Nepal 🇳🇵" },
@@ -107,7 +102,7 @@ export default function SubmitPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-8">
+    <div className="site-container py-8 max-w-4xl space-y-6">
       {/* Back link */}
       <Link
         href="/"
