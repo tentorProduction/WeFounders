@@ -40,7 +40,7 @@ export function FeaturedSpotlight({
       {/* Top Meta Header Bar */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-4 mb-5">
         <div className="flex items-center gap-2">
-          <Badge className="gap-1.5 bg-accent text-white font-semibold text-badge uppercase tracking-wider px-2.5 py-0.5">
+          <Badge className="gap-1.5 bg-primary text-primary-foreground font-semibold text-badge uppercase tracking-wider px-2.5 py-0.5">
             <Flame className="h-3.5 w-3.5 fill-current" aria-hidden />
             Promoted
           </Badge>
@@ -102,7 +102,7 @@ export function FeaturedSpotlight({
         <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border pt-4 mt-5">
           <dl className="flex flex-wrap items-center gap-x-5 gap-y-1 text-meta text-text-secondary">
             <div className="flex items-center gap-1.5">
-              <TrendingUp className="h-4 w-4 text-accent" aria-hidden />
+              <TrendingUp className="h-4 w-4 text-primary" aria-hidden />
               <dt className="sr-only">Upvotes</dt>
               <dd className="font-semibold tabular-nums text-foreground">{upvote.count} upvotes</dd>
             </div>

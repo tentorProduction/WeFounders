@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, Sparkles, Globe, Rocket, ShieldCheck, Flame, AlertTriangle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/lib/firebase/auth-context";
@@ -476,7 +476,7 @@ export default function SubmitPage() {
                   <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold px-8 py-6 text-body rounded-2xl shadow-apple-sm"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold px-8 py-6 text-body rounded-2xl shadow-apple-sm"
                   >
                     {isSubmitting ? "Submitting..." : "🚀 Launch Beta Product"}
                   </Button>

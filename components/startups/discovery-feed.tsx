@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search, X, ChevronDown, Rocket, Calendar, Flame, Trophy } from "lucide-react";
+import { Search, X, ChevronDown, Rocket, Calendar, Flame, Award } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { StartupWithTags } from "@/types/database";
@@ -25,12 +25,12 @@ interface FilterOption {
 }
 
 const FILTERS: FilterOption[] = [
-  { key: "all", label: "🔥 All Launches" },
-  { key: "nepal_domestic", label: "🇳🇵 Made for Nepal" },
-  { key: "global_export", label: "🌍 Built for World" },
-  { key: "ai", label: "🤖 AI & ML" },
-  { key: "fintech", label: "💳 Fintech & eSewa" },
-  { key: "saas", label: "⚡ SaaS & DevTools" },
+  { key: "all", label: "All Ventures" },
+  { key: "nepal_domestic", label: "Made for Nepal 🇳🇵" },
+  { key: "global_export", label: "Built for World 🌍" },
+  { key: "ai", label: "AI & Intelligence" },
+  { key: "fintech", label: "Fintech & Payments" },
+  { key: "saas", label: "SaaS & Infrastructure" },
 ];
 
 function matchesFilter(startup: StartupWithTags, filter: FeedFilter): boolean {
@@ -127,46 +127,43 @@ export function DiscoveryFeed({
 
   return (
     <div className="space-y-8">
-      {/* Microlaunch.net Inspired Hero Section */}
-      <section className="relative rounded-3xl border border-border bg-card p-6 sm:p-10 shadow-apple-md overflow-hidden text-center godly-bg-glow">
-        <div className="absolute -top-12 -left-12 h-40 w-40 rounded-full bg-purple-500/10 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-12 -right-12 h-40 w-40 rounded-full bg-rose-500/10 blur-3xl pointer-events-none" />
-
+      {/* Auralis Clean Paper Workflow — Hero Section */}
+      <section className="relative rounded-lg border border-[#322A1F] bg-card p-8 sm:p-12 shadow-sm text-center godly-bg-glow">
         <div className="relative z-10 space-y-4">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/20 bg-purple-500/10 px-3 py-1 text-tiny font-semibold text-purple-600 dark:text-purple-400">
-            <Trophy className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
-            <span>Nepal&apos;s #1 Tech Launch &amp; Beta Platform</span>
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#B98A45]/30 bg-[#322A1F]/60 px-3.5 py-1 text-tiny font-mono font-bold text-[#FFE8B8]">
+            <Award className="h-3.5 w-3.5 text-[#B98A45]" />
+            <span>Nepal Premier Startup Launch &amp; Discovery Hub</span>
           </div>
 
           {/* Main Title */}
-          <h1 className="mx-auto max-w-3xl text-display font-black tracking-tight text-foreground sm:text-display">
-            The Launch Platform for <span className="bg-gradient-to-r from-purple-600 via-indigo-600 to-rose-500 bg-clip-text text-transparent">World-Class Startups</span>
+          <h1 className="mx-auto max-w-3xl text-display font-medium tracking-tight text-foreground sm:text-display">
+            Build and Launch <span className="text-[#B98A45]">High-Impact Tech Ventures</span>
           </h1>
 
           {/* Subtitle */}
           <p className="mx-auto max-w-xl text-body text-muted-foreground leading-relaxed">
-            Discover, test, upvote, and support next-generation products built by founders in Nepal and for the world.
+            Connecting early-stage founders with beta users, verified community traction, and proof-of-work engagement across Nepal and global markets.
           </p>
 
           {/* Stats Ticker Bar */}
-          <div className="pt-2 flex flex-wrap items-center justify-center gap-2 text-tiny font-medium text-muted-foreground">
-            <div className="flex items-center gap-1.5 rounded-full border border-border bg-background/80 px-3 py-1 shadow-apple-xs">
-              <Calendar className="h-3.5 w-3.5 text-primary" />
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-3 text-tiny font-mono text-muted-foreground">
+            <div className="flex items-center gap-1.5 rounded-lg border border-[#322A1F] bg-background/80 px-3 py-1.5">
+              <Calendar className="h-3.5 w-3.5 text-[#B98A45]" />
               <span>{batchDate} Batch</span>
             </div>
 
-            <div className="flex items-center gap-1.5 rounded-full border border-border bg-background/80 px-3 py-1 shadow-apple-xs">
-              <Rocket className="h-3.5 w-3.5 text-purple-500" />
-              <span>{startups.length} Products Launched</span>
+            <div className="flex items-center gap-1.5 rounded-lg border border-[#322A1F] bg-background/80 px-3 py-1.5">
+              <Rocket className="h-3.5 w-3.5 text-[#B98A45]" />
+              <span>{startups.length} Verified Ventures</span>
             </div>
 
-            <div className="flex items-center gap-1.5 rounded-full border border-border bg-background/80 px-3 py-1 shadow-apple-xs">
+            <div className="flex items-center gap-1.5 rounded-lg border border-[#322A1F] bg-background/80 px-3 py-1.5">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#B98A45] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#B98A45]"></span>
               </span>
-              <span>1,850+ Daily Builders</span>
+              <span>1,850+ Active Testers</span>
             </div>
           </div>
 
@@ -180,16 +177,16 @@ export function DiscoveryFeed({
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search startups, founders, eSewa, Next.js, AI…"
-              aria-label="Search startups"
-              className="h-12 w-full rounded-2xl border border-input bg-background pl-11 pr-10 text-body font-medium shadow-apple-sm transition-all placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              placeholder="Search ventures, technologies, eSewa, AI copilots…"
+              aria-label="Search ventures"
+              className="h-12 w-full rounded-lg border border-[#322A1F] bg-background pl-11 pr-10 text-body font-medium shadow-sm transition-all placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B98A45]"
             />
             {query && (
               <button
                 type="button"
                 onClick={() => setQuery("")}
                 aria-label="Clear search"
-                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer rounded-full p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer rounded-md p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
               >
                 <X className="h-4 w-4" aria-hidden />
               </button>
@@ -201,7 +198,7 @@ export function DiscoveryFeed({
       {/* Filter Tabs Bar */}
       <div
         role="group"
-        aria-label="Filter startups"
+        aria-label="Filter ventures"
         className="flex gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:justify-center [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {FILTERS.map(({ key, label }) => {
@@ -213,10 +210,10 @@ export function DiscoveryFeed({
               onClick={() => setFilter(key)}
               aria-pressed={active}
               className={cn(
-                "press-scale inline-flex h-9 shrink-0 cursor-pointer items-center justify-center rounded-2xl border px-4 text-caption font-semibold transition-all",
+                "press-scale inline-flex h-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border px-4 text-caption font-semibold transition-all",
                 active
-                  ? "border-primary bg-primary text-primary-foreground shadow-apple-xs font-bold"
-                  : "border-border bg-card text-muted-foreground hover:border-border-strong hover:text-foreground"
+                  ? "border-[#B98A45] bg-[#B98A45] text-[#15171C] font-bold shadow-sm"
+                  : "border-[#322A1F] bg-card text-muted-foreground hover:border-[#B98A45]/50 hover:text-foreground"
               )}
             >
               {label}
@@ -227,8 +224,8 @@ export function DiscoveryFeed({
 
       {activeTag && (
         <div className="flex items-center justify-center gap-2">
-          <span className="text-caption text-muted-foreground font-medium">
-            Active Tag Filter:
+          <span className="text-caption text-muted-foreground font-mono">
+            Active Filter Tag:
           </span>
           <TagPill tag={activeTag} active onRemove={() => setActiveTag(null)} />
         </div>
@@ -249,25 +246,25 @@ export function DiscoveryFeed({
 
       {/* Launch Feed List */}
       <section aria-label="Today's launches" className="space-y-4">
-        <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-border pb-3">
+        <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[#322A1F] pb-3">
           <div className="flex items-baseline gap-3">
             <h2 className="text-heading font-bold text-foreground flex items-center gap-2">
-              <Flame className="h-4 w-4 text-accent fill-accent" /> Today&apos;s Launches
+              <Flame className="h-4 w-4 text-[#B98A45]" /> Curated Launch Feed
             </h2>
             <span className="text-caption text-muted-foreground font-mono">
-              {batchDate} · {feed.length} {feed.length === 1 ? "startup" : "startups"}{hasFilters && " matched"}
+              {batchDate} · {feed.length} {feed.length === 1 ? "venture" : "ventures"}{hasFilters && " filtered"}
             </span>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-caption text-muted-foreground font-medium">Sort:</span>
+            <span className="text-caption text-muted-foreground font-mono">Sort By:</span>
             <button
               type="button"
               onClick={() => setSortBy(sortBy === "popular" ? "newest" : "popular")}
-              className="inline-flex items-center gap-1 text-caption font-semibold text-foreground hover:text-primary focus:outline-none"
+              className="inline-flex items-center gap-1 text-caption font-semibold text-foreground hover:text-[#B98A45] focus:outline-none"
             >
-              {sortBy === "popular" ? "🔥 Most Upvoted" : "⚡ Newest First"}
-              <ChevronDown className="h-3.5 w-3.5" aria-hidden />
+              {sortBy === "popular" ? "Highest Engagement" : "Chronological"}
+              <ChevronDown className="h-3.5 w-3.5 text-[#B98A45]" />
             </button>
           </div>
         </div>
@@ -291,17 +288,17 @@ export function DiscoveryFeed({
         ) : (
           <div className="godly-card p-12 text-center border-dashed">
             <p className="text-subheading font-bold text-foreground">
-              No startups match your search criteria
+              No ventures match your active search filter
             </p>
             <p className="mt-1 text-body text-muted-foreground">
-              Try a different keyword or clear your active filters.
+              Modify your search keywords or clear your category selection.
             </p>
             <Button
-              className="mt-4"
+              className="mt-4 bg-[#B98A45] text-[#15171C] font-bold"
               size="sm"
               onClick={clearFilters}
             >
-              Clear filters
+              Clear All Filters
             </Button>
           </div>
         )}

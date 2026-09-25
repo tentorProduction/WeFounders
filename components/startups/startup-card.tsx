@@ -101,7 +101,7 @@ export function StartupCard({
             )}
             <Link
               href={`/startups/${startup.slug}`}
-              className="text-product font-bold text-foreground transition-colors hover:text-accent focus:outline-none"
+              className="text-product font-bold text-foreground transition-colors hover:text-primary focus:outline-none"
             >
               {startup.name}
             </Link>

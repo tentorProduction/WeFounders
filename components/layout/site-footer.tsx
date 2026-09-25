@@ -35,14 +35,14 @@ export function SiteFooter() {
           <Link href="/" className="flex items-center gap-2">
             <span
               aria-hidden
-              className="flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-rose-500 font-mono text-xs font-black text-white"
+              className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary font-mono text-xs font-black text-primary-foreground shadow-xs"
             >
               W
             </span>
             <span className="text-subheading font-black tracking-tight text-foreground">
-              We<span className="text-accent">Founders</span>
+              We<span className="text-primary">Founders</span>
             </span>
-            <Badge variant="outline" className="text-[10px] font-mono border-border">
+            <Badge variant="outline" className="text-[10px] font-mono border-border text-muted-foreground">
               .dev 🇳🇵
             </Badge>
           </Link>
