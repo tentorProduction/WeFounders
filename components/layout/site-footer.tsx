@@ -19,7 +19,7 @@ const RESOURCE_LINKS = [
 const COMMUNITY_LINKS = [
   { href: "https://github.com/tentorProduction/WeFounders", label: "GitHub Repository" },
   { href: "https://x.com/wefounders_dev", label: "X / Twitter (@wefounders_dev)" },
-  { href: "https://discord.gg", label: "Builder Discord" },
+  { href: "https://discord.gg/wefounders", label: "Builder Discord" },
   { href: "mailto:hello@wefounders.dev", label: "Email: hello@wefounders.dev" },
 ];
 

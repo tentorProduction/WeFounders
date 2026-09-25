@@ -119,7 +119,12 @@ export function DiscoveryFeed({
     (!activeTag || featured.tags.some((tag) => tag.slug === activeTag.slug));
 
   const feed = useMemo(() => {
-    const list = results.filter((startup) => startup.id !== featured?.id);
+    // When a search query or filter is active, include all matching ventures in the feed (including featured)
+    const hasSearchOrFilter = query.trim() !== "" || activeTag !== null || filter !== "all";
+    const list = hasSearchOrFilter
+      ? results
+      : results.filter((startup) => startup.id !== featured?.id);
+
     if (sortBy === "popular") {
       return [...list].sort((a, b) => b.upvotes_count - a.upvotes_count);
     } else if (sortBy === "waitlist") {
@@ -131,7 +136,7 @@ export function DiscoveryFeed({
           new Date(a.launch_date ?? a.created_at).getTime()
       );
     }
-  }, [results, featured, sortBy]);
+  }, [results, featured, sortBy, query, activeTag, filter]);
 
   const hasFilters = filter !== "all" || query.trim() !== "" || activeTag !== null;
 

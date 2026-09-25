@@ -20,14 +20,15 @@ import { useOptimisticUpvotes } from "@/lib/hooks/use-optimistic-upvotes";
 import type { StartupWithTags } from "@/types/database";
 
 export default function ProfilePage() {
-  const { user, loading, signInWithGoogle, signOutUser } = useAuth();
-  const [activeTab, setActiveTab] = useState<"upvoted" | "submissions" | "bounties" | "settings">("upvoted");
+  const { user, loading, authError, signInWithGoogle, signInDemoUser, signOutUser, clearAuthError } = useAuth();
+  const [activeTab, setActiveTab] = useState<"analytics" | "upvoted" | "submissions" | "bounties" | "settings">("analytics");
   const [isSigningIn, setIsSigningIn] = useState(false);
   const { getUpvote, toggleUpvote } = useOptimisticUpvotes();
 
   const handleSignIn = async () => {
     try {
       setIsSigningIn(true);
+      clearAuthError();
       await signInWithGoogle();
     } catch (err) {
       console.error(err);
@@ -38,7 +39,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-4 py-12 flex flex-col items-center justify-center space-y-4">
+      <div className="site-container py-12 flex flex-col items-center justify-center space-y-4 max-w-4xl">
         <div className="h-16 w-16 animate-pulse rounded-full bg-secondary" />
         <div className="h-6 w-48 animate-pulse rounded-lg bg-secondary" />
         <div className="h-4 w-64 animate-pulse rounded-lg bg-secondary" />
@@ -48,30 +49,42 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="mx-auto w-full max-w-xl px-4 py-12 text-center">
-        <div className="rounded-3xl border border-border bg-card p-8 md:p-12 shadow-apple-md space-y-6">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-foreground text-background font-mono text-display font-bold shadow-apple-md">
+      <div className="site-container py-12 max-w-xl text-center space-y-6">
+        <div className="rounded-lg border border-border bg-card p-8 md:p-10 shadow-xs space-y-6">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-lg bg-[#B98A45] text-[#15171C] font-mono text-display font-bold shadow-xs">
             W
           </div>
 
           <div className="space-y-2">
-            <Badge variant="outline" className="border-accent/40 text-accent font-semibold">
-              Firebase Auth
+            <Badge variant="outline" className="border-[#B98A45]/40 text-[#FFE8B8] font-mono font-bold text-caption px-3 py-1 rounded-full">
+              Founder Analytics &amp; Builder Profile
             </Badge>
             <h1 className="text-display font-bold text-foreground">
-              Sign In to Your Profile
+              Sign In to WeFounders
             </h1>
             <p className="text-body text-muted-foreground">
-              Join Nepal&apos;s founder and builder community. Upvote startups, track bounties, and launch your own products.
+              Track launch analytics, upvote startups, collect waitlist leads, and earn testing bounties.
             </p>
           </div>
+
+          {authError && (
+            <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-caption text-destructive text-left flex flex-col gap-2">
+              <span>⚠️ {authError}</span>
+              <button
+                onClick={() => signInDemoUser()}
+                className="text-tiny font-bold underline text-foreground text-left"
+              >
+                Or continue using Demo Founder Account →
+              </button>
+            </div>
+          )}
 
           <div className="pt-2 flex flex-col items-center gap-3">
             <Button
               size="lg"
               onClick={handleSignIn}
               disabled={isSigningIn}
-              className="w-full max-w-xs gap-3 bg-primary text-primary-foreground font-semibold py-6 text-body rounded-2xl shadow-apple-sm"
+              className="w-full max-w-xs gap-3 bg-[#B98A45] text-[#15171C] font-bold py-6 text-body rounded-full shadow-xs hover:bg-[#B98A45]/90"
             >
               <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
                 <path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032 s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2 C7.021,2,2.545,6.477,2.545,12s4.476,10,10,10c5.768,0,9.756-4.056,9.756-9.924c0-0.697-0.075-1.372-0.198-2.037L12.545,10.239z" />
@@ -79,9 +92,14 @@ export default function ProfilePage() {
               {isSigningIn ? "Signing in..." : "Continue with Google"}
             </Button>
 
-            <p className="text-tiny text-muted-foreground">
-              Protected by Firebase Authentication. Secure &amp; Instant.
-            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => signInDemoUser()}
+              className="w-full max-w-xs border-[#322A1F] text-muted-foreground hover:text-foreground font-mono rounded-full"
+            >
+              Use Demo Founder Account
+            </Button>
           </div>
         </div>
       </div>
@@ -150,34 +168,45 @@ export default function ProfilePage() {
       </div>
 
       {/* Tabs Navigation */}
-      <div className="border-b border-border flex gap-4 overflow-x-auto">
+      <div className="border-b border-[#322A1F] flex gap-4 overflow-x-auto font-mono text-caption">
         <button
-          onClick={() => setActiveTab("upvoted")}
-          className={`pb-3 text-body font-semibold flex items-center gap-2 border-b-2 transition-all ${
-            activeTab === "upvoted"
-              ? "border-primary text-foreground"
+          onClick={() => setActiveTab("analytics")}
+          className={`pb-3 font-semibold flex items-center gap-2 border-b-2 transition-all uppercase tracking-wider ${
+            activeTab === "analytics"
+              ? "border-[#B98A45] text-[#FFE8B8] font-bold"
               : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
-          <Heart className="h-4 w-4" /> Upvoted Startups ({upvotedStartups.length})
+          📊 Founder Analytics
+        </button>
+
+        <button
+          onClick={() => setActiveTab("upvoted")}
+          className={`pb-3 font-semibold flex items-center gap-2 border-b-2 transition-all uppercase tracking-wider ${
+            activeTab === "upvoted"
+              ? "border-[#B98A45] text-[#FFE8B8] font-bold"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Heart className="h-4 w-4" /> Upvoted ({upvotedStartups.length})
         </button>
 
         <button
           onClick={() => setActiveTab("submissions")}
-          className={`pb-3 text-body font-semibold flex items-center gap-2 border-b-2 transition-all ${
+          className={`pb-3 font-semibold flex items-center gap-2 border-b-2 transition-all uppercase tracking-wider ${
             activeTab === "submissions"
-              ? "border-primary text-foreground"
+              ? "border-[#B98A45] text-[#FFE8B8] font-bold"
               : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
-          <Rocket className="h-4 w-4" /> My Submissions
+          <Rocket className="h-4 w-4" /> Submissions
         </button>
 
         <button
           onClick={() => setActiveTab("bounties")}
-          className={`pb-3 text-body font-semibold flex items-center gap-2 border-b-2 transition-all ${
+          className={`pb-3 font-semibold flex items-center gap-2 border-b-2 transition-all uppercase tracking-wider ${
             activeTab === "bounties"
-              ? "border-primary text-foreground"
+              ? "border-[#B98A45] text-[#FFE8B8] font-bold"
               : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
@@ -186,9 +215,9 @@ export default function ProfilePage() {
 
         <button
           onClick={() => setActiveTab("settings")}
-          className={`pb-3 text-body font-semibold flex items-center gap-2 border-b-2 transition-all ${
+          className={`pb-3 font-semibold flex items-center gap-2 border-b-2 transition-all uppercase tracking-wider ${
             activeTab === "settings"
-              ? "border-primary text-foreground"
+              ? "border-[#B98A45] text-[#FFE8B8] font-bold"
               : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
@@ -197,6 +226,42 @@ export default function ProfilePage() {
       </div>
 
       {/* Tab Content */}
+      {activeTab === "analytics" && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-h2 font-bold text-foreground">Launch Performance Analytics</h2>
+            <Badge variant="outline" className="font-mono text-tiny border-[#B98A45]/40 text-[#FFE8B8]">
+              Live Feed Metrics
+            </Badge>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="rounded-lg border border-[#322A1F] bg-card p-5 space-y-1">
+              <span className="text-tiny font-mono text-muted-foreground uppercase">Launch Views</span>
+              <p className="text-h1 font-bold text-foreground font-mono">1,480</p>
+              <p className="text-tiny text-emerald-500 font-mono">+18% this batch</p>
+            </div>
+
+            <div className="rounded-lg border border-[#322A1F] bg-card p-5 space-y-1">
+              <span className="text-tiny font-mono text-muted-foreground uppercase">Total Upvotes</span>
+              <p className="text-h1 font-bold text-[#B98A45] font-mono">184</p>
+              <p className="text-tiny text-muted-foreground font-mono">Verified platform votes</p>
+            </div>
+
+            <div className="rounded-lg border border-[#322A1F] bg-card p-5 space-y-1">
+              <span className="text-tiny font-mono text-muted-foreground uppercase">Waitlist Leads</span>
+              <p className="text-h1 font-bold text-foreground font-mono">320</p>
+              <p className="text-tiny text-emerald-500 font-mono">Double opt-in leads</p>
+            </div>
+
+            <div className="rounded-lg border border-[#322A1F] bg-card p-5 space-y-1">
+              <span className="text-tiny font-mono text-muted-foreground uppercase">Waitlist Conv. Rate</span>
+              <p className="text-h1 font-bold text-[#FFE8B8] font-mono">21.6%</p>
+              <p className="text-tiny text-muted-foreground font-mono">Click-to-lead conversion</p>
+            </div>
+          </div>
+        </div>
+      )}
       {activeTab === "upvoted" && (
         <div className="space-y-4">
           <p className="text-caption text-muted-foreground">
