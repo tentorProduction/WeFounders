@@ -145,7 +145,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <div className="flex min-h-screen flex-col pb-20 sm:pb-0">
+            <div className="flex min-h-screen flex-col pb-[calc(76px+env(safe-area-inset-bottom))] md:pb-0">
               <AnnouncementBanner />
               <SiteHeader />
               <main className="flex-1">{children}</main>

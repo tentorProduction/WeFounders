@@ -15,8 +15,7 @@ const NAV_ITEMS = [
 ] as const;
 
 /**
- * iOS 26 Liquid Glass Floating Tab Bar (HIG §2, §10 & §16):
- * Capsule floating above content with backdrop blur + shadow inset.
+ * Mobile Bottom Nav Bar (Spec: background #15171C with blur, 1px border #26282F, 5 equal items, 44px+ tap targets, active gold #B98A45)
  */
 export function MobileNav() {
   const pathname = usePathname();
@@ -24,27 +23,28 @@ export function MobileNav() {
   return (
     <nav
       aria-label="Mobile navigation"
-      className="fixed inset-x-0 bottom-6 z-50 px-4 sm:hidden flex justify-center"
+      className="fixed inset-x-0 bottom-0 z-50 md:hidden bg-[#15171C]/95 backdrop-blur-md border-t border-[#26282F] px-3 py-2 pb-[calc(8px+env(safe-area-inset-bottom))]"
     >
-      <ul className="liquid-glass-regular flex items-center gap-1.5 rounded-full p-2 shadow-apple-lg">
+      <ul className="flex items-center justify-around gap-1 max-w-md mx-auto">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
           const active =
             href === "/" ? pathname === "/" : pathname.startsWith(href);
 
           return (
-            <li key={href}>
+            <li key={href} className="flex-1 flex justify-center">
               <Link
                 href={href}
                 aria-label={label}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "press-scale flex h-11 w-11 items-center justify-center rounded-full transition-all duration-quick",
+                  "press-scale flex h-[44px] w-[44px] flex-col items-center justify-center rounded-[10px] transition-all duration-200",
                   active
-                    ? "bg-primary text-primary-foreground shadow-apple-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-[#B98A45] text-[#0E0F13] font-bold shadow-sm"
+                    : "text-[#9A958A] hover:text-[#F5F1E8] hover:bg-[#1C1E24]"
                 )}
               >
                 <Icon className="h-5 w-5" aria-hidden />
+                <span className="sr-only">{label}</span>
               </Link>
             </li>
           );
