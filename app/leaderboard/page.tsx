@@ -81,18 +81,18 @@ export default function LeaderboardPage() {
       </div>
 
       {/* Public "How ranking works" Methodology Banner */}
-      <div className="rounded-lg border border-[#4A3B34] bg-[#2B221E] p-6 shadow-xs godly-bg-glow flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="rounded-[10px] border border-[#26282F] bg-[#15171C] p-6 shadow-xs godly-bg-glow flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="flex items-center gap-2 text-subheading font-bold text-foreground">
-            <ShieldCheck className="h-5 w-5 text-[#C6A68D]" />
+          <div className="flex items-center gap-2 text-subheading font-archivo font-bold text-[#F5F1E8]">
+            <ShieldCheck className="h-5 w-5 text-[#B98A45]" />
             <span>How Ranking Works — Public Verifiable Methodology</span>
           </div>
-          <p className="text-caption text-muted-foreground max-w-3xl leading-relaxed">
+          <p className="text-caption text-[#9A958A] max-w-3xl leading-relaxed">
             Every ranking on WeFounders is calculated in real time using verified on-platform engagement metrics (community upvotes, double opt-in waitlist requests, and validated testing quest reports). Zero self-reported ARR claims; 100% transparent proof-of-work.
           </p>
         </div>
 
-        <Button asChild variant="outline" size="sm" className="shrink-0 rounded-full border-[#4A3B34] bg-[#1E1815]">
+        <Button asChild variant="outline" size="sm" className="shrink-0 rounded-[10px] border-[#26282F] bg-[#0E0F13] text-[#F5F1E8]">
           <Link href="/about#curation">Read 21% Curation Standard</Link>
         </Button>
       </div>

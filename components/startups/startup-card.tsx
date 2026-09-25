@@ -154,7 +154,7 @@ export function StartupCard({
           <div className="flex items-center gap-2 text-tiny font-mono text-muted-foreground">
             <Link
               href={`/startups/${startup.slug}#waitlist`}
-              className="hover:text-[#C6A68D] hover:underline font-semibold"
+              className="hover:text-[#B98A45] hover:underline font-semibold"
             >
               Waitlist ({startup.waitlist_count})
             </Link>

@@ -68,8 +68,8 @@ export function UpvoteButton({
         "inline-flex select-none items-center justify-center gap-1.5 rounded-full border font-semibold tabular-nums transition-all duration-quick active:scale-[0.97]",
         "h-11 min-w-[3.25rem] px-3 sm:h-9 sm:min-w-[3rem]",
         voted
-          ? "border-primary bg-primary text-primary-foreground shadow-sm"
-          : "border-border bg-card text-foreground hover:border-primary/40 hover:bg-accent hover:text-accent-foreground",
+          ? "border-[#B98A45] bg-[#B98A45] text-[#0E0F13] shadow-sm font-bold"
+          : "border-[#26282F] bg-[#15171C] text-[#F5F1E8] hover:border-[#B98A45]/50 hover:text-[#B98A45]",
         popped && "scale-105",
         pending && "opacity-80",
         disabled && "cursor-not-allowed opacity-50",

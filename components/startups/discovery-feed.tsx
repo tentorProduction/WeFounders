@@ -159,63 +159,63 @@ export function DiscoveryFeed({
 
   return (
     <div className="space-y-8">
-      {/* Warm Organic Taupe & Cream Hero Section */}
-      <section className="relative rounded-lg border border-[#4A3B34] bg-[#2B221E] p-8 sm:p-12 shadow-md text-center godly-bg-glow">
+      {/* Spec-Compliant Hero Section */}
+      <section className="relative rounded-[10px] border border-[#26282F] bg-[#15171C] p-8 sm:p-12 shadow-md text-center godly-bg-glow">
         <div className="relative z-10 space-y-5">
-          {/* Mono Eyebrow */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#C6A68D]/40 bg-[#1E1815]/80 px-3.5 py-1 text-tiny font-mono font-bold uppercase tracking-widest text-[#F5E1C1]">
-            <Award className="h-3.5 w-3.5 text-[#C6A68D]" />
+          {/* Eyebrow */}
+          <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(185,138,69,0.3)] bg-[#0E0F13] px-3.5 py-1 text-tiny font-mono font-bold uppercase tracking-widest text-[#B98A45]">
+            <Award className="h-3.5 w-3.5 text-[#B98A45]" />
             <span>NEPAL&apos;S STARTUP LAUNCH PLATFORM</span>
           </div>
 
           {/* Archivo Display Headline */}
-          <h1 className="mx-auto max-w-4xl text-display font-medium tracking-tight text-foreground sm:text-display">
-            Launch your startup in front of <span className="text-[#C6A68D]">Nepal&apos;s builders</span>
+          <h1 className="mx-auto max-w-4xl text-display font-archivo font-bold tracking-tight text-[#F5F1E8] sm:text-display">
+            Launch your startup in front of <span className="text-[#B98A45]">Nepal&apos;s builders</span>
           </h1>
 
-          {/* Instrument Serif Subhead */}
-          <p className="mx-auto max-w-2xl text-body text-muted-foreground leading-relaxed italic">
+          {/* Subhead */}
+          <p className="mx-auto max-w-2xl text-body text-[#9A958A] leading-relaxed italic">
             Connecting early-stage founders with beta users, verified community traction, and proof-of-work engagement across Nepal and global export markets.
           </p>
 
-          {/* Primary Warm Pill CTA + Secondary Outline CTA */}
+          {/* Primary Gold Pill CTA + Secondary Outline CTA */}
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <Button
               asChild
-              className="bg-[#C6A68D] text-[#1E1815] hover:bg-[#C6A68D]/90 font-bold rounded-full px-6 py-5 shadow-sm transition-all hover:scale-[1.02]"
+              className="bg-[#B98A45] text-[#0E0F13] hover:bg-[#c99a55] font-archivo font-semibold rounded-[10px] px-6 py-5 shadow-sm transition-all hover:-translate-y-0.5"
             >
               <a href="/submit">Submit Your Startup</a>
             </Button>
             <Button
               asChild
               variant="outline"
-              className="border-[#4A3B34] bg-[#1E1815] text-foreground hover:bg-[#382C27] rounded-full px-6 py-5"
+              className="border-[#26282F] bg-[#0E0F13] text-[#F5F1E8] hover:bg-[#1C1E24] font-archivo font-medium rounded-[10px] px-6 py-5"
             >
               <a href="/leaderboard">View Leaderboard</a>
             </Button>
           </div>
 
           {/* Real Verified Stats Ticker Bar */}
-          <div className="pt-3 flex flex-wrap items-center justify-center gap-3 text-tiny font-mono text-muted-foreground">
-            <div className="flex items-center gap-1.5 rounded-lg border border-[#4A3B34] bg-[#1E1815]/90 px-3 py-1.5">
-              <Calendar className="h-3.5 w-3.5 text-[#C6A68D]" />
+          <div className="pt-3 flex flex-wrap items-center justify-center gap-3 text-tiny font-mono text-[#9A958A]">
+            <div className="flex items-center gap-1.5 rounded-[10px] border border-[#26282F] bg-[#0E0F13] px-3 py-1.5">
+              <Calendar className="h-3.5 w-3.5 text-[#B98A45]" />
               <span><time dateTime={new Date().toISOString()}>{batchDate}</time> Batch</span>
             </div>
 
-            <div className="flex items-center gap-1.5 rounded-lg border border-[#4A3B34] bg-[#1E1815]/90 px-3 py-1.5">
-              <Rocket className="h-3.5 w-3.5 text-[#C6A68D]" />
+            <div className="flex items-center gap-1.5 rounded-[10px] border border-[#26282F] bg-[#0E0F13] px-3 py-1.5">
+              <Rocket className="h-3.5 w-3.5 text-[#B98A45]" />
               <span>{startups.length} Verified Launches</span>
             </div>
 
-            <div className="flex items-center gap-1.5 rounded-lg border border-[#4A3B34] bg-[#1E1815]/90 px-3 py-1.5">
+            <div className="flex items-center gap-1.5 rounded-[10px] border border-[#26282F] bg-[#0E0F13] px-3 py-1.5">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C6A68D] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#C6A68D]"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#B98A45] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#B98A45]"></span>
               </span>
               <span>{totalWaitlistCount} Waitlisted Testers</span>
             </div>
 
-            <div className="flex items-center gap-1.5 rounded-lg border border-[#4A3B34] bg-[#1E1815]/90 px-3 py-1.5">
+            <div className="flex items-center gap-1.5 rounded-[10px] border border-[#26282F] bg-[#0E0F13] px-3 py-1.5">
               <span>▲ {totalUpvotesCount} Upvotes</span>
             </div>
           </div>
@@ -223,7 +223,7 @@ export function DiscoveryFeed({
           {/* Digest Email Capture Above the Fold */}
           <div className="mx-auto mt-4 max-w-md pt-2">
             {digestSubscribed ? (
-              <div className="rounded-lg border border-[#C6A68D]/40 bg-[#C6A68D]/15 p-3 text-caption font-medium text-[#F5E1C1]">
+              <div className="rounded-[10px] border border-[rgba(185,138,69,0.3)] bg-[#0E0F13] p-3 text-caption font-medium text-[#B98A45]">
                 ✓ You&apos;re subscribed to daily WeFounders launches!
               </div>
             ) : (
@@ -234,9 +234,9 @@ export function DiscoveryFeed({
                   value={digestEmail}
                   onChange={(e) => setDigestEmail(e.target.value)}
                   placeholder="Get today's launches in your inbox…"
-                  className="h-10 flex-1 rounded-lg border border-[#4A3B34] bg-[#1E1815] px-3.5 text-caption placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#C6A68D]"
+                  className="h-10 flex-1 rounded-[10px] border border-[#26282F] bg-[#0E0F13] px-3.5 text-caption text-[#F5F1E8] placeholder:text-[#9A958A] focus:outline-none focus:ring-2 focus:ring-[#B98A45]"
                 />
-                <Button type="submit" size="sm" className="bg-[#C6A68D] text-[#1E1815] font-bold rounded-lg shrink-0 hover:bg-[#C6A68D]/90">
+                <Button type="submit" size="sm" className="bg-[#B98A45] text-[#0E0F13] font-archivo font-semibold rounded-[10px] shrink-0 hover:bg-[#c99a55]">
                   Subscribe
                 </Button>
               </form>
@@ -246,7 +246,7 @@ export function DiscoveryFeed({
           {/* Search Input Bar */}
           <div className="relative mx-auto mt-4 max-w-xl">
             <Search
-              className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+              className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9A958A]"
               aria-hidden
             />
             <input
@@ -255,14 +255,14 @@ export function DiscoveryFeed({
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search ventures, technologies, eSewa, AI copilots…"
               aria-label="Search ventures"
-              className="h-11 w-full rounded-lg border border-[#4A3B34] bg-[#1E1815] pl-11 pr-10 text-body font-medium shadow-sm transition-all placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C6A68D]"
+              className="h-11 w-full rounded-[10px] border border-[#26282F] bg-[#0E0F13] pl-11 pr-10 text-body font-medium shadow-sm transition-all text-[#F5F1E8] placeholder:text-[#9A958A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B98A45]"
             />
             {query && (
               <button
                 type="button"
                 onClick={() => setQuery("")}
                 aria-label="Clear search"
-                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer rounded-md p-1 text-muted-foreground transition-colors hover:bg-[#382C27] hover:text-foreground"
+                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer rounded-md p-1 text-[#9A958A] transition-colors hover:bg-[#1C1E24] hover:text-[#F5F1E8]"
               >
                 <X className="h-4 w-4" aria-hidden />
               </button>
@@ -286,10 +286,10 @@ export function DiscoveryFeed({
               onClick={() => setFilter(key)}
               aria-pressed={active}
               className={cn(
-                "press-scale inline-flex h-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border px-4 text-caption font-semibold transition-all",
+                "press-scale inline-flex h-9 shrink-0 cursor-pointer items-center justify-center rounded-[10px] border px-4 text-caption font-semibold transition-all",
                 active
-                  ? "border-[#C6A68D] bg-[#C6A68D] text-[#1E1815] font-bold shadow-sm"
-                  : "border-[#4A3B34] bg-[#2B221E] text-muted-foreground hover:border-[#C6A68D]/50 hover:text-foreground"
+                  ? "border-[#B98A45] bg-[#B98A45] text-[#0E0F13] font-archivo font-bold shadow-sm"
+                  : "border-[#26282F] bg-[#15171C] text-[#9A958A] hover:border-[rgba(185,138,69,0.4)] hover:text-[#F5F1E8]"
               )}
             >
               {label}
@@ -300,7 +300,7 @@ export function DiscoveryFeed({
 
       {activeTag && (
         <div className="flex items-center justify-center gap-2">
-          <span className="text-caption text-muted-foreground font-mono">
+          <span className="text-caption text-[#9A958A] font-mono">
             Active Filter Tag:
           </span>
           <TagPill tag={activeTag} active onRemove={() => setActiveTag(null)} />
@@ -322,23 +322,23 @@ export function DiscoveryFeed({
 
       {/* Launch Feed List */}
       <section aria-label="Today's launches" className="space-y-4">
-        <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[#4A3B34] pb-3">
+        <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[#26282F] pb-3">
           <div className="flex items-baseline gap-3">
-            <h2 className="text-heading font-bold text-foreground flex items-center gap-2">
-              <Flame className="h-4 w-4 text-[#C6A68D]" /> Latest Community Launches
+            <h2 className="text-heading font-archivo font-bold text-[#F5F1E8] flex items-center gap-2">
+              <Flame className="h-4 w-4 text-[#B98A45]" /> Latest Community Launches
             </h2>
-            <span className="text-caption text-muted-foreground font-mono">
+            <span className="text-caption text-[#9A958A] font-mono">
               <time dateTime={new Date().toISOString()}>{batchDate}</time> · {feed.length} {feed.length === 1 ? "venture" : "ventures"}{hasFilters && " filtered"}
             </span>
           </div>
 
-          {/* Working Real Sort Dropdown */}
+          {/* Real Sort Dropdown */}
           <div className="flex items-center gap-2 font-mono text-tiny">
-            <span className="text-muted-foreground uppercase">Sort:</span>
+            <span className="text-[#9A958A] uppercase">Sort:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as "popular" | "newest" | "waitlist")}
-              className="rounded-lg border border-[#4A3B34] bg-[#1E1815] px-3 py-1.5 text-caption font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-[#C6A68D]"
+              className="rounded-[8px] border border-[#26282F] bg-[#0E0F13] px-3 py-1.5 text-caption font-semibold text-[#F5F1E8] focus:outline-none focus:ring-1 focus:ring-[#B98A45]"
             >
               <option value="popular">Top Upvoted</option>
               <option value="newest">Chronological</option>
@@ -364,15 +364,15 @@ export function DiscoveryFeed({
             ))}
           </div>
         ) : (
-          <div className="godly-card p-12 text-center border-dashed border-[#4A3B34] bg-[#2B221E]">
-            <p className="text-subheading font-bold text-foreground">
+          <div className="godly-card p-12 text-center border-dashed border-[#26282F] bg-[#15171C]">
+            <p className="text-subheading font-bold text-[#F5F1E8]">
               No ventures match your active search filter
             </p>
-            <p className="mt-1 text-body text-muted-foreground">
+            <p className="mt-1 text-body text-[#9A958A]">
               Modify your search keywords or clear your category selection.
             </p>
             <Button
-              className="mt-4 bg-[#C6A68D] text-[#1E1815] font-bold hover:bg-[#C6A68D]/90"
+              className="mt-4 bg-[#B98A45] text-[#0E0F13] font-archivo font-semibold hover:bg-[#c99a55]"
               size="sm"
               onClick={clearFilters}
             >

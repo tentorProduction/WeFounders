@@ -117,7 +117,7 @@ export default function SubmitPage() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
             <CheckCircle2 className="h-10 w-10" />
           </div>
-          <Badge variant="outline" className="border-[#C6A68D]/40 bg-[#C6A68D]/15 text-[#F5E1C1] font-mono font-bold text-caption px-4 py-1.5 rounded-full">
+          <Badge variant="outline" className="border-[rgba(185,138,69,0.3)] bg-[#0E0F13] text-[#B98A45] font-mono font-bold text-caption px-4 py-1.5 rounded-full">
             🚀 You&apos;re #4 in tomorrow&apos;s queue!
           </Badge>
           <h1 className="text-display font-bold text-foreground">

@@ -24,39 +24,39 @@ const COMMUNITY_LINKS = [
 ];
 
 /**
- * WeFounders Footer Component (WCAG AA Compliant & Semantic HTML)
+ * WeFounders Footer Component (#15171C background, #26282F borders)
  */
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border bg-card mt-16 text-caption">
+    <footer className="border-t border-[#26282F] bg-[#15171C] mt-16 text-caption">
       <div className="site-container grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-4">
         {/* Brand Column */}
         <div className="space-y-3">
           <Link href="/" className="flex items-center gap-2">
             <span
               aria-hidden
-              className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary font-mono text-xs font-black text-primary-foreground shadow-xs"
+              className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-[#B98A45] font-archivo text-xs font-bold text-[#0E0F13]"
             >
               W
             </span>
-            <span className="text-subheading font-black tracking-tight text-foreground">
-              We<span className="text-primary">Founders</span>
+            <span className="text-[18px] font-archivo font-bold tracking-tight text-[#F5F1E8]">
+              We<span className="text-[#B98A45]">Founders</span>
             </span>
-            <Badge variant="outline" className="text-[10px] font-mono border-border text-muted-foreground">
+            <Badge variant="outline" className="text-[10px] font-mono border-[#26282F] text-[#9A958A] bg-[#0E0F13]">
               .dev 🇳🇵
             </Badge>
           </Link>
-          <p className="text-muted-foreground leading-relaxed">
+          <p className="text-[#9A958A] leading-relaxed">
             Nepal&apos;s launchpad for world-class startups. Get your first 1,000 beta users from Nepal&apos;s builder community.
           </p>
-          <div className="pt-1 text-tiny font-mono text-muted-foreground">
-            Contact: <a href="mailto:hello@wefounders.dev" className="text-foreground hover:underline">hello@wefounders.dev</a>
+          <div className="pt-1 text-tiny font-mono text-[#9A958A]">
+            Contact: <a href="mailto:hello@wefounders.dev" className="text-[#F5F1E8] hover:underline">hello@wefounders.dev</a>
           </div>
         </div>
 
         {/* Product Navigation */}
         <nav aria-label="Product links" className="space-y-3">
-          <h3 className="text-tiny font-bold uppercase tracking-wider text-foreground font-mono">
+          <h3 className="text-tiny font-bold uppercase tracking-wider text-[#F5F1E8] font-mono">
             Platform
           </h3>
           <ul className="space-y-2">
@@ -64,7 +64,7 @@ export function SiteFooter() {
               <li key={href}>
                 <Link
                   href={href}
-                  className="text-muted-foreground transition-colors hover:text-foreground underline-offset-4 hover:underline"
+                  className="text-[#9A958A] transition-colors hover:text-[#F5F1E8] underline-offset-4 hover:underline"
                 >
                   {label}
                 </Link>
@@ -75,7 +75,7 @@ export function SiteFooter() {
 
         {/* Resources & Guidelines */}
         <nav aria-label="Resource links" className="space-y-3">
-          <h3 className="text-tiny font-bold uppercase tracking-wider text-foreground font-mono">
+          <h3 className="text-tiny font-bold uppercase tracking-wider text-[#F5F1E8] font-mono">
             Resources &amp; Curation
           </h3>
           <ul className="space-y-2">
@@ -83,7 +83,7 @@ export function SiteFooter() {
               <li key={href}>
                 <Link
                   href={href}
-                  className="text-muted-foreground transition-colors hover:text-foreground underline-offset-4 hover:underline"
+                  className="text-[#9A958A] transition-colors hover:text-[#F5F1E8] underline-offset-4 hover:underline"
                 >
                   {label}
                 </Link>
@@ -94,7 +94,7 @@ export function SiteFooter() {
 
         {/* Community & Socials */}
         <nav aria-label="Community links" className="space-y-3">
-          <h3 className="text-tiny font-bold uppercase tracking-wider text-foreground font-mono">
+          <h3 className="text-tiny font-bold uppercase tracking-wider text-[#F5F1E8] font-mono">
             Community
           </h3>
           <ul className="space-y-2">
@@ -104,7 +104,7 @@ export function SiteFooter() {
                   href={href}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-muted-foreground transition-colors hover:text-foreground underline-offset-4 hover:underline"
+                  className="text-[#9A958A] transition-colors hover:text-[#F5F1E8] underline-offset-4 hover:underline"
                 >
                   {label}
                 </a>
@@ -114,8 +114,8 @@ export function SiteFooter() {
         </nav>
       </div>
 
-      <div className="border-t border-border/80">
-        <div className="site-container flex flex-col items-center justify-between gap-3 py-6 text-tiny text-muted-foreground sm:flex-row font-mono">
+      <div className="border-t border-[#26282F]">
+        <div className="site-container flex flex-col items-center justify-between gap-3 py-6 text-tiny text-[#9A958A] sm:flex-row font-mono">
           <p>© 2026 WeFounders.dev — Startup Discovery &amp; Beta Launchpad</p>
           <p className="flex items-center gap-2">
             <span>Kathmandu NPT Timezone</span>
