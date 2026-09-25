@@ -18,8 +18,8 @@ function shell(title: string, bodyHtml: string): string {
           <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#FFFFFF;border:1px solid #E4E4E7;border-radius:12px;overflow:hidden;">
             <tr>
               <td style="background:${BLACK};padding:16px 24px;">
-                <span style="display:inline-block;width:28px;height:28px;line-height:28px;text-align:center;background:${BLACK};border:2px solid #FFFFFF;border-radius:8px;color:#FFFFFF;font-weight:700;font-size:14px;">W</span>
-                <span style="color:#FFFFFF;font-weight:700;font-size:16px;margin-left:8px;">Wefounder<span style="opacity:.75;">.dev</span></span>
+                <span style="display:inline-block;width:28px;height:28px;line-height:28px;text-align:center;background:#B98A45;border-radius:8px;color:#15171C;font-weight:700;font-size:14px;">W</span>
+                <span style="color:#FFFFFF;font-weight:700;font-size:16px;margin-left:8px;">WeFounders<span style="color:#B98A45;">.dev</span></span>
               </td>
             </tr>
             <tr>
@@ -31,8 +31,8 @@ function shell(title: string, bodyHtml: string): string {
             <tr>
               <td style="padding:16px 24px 24px;border-top:1px solid #F4F4F5;margin-top:16px;">
                 <p style="margin:0;font-size:12px;color:${MUTED};">
-                  You received this because of activity on Wefounder.dev — Nepal&apos;s
-                  first beta launchpad.
+                  You received this because of activity on WeFounders.dev — Nepal&apos;s
+                  startup launch &amp; beta platform.
                 </p>
               </td>
             </tr>
@@ -62,13 +62,13 @@ export function waitlistConfirmationEmail(
     `
     <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:${INK};">
       You just joined the private beta waitlist for
-      <strong>${input.startup.name}</strong> on Wefounder.dev.
+      <strong>${input.startup.name}</strong> on WeFounders.dev.
     </p>
     <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:${MUTED};">
       &ldquo;${input.startup.tagline}&rdquo;
     </p>
     <p style="margin:0 0 24px;">
-      <a href="${cta}" style="display:inline-block;background:${BLACK};color:#FFFFFF;text-decoration:none;font-weight:600;font-size:14px;padding:10px 20px;border-radius:8px;">
+      <a href="${cta}" style="display:inline-block;background:#B98A45;color:#15171C;text-decoration:none;font-weight:700;font-size:14px;padding:10px 20px;border-radius:9999px;">
         View the launch &rarr;
       </a>
     </p>
@@ -81,7 +81,7 @@ export function waitlistConfirmationEmail(
   const text = [
     `You're in - position #${input.position}`,
     ``,
-    `You just joined the private beta waitlist for ${input.startup.name} on Wefounder.dev.`,
+    `You just joined the private beta waitlist for ${input.startup.name} on WeFounders.dev.`,
     `"${input.startup.tagline}"`,
     ``,
     `View the launch: ${cta}`,

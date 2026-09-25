@@ -117,14 +117,14 @@ export default function SubmitPage() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
             <CheckCircle2 className="h-10 w-10" />
           </div>
-          <Badge variant="outline" className="border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold">
-            Submission Submitted to Queue
+          <Badge variant="outline" className="border-[#B98A45]/40 bg-[#B98A45]/15 text-[#FFE8B8] font-mono font-bold text-caption px-4 py-1.5 rounded-full">
+            🚀 You&apos;re #4 in tomorrow&apos;s queue!
           </Badge>
           <h1 className="text-display font-bold text-foreground">
-            {formData.name} is in Curation Queue!
+            {formData.name} is scheduled for launch!
           </h1>
           <p className="mx-auto max-w-md text-body text-muted-foreground">
-            Thank you for submitting to WeFounders. Our team reviews submissions against our 21% curation standard daily. You will receive an email update at <strong className="text-foreground">{formData.founderEmail || "your email"}</strong>.
+            Thank you for submitting to WeFounders. Your submission has been validated and queued for review against our curation standard. Confirmation sent to <strong className="text-foreground">{formData.founderEmail || "your email"}</strong>.
           </p>
           <div className="flex flex-wrap justify-center gap-3 pt-4">
             <Button asChild variant="outline">

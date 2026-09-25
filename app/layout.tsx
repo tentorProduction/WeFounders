@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
+import { Archivo, Instrument_Serif, IBM_Plex_Mono } from "next/font/google";
 
 import { AnnouncementBanner } from "@/components/layout/announcement-banner";
 import { MobileNav } from "@/components/layout/mobile-nav";
@@ -11,6 +10,24 @@ import { AuthProvider } from "@/lib/firebase/auth-context";
 
 import "./globals.css";
 
+const archivo = Archivo({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-archivo",
+});
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-instrument",
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  variable: "--font-ibm-mono",
+});
+
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.wefounders.dev";
 
 export const metadata: Metadata = {
@@ -20,7 +37,7 @@ export const metadata: Metadata = {
     template: "%s · WeFounders",
   },
   description:
-    "WeFounders is Nepal's premiere launchpad for world-class startups. Discover new products, get early beta users, upvote, and track local founder bounties.",
+    "WeFounders is Nepal's launchpad for world-class startups. Discover new products, get early beta users, upvote, and track local founder bounties.",
   keywords: [
     "WeFounders",
     "Nepal startups",
@@ -51,7 +68,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "WeFounders — Nepal's Startup Launch & Beta Platform",
     description:
-      "Nepal's premiere launchpad for world-class startups. Discover, upvote, and launch tech products.",
+      "Nepal's launchpad for world-class startups. Discover, upvote, and launch tech products.",
     creator: "@wefounders_dev",
   },
   robots: {
@@ -70,7 +87,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#FFFFFF" },
-    { media: "(prefers-color-scheme: dark)", color: "#09090B" },
+    { media: "(prefers-color-scheme: dark)", color: "#15171C" },
   ],
 };
 
@@ -112,7 +129,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${GeistSans.variable} ${GeistMono.variable}`}
+      className={`${archivo.variable} ${instrumentSerif.variable} ${ibmPlexMono.variable}`}
     >
       <head>
         <script

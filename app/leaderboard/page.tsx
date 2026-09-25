@@ -80,20 +80,20 @@ export default function LeaderboardPage() {
         </div>
       </div>
 
-      {/* Transparent Methodology Banner */}
-      <div className="rounded-3xl border border-border bg-card p-6 shadow-apple-sm godly-bg-glow flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      {/* Public "How ranking works" Methodology Banner */}
+      <div className="rounded-lg border border-[#322A1F] bg-card p-6 shadow-xs godly-bg-glow flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-subheading font-bold text-foreground">
-            <ShieldCheck className="h-5 w-5 text-emerald-500" />
-            <span>Transparent Methodology &amp; Anti-Spam</span>
+            <ShieldCheck className="h-5 w-5 text-[#B98A45]" />
+            <span>How Ranking Works — Public Verifiable Methodology</span>
           </div>
-          <p className="text-caption text-muted-foreground max-w-2xl">
-            Unlike platforms that rely on self-reported social media ARR claims, WeFounders measures verified user upvotes, double-opt-in waitlist entries, and validated proof-of-work tester reports.
+          <p className="text-caption text-muted-foreground max-w-3xl leading-relaxed">
+            Every ranking on WeFounders is calculated in real time using verified on-platform engagement metrics (community upvotes, double opt-in waitlist requests, and validated testing quest reports). Zero self-reported ARR claims; 100% transparent proof-of-work.
           </p>
         </div>
 
-        <Button asChild variant="outline" size="sm" className="shrink-0">
-          <Link href="/about#curation">Read Curation Bar</Link>
+        <Button asChild variant="outline" size="sm" className="shrink-0 rounded-full border-[#322A1F]">
+          <Link href="/about#curation">Read 21% Curation Standard</Link>
         </Button>
       </div>
 

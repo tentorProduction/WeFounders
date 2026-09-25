@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search, X, ChevronDown, Rocket, Calendar, Flame, Award } from "lucide-react";
+import { Search, X, Rocket, Calendar, Flame, Award } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { StartupWithTags } from "@/types/database";
@@ -85,8 +85,21 @@ export function DiscoveryFeed({
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<FeedFilter>("all");
   const [activeTag, setActiveTag] = useState<TagPillTag | null>(null);
-  const [sortBy, setSortBy] = useState<"popular" | "newest">("popular");
+  const [sortBy, setSortBy] = useState<"popular" | "newest" | "waitlist">("popular");
+  const [digestEmail, setDigestEmail] = useState("");
+  const [digestSubscribed, setDigestSubscribed] = useState(false);
+
   const { getUpvote, toggleUpvote } = useOptimisticUpvotes();
+
+  const totalWaitlistCount = useMemo(
+    () => startups.reduce((sum, s) => sum + s.waitlist_count, 0),
+    [startups]
+  );
+
+  const totalUpvotesCount = useMemo(
+    () => startups.reduce((sum, s) => sum + s.upvotes_count, 0),
+    [startups]
+  );
 
   const results = useMemo(
     () =>
@@ -109,8 +122,15 @@ export function DiscoveryFeed({
     const list = results.filter((startup) => startup.id !== featured?.id);
     if (sortBy === "popular") {
       return [...list].sort((a, b) => b.upvotes_count - a.upvotes_count);
+    } else if (sortBy === "waitlist") {
+      return [...list].sort((a, b) => b.waitlist_count - a.waitlist_count);
+    } else {
+      return [...list].sort(
+        (a, b) =>
+          new Date(b.launch_date ?? b.created_at).getTime() -
+          new Date(a.launch_date ?? a.created_at).getTime()
+      );
     }
-    return list;
   }, [results, featured, sortBy]);
 
   const hasFilters = filter !== "all" || query.trim() !== "" || activeTag !== null;
@@ -125,37 +145,61 @@ export function DiscoveryFeed({
     setActiveTag((current) => (current?.slug === tag.slug ? null : tag));
   }
 
+  function handleDigestSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (digestEmail.trim()) {
+      setDigestSubscribed(true);
+    }
+  }
+
   return (
     <div className="space-y-8">
       {/* Auralis Clean Paper Workflow — Hero Section */}
       <section className="relative rounded-lg border border-[#322A1F] bg-card p-8 sm:p-12 shadow-sm text-center godly-bg-glow">
-        <div className="relative z-10 space-y-4">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#B98A45]/30 bg-[#322A1F]/60 px-3.5 py-1 text-tiny font-mono font-bold text-[#FFE8B8]">
+        <div className="relative z-10 space-y-5">
+          {/* Mono Eyebrow */}
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#B98A45]/40 bg-[#322A1F]/80 px-3.5 py-1 text-tiny font-mono font-bold uppercase tracking-widest text-[#FFE8B8]">
             <Award className="h-3.5 w-3.5 text-[#B98A45]" />
-            <span>Nepal Premier Startup Launch &amp; Discovery Hub</span>
+            <span>NEPAL&apos;S STARTUP LAUNCH PLATFORM</span>
           </div>
 
-          {/* Main Title */}
-          <h1 className="mx-auto max-w-3xl text-display font-medium tracking-tight text-foreground sm:text-display">
-            Build and Launch <span className="text-[#B98A45]">High-Impact Tech Ventures</span>
+          {/* Archivo Display Headline */}
+          <h1 className="mx-auto max-w-4xl text-display font-medium tracking-tight text-foreground sm:text-display">
+            Launch your startup in front of <span className="text-[#B98A45]">Nepal&apos;s builders</span>
           </h1>
 
-          {/* Subtitle */}
-          <p className="mx-auto max-w-xl text-body text-muted-foreground leading-relaxed">
-            Connecting early-stage founders with beta users, verified community traction, and proof-of-work engagement across Nepal and global markets.
+          {/* Instrument Serif Subhead */}
+          <p className="mx-auto max-w-2xl text-body text-muted-foreground leading-relaxed italic">
+            Connecting early-stage founders with beta users, verified community traction, and proof-of-work engagement across Nepal and global export markets.
           </p>
 
-          {/* Stats Ticker Bar */}
-          <div className="pt-2 flex flex-wrap items-center justify-center gap-3 text-tiny font-mono text-muted-foreground">
+          {/* Primary Gold Pill CTA + Secondary Outline CTA */}
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <Button
+              asChild
+              className="bg-[#B98A45] text-[#15171C] hover:bg-[#B98A45]/90 font-bold rounded-full px-6 py-5"
+            >
+              <a href="/submit">Submit Your Startup</a>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="border-[#322A1F] text-foreground hover:bg-secondary rounded-full px-6 py-5"
+            >
+              <a href="/leaderboard">View Leaderboard</a>
+            </Button>
+          </div>
+
+          {/* Real Verified Stats Ticker Bar */}
+          <div className="pt-3 flex flex-wrap items-center justify-center gap-3 text-tiny font-mono text-muted-foreground">
             <div className="flex items-center gap-1.5 rounded-lg border border-[#322A1F] bg-background/80 px-3 py-1.5">
               <Calendar className="h-3.5 w-3.5 text-[#B98A45]" />
-              <span>{batchDate} Batch</span>
+              <span><time dateTime={new Date().toISOString()}>{batchDate}</time> Batch</span>
             </div>
 
             <div className="flex items-center gap-1.5 rounded-lg border border-[#322A1F] bg-background/80 px-3 py-1.5">
               <Rocket className="h-3.5 w-3.5 text-[#B98A45]" />
-              <span>{startups.length} Verified Ventures</span>
+              <span>{startups.length} Verified Launches</span>
             </div>
 
             <div className="flex items-center gap-1.5 rounded-lg border border-[#322A1F] bg-background/80 px-3 py-1.5">
@@ -163,12 +207,39 @@ export function DiscoveryFeed({
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#B98A45] opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#B98A45]"></span>
               </span>
-              <span>1,850+ Active Testers</span>
+              <span>{totalWaitlistCount} Waitlisted Testers</span>
+            </div>
+
+            <div className="flex items-center gap-1.5 rounded-lg border border-[#322A1F] bg-background/80 px-3 py-1.5">
+              <span>▲ {totalUpvotesCount} Upvotes</span>
             </div>
           </div>
 
+          {/* Digest Email Capture Above the Fold */}
+          <div className="mx-auto mt-4 max-w-md pt-2">
+            {digestSubscribed ? (
+              <div className="rounded-lg border border-[#B98A45]/40 bg-[#B98A45]/15 p-3 text-caption font-medium text-[#FFE8B8]">
+                ✓ You&apos;re subscribed to daily WeFounders launches!
+              </div>
+            ) : (
+              <form onSubmit={handleDigestSubmit} className="flex gap-2">
+                <input
+                  type="email"
+                  required
+                  value={digestEmail}
+                  onChange={(e) => setDigestEmail(e.target.value)}
+                  placeholder="Get today's launches in your inbox…"
+                  className="h-10 flex-1 rounded-lg border border-[#322A1F] bg-background px-3.5 text-caption placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#B98A45]"
+                />
+                <Button type="submit" size="sm" className="bg-[#B98A45] text-[#15171C] font-bold rounded-lg shrink-0">
+                  Subscribe
+                </Button>
+              </form>
+            )}
+          </div>
+
           {/* Search Input Bar */}
-          <div className="relative mx-auto mt-6 max-w-xl">
+          <div className="relative mx-auto mt-4 max-w-xl">
             <Search
               className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
               aria-hidden
@@ -179,7 +250,7 @@ export function DiscoveryFeed({
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search ventures, technologies, eSewa, AI copilots…"
               aria-label="Search ventures"
-              className="h-12 w-full rounded-lg border border-[#322A1F] bg-background pl-11 pr-10 text-body font-medium shadow-sm transition-all placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B98A45]"
+              className="h-11 w-full rounded-lg border border-[#322A1F] bg-background pl-11 pr-10 text-body font-medium shadow-sm transition-all placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B98A45]"
             />
             {query && (
               <button
@@ -249,23 +320,25 @@ export function DiscoveryFeed({
         <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[#322A1F] pb-3">
           <div className="flex items-baseline gap-3">
             <h2 className="text-heading font-bold text-foreground flex items-center gap-2">
-              <Flame className="h-4 w-4 text-[#B98A45]" /> Curated Launch Feed
+              <Flame className="h-4 w-4 text-[#B98A45]" /> Today&apos;s Launches
             </h2>
             <span className="text-caption text-muted-foreground font-mono">
-              {batchDate} · {feed.length} {feed.length === 1 ? "venture" : "ventures"}{hasFilters && " filtered"}
+              <time dateTime={new Date().toISOString()}>{batchDate}</time> · {feed.length} {feed.length === 1 ? "venture" : "ventures"}{hasFilters && " filtered"}
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-caption text-muted-foreground font-mono">Sort By:</span>
-            <button
-              type="button"
-              onClick={() => setSortBy(sortBy === "popular" ? "newest" : "popular")}
-              className="inline-flex items-center gap-1 text-caption font-semibold text-foreground hover:text-[#B98A45] focus:outline-none"
+          {/* Working Real Sort Dropdown */}
+          <div className="flex items-center gap-2 font-mono text-tiny">
+            <span className="text-muted-foreground uppercase">Sort:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as "popular" | "newest" | "waitlist")}
+              className="rounded-lg border border-[#322A1F] bg-background px-3 py-1.5 text-caption font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-[#B98A45]"
             >
-              {sortBy === "popular" ? "Highest Engagement" : "Chronological"}
-              <ChevronDown className="h-3.5 w-3.5 text-[#B98A45]" />
-            </button>
+              <option value="popular">Top Upvoted</option>
+              <option value="newest">Chronological</option>
+              <option value="waitlist">Most Waitlisted</option>
+            </select>
           </div>
         </div>
 

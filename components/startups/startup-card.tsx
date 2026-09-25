@@ -143,15 +143,30 @@ export function StartupCard({
           )}
         </div>
 
-        {/* Right: Upvote Control & Time */}
-        <div className="flex shrink-0 flex-col items-end gap-1">
+        {/* Right: Upvote Control & Action Links */}
+        <div className="flex shrink-0 flex-col items-end gap-1.5">
           <UpvoteButton
             count={upvote.count}
             voted={upvote.voted}
             pending={upvote.pending}
             onToggle={upvote.onToggle}
           />
-          <span className="text-meta text-text-muted font-mono text-right">
+          <div className="flex items-center gap-2 text-tiny font-mono text-muted-foreground">
+            <Link
+              href={`/startups/${startup.slug}#waitlist`}
+              className="hover:text-[#B98A45] hover:underline font-semibold"
+            >
+              Waitlist ({startup.waitlist_count})
+            </Link>
+            <span>•</span>
+            <Link
+              href={`/startups/${startup.slug}`}
+              className="hover:text-foreground flex items-center gap-1"
+            >
+              💬 {startup.comments_count}
+            </Link>
+          </div>
+          <span className="text-[11px] text-muted-foreground font-mono text-right">
             {timeAgo(startup.launch_date ?? startup.created_at)}
           </span>
         </div>

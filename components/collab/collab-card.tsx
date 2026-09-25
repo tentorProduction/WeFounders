@@ -73,7 +73,7 @@ export function CollabCard({ post, className }: CollabCardProps) {
       <h3 className="mt-2 text-h3 font-bold text-foreground leading-snug">{post.title}</h3>
 
       <p className="mt-1 text-caption text-muted-foreground">
-        by {post.author_name ?? "Wefounder builder"}
+        by {post.author_name ?? "WeFounders builder"}
         {post.startup_slug ? (
           <>
             {" · "}

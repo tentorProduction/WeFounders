@@ -75,7 +75,7 @@ export async function postOpportunityAction(
     authorId: viewer.userId,
     authorName: viewer.backendConfigured
       ? "Founder"
-      : "Wefounder builder (demo)",
+      : "WeFounders builder (demo)",
   });
 
   revalidatePath("/collab");
