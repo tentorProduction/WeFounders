@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { readSession } from "@/lib/auth/session";
 import { createAdminClient } from "@/lib/supabase/admin";
+import "server-only";
 
 /** Resolve the signed Firebase session and confirm the role in Supabase. */
 export async function verifyAdmin() {

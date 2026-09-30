@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { getViewer } from "@/lib/auth/viewer";
+import { clientAddress, isRateLimited } from "@/lib/security/rate-limit";
+import { headers } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 // Types/initial value live outside this "use server" module — see the file.
 import type { StartupSubmissionActionState } from "@/lib/action-state";
@@ -120,6 +122,10 @@ export async function submitStartupAction(
       status: "error",
       message: "Sign in with Google before submitting — we need to attach the launch to your account.",
     };
+  }
+
+  if (await isRateLimited("startup-submit", `${viewer.userId}:${clientAddress(await headers())}`, 3, 60 * 60_000)) {
+    return { status: "error", message: "You have reached the hourly submission limit. Try again later." };
   }
 
   let rawTags: unknown = [];

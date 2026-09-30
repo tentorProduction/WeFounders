@@ -112,8 +112,8 @@ export function StartupGallery({
             className="flex h-full w-full flex-col items-center justify-center gap-2 text-center"
             style={{ backgroundImage: current.backdrop }}
           >
-            <Play className="h-6 w-6 text-[#DC2626]/70" aria-hidden />
-            <p className="px-6 text-caption font-medium text-[#18181B]">
+            <Play className="h-6 w-6 text-[#FF4B3E]/70" aria-hidden />
+            <p className="px-6 text-caption font-medium text-[#17181B]">
               {imageFailed ? "Preview unavailable" : "Product preview coming soon"}
             </p>
             <div className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(220,38,38,0.2)] bg-[#FFFFFF]/90 px-3 py-1 text-tiny font-mono font-bold text-[#991B1B]">

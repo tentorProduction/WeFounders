@@ -23,7 +23,7 @@ export function MobileNav() {
   return (
     <nav
       aria-label="Mobile navigation"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-[#E4E4E7] bg-white px-2 pt-1.5 pb-[calc(6px+env(safe-area-inset-bottom))] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-[#DADDE1] bg-white px-2 pt-1.5 pb-[calc(6px+env(safe-area-inset-bottom))] md:hidden"
     >
       <ul className="mx-auto flex max-w-md items-stretch gap-1">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
@@ -38,7 +38,7 @@ export function MobileNav() {
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "press-scale flex min-h-12 w-full flex-col items-center justify-center gap-1 rounded-md px-1 text-[10px] font-medium leading-none transition-colors",
-                  active ? "text-[#B91C1C]" : "text-[#71717A] hover:text-[#18181B]",
+                  active ? "text-[#E83A30]" : "text-[#666A73] hover:text-[#17181B]",
                 )}
               >
                 <Icon className="h-[18px] w-[18px]" aria-hidden />

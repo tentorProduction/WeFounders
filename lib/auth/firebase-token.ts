@@ -51,7 +51,7 @@ async function loadKeys(): Promise<Map<string, KeyObject>> {
   const fresh = cachedKeys && Date.now() - cachedKeys.fetchedAt < JWKS_TTL_MS;
   if (fresh) return cachedKeys!.keys;
 
-  const response = await fetch(JWKS_URL, { cache: "no-store" });
+  const response = await fetch(JWKS_URL, { cache: "no-store", signal: AbortSignal.timeout(5_000) });
   if (!response.ok) {
     throw new Error(`Could not fetch Firebase signing keys (HTTP ${response.status}).`);
   }
@@ -106,6 +106,7 @@ export async function verifyFirebaseIdToken(
     name?: string;
     picture?: string;
     user_id?: string;
+    email_verified?: boolean;
   };
 
   try {
@@ -137,9 +138,11 @@ export async function verifyFirebaseIdToken(
     if (payload.iss !== `${ISSUER_PREFIX}${projectId}`) return null;
     if (typeof payload.exp !== "number" || payload.exp <= now) return null;
     if (typeof payload.iat !== "number" || payload.iat > now + MAX_CLOCK_SKEW) return null;
+    if (payload.iat < now - 60 * 60) return null;
+    if (payload.email_verified !== true || typeof payload.email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) return null;
 
     const uid = payload.sub ?? payload.user_id;
-    if (!uid) return null;
+    if (!uid || uid.length > 128) return null;
 
     return {
       uid,

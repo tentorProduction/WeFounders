@@ -172,6 +172,7 @@ export interface Promotion {
   amount_npr: number;
   provider: PaymentProvider;
   transaction_id: string | null;
+  payment_intent_id: string | null;
   reference_id: string;
   // PROMPT 7 plans: "Featured Spotlight (48 Hours)" / "Weekly Power Launch (7 Days)".
   plan_tier: "featured_48h" | "weekly_7d";

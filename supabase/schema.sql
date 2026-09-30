@@ -206,6 +206,7 @@ create table public.promotions (
   amount_npr     numeric(10, 2) not null check (amount_npr >= 0),
   provider       public.payment_provider not null,
   transaction_id text unique,
+  payment_intent_id text unique,
   reference_id   text not null unique,
   plan_tier      text not null check (plan_tier in ('featured_48h', 'weekly_7d')),
   status         public.payment_status not null default 'pending',
@@ -340,21 +341,25 @@ alter table public.quest_submissions enable row level security;
 alter table public.collab_posts      enable row level security;
 alter table public.promotions        enable row level security;
 
--- Public read: profiles, tags, media, comments, quests
-create policy "profiles are publicly readable"
-  on public.profiles for select to anon, authenticated using (true);
+-- Profiles contain private identity data (email, phone, Firebase uid). Public
+-- profile reads must go through server code that selects only safe fields.
 
 create policy "tags are publicly readable"
   on public.tags for select to anon, authenticated using (true);
 
 create policy "media is publicly readable"
-  on public.startup_media for select to anon, authenticated using (true);
-
-create policy "comments are publicly readable"
-  on public.comments for select to anon, authenticated using (true);
+  on public.startup_media for select to anon, authenticated
+  using (exists (
+    select 1 from public.startups s
+    where s.id = startup_media.startup_id and s.status = 'approved'
+  ));
 
 create policy "quests are publicly readable"
-  on public.testing_quests for select to anon, authenticated using (true);
+  on public.testing_quests for select to anon, authenticated
+  using (status = 'active' and exists (
+    select 1 from public.startups s
+    where s.id = testing_quests.startup_id and s.status = 'approved'
+  ));
 
 -- Startups: only approved launches are public.
 create policy "approved startups are public"
@@ -362,16 +367,19 @@ create policy "approved startups are public"
   using (status = 'approved');
 
 create policy "startup tags are publicly readable"
-  on public.startup_tags for select to anon, authenticated using (true);
+  on public.startup_tags for select to anon, authenticated
+  using (exists (
+    select 1 from public.startups s
+    where s.id = startup_tags.startup_id and s.status = 'approved'
+  ));
 
 -- Collab board: active listings only.
 create policy "active collab posts are public"
   on public.collab_posts for select to anon, authenticated
   using (is_active);
 
--- Upvote rows are readable so counts can be reconciled client-side.
-create policy "upvotes are publicly readable"
-  on public.upvotes for select to anon, authenticated using (true);
+-- Comments, upvotes, profiles, waitlists, quest reports, and promotions are
+-- read only through server handlers that enforce access and select safe fields.
 
 -- Private tables (waitlist_entries, quest_submissions, promotions) intentionally
 -- have no anon policy: they are reachable only through the service role after a
@@ -384,13 +392,10 @@ create policy "upvotes are publicly readable"
 grant usage on schema public to anon, authenticated;
 
 grant select on
-  public.profiles,
   public.tags,
   public.startups,
   public.startup_tags,
   public.startup_media,
-  public.upvotes,
-  public.comments,
   public.testing_quests,
   public.collab_posts
   to anon, authenticated;

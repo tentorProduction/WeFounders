@@ -1,12 +1,16 @@
+import { getSiteOrigin } from "@/lib/site-url";
 import type { Metadata } from "next";
 
 import { getStartupFeed } from "@/lib/data/startups";
 import { SearchExplorer } from "@/components/search/search-explorer";
 
+const baseUrl = getSiteOrigin();
+
 export const metadata: Metadata = {
   title: "Search Startups & Betas",
   description:
     "Explore Nepali products and betas by category, tech stack, payment rail, or keyword.",
+  alternates: { canonical: new URL("/search", baseUrl) },
 };
 
 export const dynamic = "force-dynamic";

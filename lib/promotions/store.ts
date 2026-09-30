@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPlan, type PlanTier } from "@/lib/promotions/plans";
 import { getStartupById } from "@/lib/data/startups";
@@ -16,8 +17,7 @@ import type { PaymentProvider, Promotion, StartupWithTags } from "@/types/databa
  */
 
 function makeReference(slug: string): string {
-  const rand = Math.random().toString(36).slice(2, 8);
-  return `promo-${slug.slice(0, 12)}-${Date.now().toString(36)}-${rand}`;
+  return `promo-${slug.slice(0, 12)}-${randomUUID()}`;
 }
 
 function expiryOf(promotion: Promotion): Date | null {
@@ -80,6 +80,25 @@ export async function getPromotionByReference(
   return (data as Promotion) ?? null;
 }
 
+/** Bind a gateway intent to exactly one pending promotion before redirecting. */
+export async function bindPaymentIntent(referenceId: string, pidx: string): Promise<void> {
+  if (!referenceId || referenceId.length > 100 || !pidx || pidx.length > 160) {
+    throw new Error("Invalid payment intent.");
+  }
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("promotions")
+    .update({ payment_intent_id: pidx })
+    .eq("reference_id", referenceId)
+    .eq("provider", "khalti")
+    .eq("status", "pending")
+    .is("payment_intent_id", null)
+    .select("id")
+    .maybeSingle();
+  if (error) throw new Error(`Could not attach payment intent: ${error.message}`);
+  if (!data) throw new Error("Payment intent could not be attached to this promotion.");
+}
+
 /**
  * Mark a verified payment as completed and activate the startup's featured
  * placement until the plan's duration elapses. Idempotent: an already
@@ -87,11 +106,11 @@ export async function getPromotionByReference(
  */
 export async function completePromotion(
   referenceId: string,
-  transactionId: string | null
+  transactionId: string | null,
+  provider: PaymentProvider,
 ): Promise<Promotion | null> {
   const promotion = await getPromotionByReference(referenceId);
-  if (!promotion) return null;
-  if (promotion.status === "completed") return promotion;
+  if (!promotion || promotion.provider !== provider || promotion.status !== "pending") return null;
 
   const supabase = createAdminClient();
   const plan = getPlan(promotion.plan_tier);
@@ -108,13 +127,16 @@ export async function completePromotion(
       verified_at: verifiedAt,
     })
     .eq("reference_id", referenceId)
+    .eq("provider", provider)
+    .eq("status", "pending")
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) {
     console.error("[promotions] could not complete promotion:", error);
     return null;
   }
+  if (!data) return getPromotionByReference(referenceId);
 
   const { error: featureError } = await supabase
     .from("startups")

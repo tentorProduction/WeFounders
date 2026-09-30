@@ -1,9 +1,11 @@
+import { getSiteOrigin } from "@/lib/site-url";
 import type { Metadata, Viewport } from "next";
 import { Archivo, Instrument_Serif, IBM_Plex_Mono } from "next/font/google";
 
 import { SiteChrome } from "@/components/layout/site-chrome";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { CookieConsent } from "@/components/privacy/cookie-consent";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/lib/firebase/auth-context";
 
@@ -27,7 +29,7 @@ const ibmPlexMono = IBM_Plex_Mono({
   variable: "--font-ibm-mono",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.wefounders.dev";
+const siteUrl = getSiteOrigin();
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -51,24 +53,16 @@ export const metadata: Metadata = {
   authors: [{ name: "WeFounders Team", url: siteUrl }],
   creator: "WeFounders",
   publisher: "WeFounders.dev",
-  alternates: {
-    canonical: siteUrl,
-  },
   openGraph: {
-    title: "WeFounders — Nepal's Startup Launch & Beta Platform",
-    description:
-      "Get your first 1,000 beta users from Nepal's builder community. Discover, test, upvote, and launch tech products built in Nepal and for the world.",
-    url: siteUrl,
     siteName: "WeFounders",
     locale: "en_US",
     type: "website",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "WeFounders — startup launches from Nepal" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "WeFounders — Nepal's Startup Launch & Beta Platform",
-    description:
-      "Nepal's launchpad for world-class startups. Discover, upvote, and launch tech products.",
     creator: "@wefounders_dev",
+    images: ["/opengraph-image"],
   },
   robots: {
     index: true,
@@ -84,7 +78,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#FAFAFA",
+  themeColor: "#F2F3F5",
 };
 
 const jsonLd = {
@@ -137,6 +131,7 @@ export default function RootLayout({
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
             <SiteChrome header={<SiteHeader />} footer={<SiteFooter />}>{children}</SiteChrome>
+            <CookieConsent measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
           </ThemeProvider>
         </AuthProvider>
       </body>

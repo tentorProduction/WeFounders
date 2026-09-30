@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import { CheckCircle2, Loader2, Upload } from "lucide-react";
+import { CheckCircle2, Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import {
@@ -64,7 +64,6 @@ export function QuestSubmissionModal({
   const [formKey, setFormKey] = useState(0);
   const [testerName, setTesterName] = useState("");
   const [feedback, setFeedback] = useState("");
-  const [screenshots, setScreenshots] = useState<File[]>([]);
   const [ratings, setRatings] = useState<Record<RatingKey, number>>({
     ux: 3,
     speed: 3,
@@ -90,7 +89,6 @@ export function QuestSubmissionModal({
       setFormKey((key) => key + 1);
       setTesterName("");
       setFeedback("");
-      setScreenshots([]);
       setRatings({ ux: 3, speed: 3 });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -123,11 +121,6 @@ export function QuestSubmissionModal({
             <input type="hidden" name="questId" value={questId} />
             <input type="hidden" name="ratingUx" value={ratings.ux} />
             <input type="hidden" name="ratingSpeed" value={ratings.speed} />
-            <input
-              type="hidden"
-              name="proofScreenshots"
-              value={JSON.stringify(screenshots.map((file) => file.name))}
-            />
             {/* Environment snapshot captured when the dialog opens. */}
             <input type="hidden" name="devicePlatform" value={device.platform} />
             <input type="hidden" name="deviceScreen" value={device.screen} />
@@ -172,38 +165,9 @@ export function QuestSubmissionModal({
               </p>
             </div>
 
-            <div className="space-y-1.5">
-              <label htmlFor="screenshots" className="text-caption font-medium">
-                Proof screenshots{" "}
-                <span className="text-muted-foreground">(up to 6)</span>
-              </label>
-              <label
-                htmlFor="screenshots"
-                className="flex h-20 cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-border text-caption text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-              >
-                <Upload className="h-4 w-4" aria-hidden />
-                {screenshots.length > 0
-                  ? `${screenshots.length} file(s) selected`
-                  : "Click to upload (PNG, JPG — auto-compressed to WebP)"}
-              </label>
-              <Input
-                id="screenshots"
-                type="file"
-                accept="image/*"
-                multiple
-                className="sr-only"
-                onChange={(e) =>
-                  setScreenshots(Array.from(e.target.files ?? []).slice(0, 6))
-                }
-              />
-              {screenshots.length > 0 && (
-                <ul className="space-y-0.5 text-tiny text-muted-foreground">
-                  {screenshots.map((file) => (
-                    <li key={file.name}>• {file.name}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              Screenshot uploads are not available yet. Describe the issue clearly in your report; do not include private account data.
+            </p>
 
             <div className="space-y-2">
               <span className="text-caption font-medium">Ratings (1–5)</span>

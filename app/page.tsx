@@ -1,7 +1,16 @@
+import { getSiteOrigin } from "@/lib/site-url";
 import { DiscoveryFeed } from "@/components/startups/discovery-feed";
 import { getFeaturedStartup, getStartupFeed } from "@/lib/data/startups";
 import { getActiveFeatured } from "@/lib/promotions/store";
 import { getSiteStats } from "@/lib/data/siteStats";
+import type { Metadata } from "next";
+
+const baseUrl = getSiteOrigin();
+
+export const metadata: Metadata = {
+  alternates: { canonical: new URL("/", baseUrl) },
+  openGraph: { url: baseUrl },
+};
 
 export const dynamic = "force-dynamic";
 

@@ -17,7 +17,7 @@ export function AdminSidebarFrame({ pendingCount }: { pendingCount: number }) {
           </span>
           {!collapsed && <span className="truncate text-base font-semibold tracking-tight text-[#F4F4F5]">Admin</span>}
         </Link>
-        <button type="button" aria-label={collapsed ? "Expand admin sidebar" : "Collapse admin sidebar"} title={collapsed ? "Expand sidebar" : "Collapse sidebar"} onClick={() => setCollapsed((value) => !value)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[#A1A1AA] hover:bg-[#18181B] hover:text-[#F4F4F5]">
+        <button type="button" aria-label={collapsed ? "Expand admin sidebar" : "Collapse admin sidebar"} title={collapsed ? "Expand sidebar" : "Collapse sidebar"} onClick={() => setCollapsed((value) => !value)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[#A1A1AA] hover:bg-[#17181B] hover:text-[#F4F4F5]">
           {collapsed ? <PanelLeftOpen aria-hidden className="h-4 w-4" /> : <PanelLeftClose aria-hidden className="h-4 w-4" />}
         </button>
       </div>

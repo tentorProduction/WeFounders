@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { CookieSettingsButton } from "@/components/privacy/cookie-settings-button";
 
 const PRODUCT_LINKS = [
   { href: "/", label: "Explore Today's Feed" },
@@ -14,6 +15,9 @@ const RESOURCE_LINKS = [
   { href: "/about#guidelines", label: "Submission Guidelines" },
   { href: "/about#curation", label: "21% Curation Standard" },
   { href: "/profile", label: "Founder Analytics Dashboard" },
+  { href: "/faq", label: "Frequently Asked Questions" },
+  { href: "/privacy", label: "Privacy Policy" },
+  { href: "/terms", label: "Terms of Service" },
 ];
 
 const COMMUNITY_LINKS = [
@@ -24,39 +28,39 @@ const COMMUNITY_LINKS = [
 ];
 
 /**
- * WeFounders Footer Component (#FFFFFF background, #E4E4E7 borders)
+ * WeFounders Footer Component (#FFFFFF background, #DADDE1 borders)
  */
 export function SiteFooter() {
   return (
-    <footer className="border-t border-[#E4E4E7] bg-[#FFFFFF] mt-16 text-caption">
-      <div className="site-container grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-4">
+    <footer className="site-container mb-4 mt-20 overflow-hidden rounded-[28px] bg-[#17181B] text-caption text-white">
+      <div className="grid gap-8 px-6 py-10 sm:grid-cols-2 sm:px-10 lg:grid-cols-4 lg:py-12">
         {/* Brand Column */}
         <div className="space-y-3">
           <Link href="/" className="flex items-center gap-2">
             <span
               aria-hidden
-              className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-[#DC2626] font-archivo text-xs font-bold text-[#FAFAFA]"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-[#FF4B3E] font-archivo text-xs font-bold text-white"
             >
               W
             </span>
-            <span className="text-[18px] font-archivo font-bold tracking-tight text-[#18181B]">
-              We<span className="text-[#DC2626]">Founders</span>
+            <span className="text-[18px] font-archivo font-bold tracking-tight text-white">
+              We<span className="text-[#FF4B3E]">Founders</span>
             </span>
-            <Badge variant="outline" className="text-[10px] font-mono border-[#E4E4E7] text-[#71717A] bg-[#FAFAFA]">
+            <Badge variant="outline" className="border-white/20 bg-white/8 text-[10px] font-mono text-white/60">
               .dev 🇳🇵
             </Badge>
           </Link>
-          <p className="text-[#71717A] leading-relaxed">
+          <p className="text-white/60 leading-relaxed">
             Nepal&apos;s launchpad for world-class startups. Get your early beta users from Nepal&apos;s builder community.
           </p>
-          <div className="pt-1 text-tiny font-mono text-[#71717A]">
-            Contact: <a href="mailto:hello@wefounders.dev" className="text-[#18181B] hover:underline">hello@wefounders.dev</a>
+          <div className="pt-1 text-tiny font-mono text-white/50">
+            Contact: <a href="mailto:hello@wefounders.dev" className="text-white hover:underline">hello@wefounders.dev</a>
           </div>
         </div>
 
         {/* Product Navigation */}
         <nav aria-label="Product links" className="space-y-3">
-          <h3 className="text-tiny font-bold uppercase tracking-wider text-[#18181B] font-mono">
+          <h3 className="text-tiny font-bold uppercase tracking-wider text-white font-mono">
             Platform
           </h3>
           <ul className="space-y-2">
@@ -64,7 +68,7 @@ export function SiteFooter() {
               <li key={href}>
                 <Link
                   href={href}
-                  className="text-[#71717A] transition-colors hover:text-[#18181B] underline-offset-4 hover:underline"
+                  className="text-white/60 transition-colors hover:text-white underline-offset-4 hover:underline"
                 >
                   {label}
                 </Link>
@@ -75,7 +79,7 @@ export function SiteFooter() {
 
         {/* Resources & Guidelines */}
         <nav aria-label="Resource links" className="space-y-3">
-          <h3 className="text-tiny font-bold uppercase tracking-wider text-[#18181B] font-mono">
+          <h3 className="text-tiny font-bold uppercase tracking-wider text-white font-mono">
             Resources &amp; Curation
           </h3>
           <ul className="space-y-2">
@@ -83,7 +87,7 @@ export function SiteFooter() {
               <li key={href}>
                 <Link
                   href={href}
-                  className="text-[#71717A] transition-colors hover:text-[#18181B] underline-offset-4 hover:underline"
+                  className="text-white/60 transition-colors hover:text-white underline-offset-4 hover:underline"
                 >
                   {label}
                 </Link>
@@ -94,7 +98,7 @@ export function SiteFooter() {
 
         {/* Community & Socials */}
         <nav aria-label="Community links" className="space-y-3">
-          <h3 className="text-tiny font-bold uppercase tracking-wider text-[#18181B] font-mono">
+          <h3 className="text-tiny font-bold uppercase tracking-wider text-white font-mono">
             Community
           </h3>
           <ul className="space-y-2">
@@ -104,7 +108,7 @@ export function SiteFooter() {
                   href={href}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-[#71717A] transition-colors hover:text-[#18181B] underline-offset-4 hover:underline"
+                  className="text-white/60 transition-colors hover:text-white underline-offset-4 hover:underline"
                 >
                   {label}
                 </a>
@@ -114,13 +118,19 @@ export function SiteFooter() {
         </nav>
       </div>
 
-      <div className="border-t border-[#E4E4E7]">
-        <div className="site-container flex flex-col items-center justify-between gap-3 py-6 text-tiny text-[#71717A] sm:flex-row font-mono">
+      <div className="border-t border-white/12">
+        <div className="site-container flex flex-col items-center justify-between gap-3 py-6 text-tiny text-white/60 sm:flex-row font-mono">
           <p>© 2026 WeFounders.dev — Startup Discovery &amp; Beta Launchpad</p>
-          <p className="flex items-center gap-2">
+          <p className="flex flex-wrap items-center gap-2">
             <span>Kathmandu NPT Timezone</span>
             <span>•</span>
             <span>Made with 🇳🇵 Pride</span>
+            {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+              <>
+                <span>•</span>
+                <CookieSettingsButton />
+              </>
+            )}
           </p>
         </div>
       </div>

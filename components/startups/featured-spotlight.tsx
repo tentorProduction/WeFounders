@@ -33,22 +33,22 @@ export function FeaturedSpotlight({
   return (
     <article
       className={cn(
-        "godly-card deck-card godly-bg-glow animate-fade-in-up relative overflow-hidden p-6 sm:p-7 border-accent/40 bg-card shadow-apple-md transition-all duration-300",
+        "godly-card deck-card godly-bg-glow animate-fade-in-up relative overflow-hidden rounded-[28px] p-6 sm:p-8 border-white/80 bg-white/84 shadow-apple-md backdrop-blur-sm transition-all duration-300",
         className
       )}
     >
       {/* Top Meta Header Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E4E4E7] pb-4 mb-5">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#DADDE1] pb-4 mb-5">
         <div className="flex items-center gap-2">
-          <Badge className="gap-1.5 bg-[#DC2626] text-[#FAFAFA] font-mono font-bold text-badge uppercase tracking-wider px-3 py-1 rounded-full shadow-xs">
-            <Flame className="h-3.5 w-3.5 fill-current text-[#FAFAFA]" aria-hidden />
+          <Badge className="gap-1.5 bg-[#FF4B3E] text-[#F2F3F5] font-mono font-bold text-badge uppercase tracking-wider px-3 py-1 rounded-full shadow-xs">
+            <Flame className="h-3.5 w-3.5 fill-current text-[#F2F3F5]" aria-hidden />
             FEATURED
           </Badge>
-          <span className="text-meta font-medium text-[#71717A]">
+          <span className="text-meta font-medium text-[#666A73]">
             Featured launch of the day
           </span>
         </div>
-        <span className="text-meta text-[#DC2626] font-mono font-semibold">
+        <span className="text-meta text-[#FF4B3E] font-mono font-semibold">
           Spotlight
         </span>
       </div>

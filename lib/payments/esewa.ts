@@ -13,15 +13,32 @@
 import { createHmac, timingSafeEqual } from "crypto";
 
 export const ESEWA_BASE_URL =
-  process.env.ESEWA_ENV === "prod" || process.env.PAYMENTS_MODE === "live"
+  process.env.PAYMENTS_MODE === "live"
     ? "https://epay.esewa.com.np"
     : "https://rc-epay.esewa.com.np";
 
 /** Merchant code differs between test ("EPAYTEST") and production. */
 export const ESEWA_MERCHANT_CODE =
-  process.env.ESEWA_MERCHANT_CODE ?? "EPAYTEST";
+  process.env.ESEWA_MERCHANT_CODE ?? (process.env.PAYMENTS_MODE === "live" ? "" : "EPAYTEST");
 
-const ESEWA_SECRET_KEY = process.env.ESEWA_SECRET_KEY ?? "8gBm/:&EnhH.1/q";
+const ESEWA_SECRET_KEY = process.env.ESEWA_SECRET_KEY ?? "";
+
+export function isEsewaConfigured(): boolean {
+  return Boolean(
+    ESEWA_SECRET_KEY &&
+    ESEWA_MERCHANT_CODE &&
+    !(process.env.PAYMENTS_MODE === "live" && ESEWA_MERCHANT_CODE === "EPAYTEST") &&
+    !(process.env.PAYMENTS_MODE === "live" && ESEWA_SECRET_KEY === "8gBm/:&EnhH.1/q")
+  );
+}
+
+function requireEsewaSecret(secretKey?: string): string {
+  const secret = secretKey ?? ESEWA_SECRET_KEY;
+  if (!secret || (process.env.PAYMENTS_MODE === "live" && secret === "8gBm/:&EnhH.1/q")) {
+    throw new Error("A valid ESEWA_SECRET_KEY is required for this payment mode.");
+  }
+  return secret;
+}
 
 /** Status values eSewa sends in the signed callback payload. */
 export type EsewaStatus = "COMPLETE" | "PENDING" | "NOT_FOUND" | "CANCELED";
@@ -65,7 +82,7 @@ function totalAmount(p: EsewaPaymentParams): number {
 /** HMAC-SHA256 signature over "key=value,key=value" per eSewa v2 spec. */
 export function generateEsewaSignature(
   fields: Record<string, string>,
-  secretKey: string = ESEWA_SECRET_KEY
+  secretKey?: string
 ): string {
   const signedFieldNames = "total_amount,transaction_uuid,product_code";
   const message = signedFieldNames
@@ -73,7 +90,7 @@ export function generateEsewaSignature(
     .map((key) => `${key}=${fields[key]}`)
     .join(",");
 
-  return createHmac("sha256", secretKey).update(message).digest("base64");
+  return createHmac("sha256", requireEsewaSecret(secretKey)).update(message).digest("base64");
 }
 
 /**
@@ -82,7 +99,7 @@ export function generateEsewaSignature(
  */
 export function createEsewaPayment(
   params: EsewaPaymentParams,
-  secretKey: string = ESEWA_SECRET_KEY
+  secretKey?: string
 ): EsewaSignedForm {
   const productCode = params.productCode ?? ESEWA_MERCHANT_CODE;
   const total = totalAmount(params).toFixed(2);
@@ -111,11 +128,10 @@ export function createEsewaPayment(
 export interface EsewaCallbackPayload {
   transaction_code: string;
   status: EsewaStatus;
-  total_amount: string;
+  total_amount: string | number;
   transaction_uuid: string;
   product_code: string;
   signed_field_names: string;
-  signature_field_names: string;
   signature: string;
 }
 
@@ -133,8 +149,9 @@ function safeEqual(a: string, b: string): boolean {
  */
 export function verifyEsewaCallback(
   base64Data: string,
-  secretKey: string = ESEWA_SECRET_KEY
+  secretKey?: string
 ): EsewaCallbackPayload | null {
+  if (!base64Data || base64Data.length > 8192 || !/^[A-Za-z0-9+/]+={0,2}$/.test(base64Data)) return null;
   let payload: EsewaCallbackPayload;
 
   try {
@@ -143,14 +160,34 @@ export function verifyEsewaCallback(
     return null;
   }
 
+  if (!payload || typeof payload !== "object" || typeof payload.signature !== "string") return null;
+
+  if (
+    // eSewa's callback uses a different signed field set than the payment
+    // request. Keep the documented order fixed to prevent field omission or
+    // attacker-controlled signature scope.
+    payload.signed_field_names !== "transaction_code,status,total_amount,transaction_uuid,product_code,signed_field_names" ||
+    !["COMPLETE", "PENDING", "NOT_FOUND", "CANCELED"].includes(payload.status) ||
+    !["string", "number"].includes(typeof payload.total_amount) ||
+    !/^\d+(?:\.\d{1,2})?$/.test(String(payload.total_amount)) ||
+    typeof payload.transaction_uuid !== "string" || payload.transaction_uuid.length > 100 ||
+    typeof payload.product_code !== "string" || payload.product_code.length > 100 ||
+    typeof payload.transaction_code !== "string" || payload.transaction_code.length > 150
+  ) return null;
+
   const message = (payload.signed_field_names ?? "")
     .split(",")
-    .map((key) => `${key}=${(payload as unknown as Record<string, string>)[key]}`)
+    .map((key) => `${key}=${(payload as unknown as Record<string, string | number>)[key]}`)
     .join(",");
 
-  const expected = createHmac("sha256", secretKey)
+  let expected: string;
+  try {
+    expected = createHmac("sha256", requireEsewaSecret(secretKey))
     .update(message)
     .digest("base64");
+  } catch {
+    return null;
+  }
 
   if (!safeEqual(expected, payload.signature ?? "")) return null;
 
@@ -178,7 +215,7 @@ export async function verifyEsewaTransaction(
   url.searchParams.set("transaction_uuid", params.transactionUuid);
 
   try {
-    const response = await fetch(url, { cache: "no-store" });
+    const response = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(5_000) });
     if (!response.ok) return { ok: false, status: null };
 
     const data = (await response.json()) as EsewaStatusCheck;

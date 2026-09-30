@@ -64,7 +64,7 @@ export function StartupCard({
     <article
       className={cn(
         "godly-card deck-card animate-fade-in-up group relative transition-all duration-200 cursor-pointer shadow-apple-sm hover:shadow-apple-md",
-        "rounded-[16px] border border-[#E4E4E7] bg-[#FFFFFF] p-4",
+        "rounded-[22px] border border-white/80 bg-white/82 p-4 sm:p-5 backdrop-blur-sm",
         className
       )}
     >
@@ -91,13 +91,13 @@ export function StartupCard({
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5 flex-wrap">
                 {typeof rank === "number" && (
-                  <span className="text-[12px] font-mono font-medium text-[#71717A]">
+                  <span className="text-[12px] font-mono font-medium text-[#666A73]">
                     #{rank}
                   </span>
                 )}
                 <Link
                   href={`/startups/${startup.slug}`}
-                  className="font-archivo text-[17px] font-bold text-[#18181B] truncate hover:text-[#DC2626] transition-colors"
+                  className="font-archivo text-[17px] font-bold text-[#17181B] truncate hover:text-[#FF4B3E] transition-colors"
                 >
                   {startup.name}
                 </Link>
@@ -137,15 +137,15 @@ export function StartupCard({
           })}
         </div>
 
-        {/* DESCRIPTION: Full card width, high contrast #71717A, line-height 1.6 */}
+        {/* DESCRIPTION: Full card width, high contrast #666A73, line-height 1.6 */}
         <Link
           href={`/startups/${startup.slug}`}
-          className="block text-[14px] font-sans text-[#71717A] leading-relaxed w-full hover:text-[#18181B] transition-colors"
+          className="block text-[14px] font-sans text-[#666A73] leading-relaxed w-full hover:text-[#17181B] transition-colors"
         >
           {startup.tagline}
         </Link>
 
-        {/* TAGS ROW: flex-wrap freely, 6px gap, 12px font #71717A text on #FAFAFA bg */}
+        {/* TAGS ROW: flex-wrap freely, 6px gap, 12px font #666A73 text on #F2F3F5 bg */}
         {startup.tags.length > 0 && (
           <div className="flex flex-wrap items-center gap-[6px] pt-0.5">
             {ecosystemTags.map((tag) => (
@@ -154,11 +154,11 @@ export function StartupCard({
                 type="button"
                 onClick={() => onSelectTag?.(tag)}
                 className={cn(
-                  "inline-flex items-center gap-1 rounded-[8px] border border-[#E4E4E7] bg-[#FAFAFA] px-2.5 py-1 text-[12px] font-mono text-[#71717A] transition-colors",
-                  activeTagSlug === tag.slug && "border-[#DC2626] text-[#DC2626] bg-[#DC2626]/10 font-semibold"
+                  "inline-flex items-center gap-1 rounded-[8px] border border-[#DADDE1] bg-[#F2F3F5] px-2.5 py-1 text-[12px] font-mono text-[#666A73] transition-colors",
+                  activeTagSlug === tag.slug && "border-[#FF4B3E] text-[#FF4B3E] bg-[#FF4B3E]/10 font-semibold"
                 )}
               >
-                <span className="h-1.5 w-1.5 rounded-full bg-[#71717A]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-[#666A73]" />
                 {tag.name}
               </button>
             ))}
@@ -166,18 +166,18 @@ export function StartupCard({
         )}
 
         {/* META ROW: Dedicated bottom row, single line truncated */}
-        <div className="pt-2 border-t border-[#E4E4E7]/60 flex items-center justify-between text-[12px] font-mono text-[#71717A] truncate">
+        <div className="pt-2 border-t border-[#DADDE1]/60 flex items-center justify-between text-[12px] font-mono text-[#666A73] truncate">
           <div className="flex items-center gap-2 truncate">
             <Link
               href={`/startups/${startup.slug}#waitlist`}
-              className="hover:text-[#DC2626] hover:underline font-semibold"
+              className="hover:text-[#FF4B3E] hover:underline font-semibold"
             >
               Waitlist ({startup.waitlist_count})
             </Link>
             <span>·</span>
             <Link
               href={`/startups/${startup.slug}`}
-              className="hover:text-[#18181B] flex items-center gap-1"
+              className="hover:text-[#17181B] flex items-center gap-1"
             >
               💬 {startup.comments_count}
             </Link>
@@ -190,7 +190,7 @@ export function StartupCard({
       {/* ========================================================= */}
       {/* DESKTOP LAYOUT (≥ 769px / md:): Untouched Original Grid    */}
       {/* ========================================================= */}
-      <div className="hidden md:grid md:grid-cols-[52px_1fr_auto] md:items-start md:gap-4">
+      <div className="hidden md:grid md:grid-cols-[58px_1fr_auto] md:items-start md:gap-5">
         {/* Left: 52px Logo */}
         <Link
           href={`/startups/${startup.slug}`}
@@ -201,7 +201,7 @@ export function StartupCard({
             name={startup.name}
             logoUrl={startup.logo_url}
             seed={startup.slug}
-            size={52}
+            size={58}
           />
         </Link>
 
@@ -219,7 +219,7 @@ export function StartupCard({
             )}
             <Link
               href={`/startups/${startup.slug}`}
-              className="text-product font-archivo font-bold text-[#18181B] transition-colors hover:text-[#DC2626] focus:outline-none"
+              className="text-product font-archivo font-bold text-[#17181B] transition-colors hover:text-[#FF4B3E] focus:outline-none"
             >
               {startup.name}
             </Link>
@@ -234,7 +234,7 @@ export function StartupCard({
           </div>
 
           {/* Row 2 — Clamped Description */}
-          <Link href={`/startups/${startup.slug}`} className="block text-body text-[#71717A] line-clamp-2 leading-relaxed hover:text-[#18181B]">
+          <Link href={`/startups/${startup.slug}`} className="block text-body text-[#666A73] line-clamp-2 leading-relaxed hover:text-[#17181B]">
             {startup.tagline}
           </Link>
 
@@ -272,19 +272,19 @@ export function StartupCard({
           <div className="flex items-center gap-2 text-tiny font-mono text-muted-foreground">
             <Link
               href={`/startups/${startup.slug}#waitlist`}
-              className="hover:text-[#DC2626] hover:underline font-semibold"
+              className="hover:text-[#FF4B3E] hover:underline font-semibold"
             >
               Waitlist ({startup.waitlist_count})
             </Link>
             <span>•</span>
             <Link
               href={`/startups/${startup.slug}`}
-              className="hover:text-[#18181B] flex items-center gap-1"
+              className="hover:text-[#17181B] flex items-center gap-1"
             >
               💬 {startup.comments_count}
             </Link>
           </div>
-          <span className="text-[11px] text-[#71717A] font-mono text-right">
+          <span className="text-[11px] text-[#666A73] font-mono text-right">
             {timeAgo(startup.launch_date ?? startup.created_at)}
           </span>
         </div>

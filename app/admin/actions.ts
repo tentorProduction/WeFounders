@@ -27,6 +27,21 @@ function refreshAdminData() {
   revalidatePath("/admin");
   revalidatePath("/admin/submissions");
   revalidatePath("/admin/startups");
+  revalidatePath("/admin/collab");
+}
+
+export async function setCollabPostActive(postId: string, isActive: boolean) {
+  await verifyAdmin();
+  assertId(postId);
+  const { data, error } = await createAdminClient()
+    .from("collab_posts")
+    .update({ is_active: isActive })
+    .eq("id", postId)
+    .select("id")
+    .maybeSingle();
+  if (error) throw new Error(`Could not update listing: ${error.message}`);
+  if (!data) throw new Error("Listing was not found.");
+  refreshAdminData();
 }
 
 export async function approveStartup(startupId: string, launchDate?: string) {

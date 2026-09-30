@@ -1,13 +1,17 @@
+import { getSiteOrigin } from "@/lib/site-url";
 import type { Metadata } from "next";
 import { Users } from "lucide-react";
 
 import { listCollabPosts } from "@/lib/collab/store";
 import { CollabBoard } from "@/components/collab/collab-board";
 
+const baseUrl = getSiteOrigin();
+
 export const metadata: Metadata = {
   title: "Collab & Co-founder Board",
   description:
     "Find a co-founder, a founding engineer, a designer, or your first hundred beta testers — from Nepal's builder community.",
+  alternates: { canonical: new URL("/collab", baseUrl) },
 };
 
 export const dynamic = "force-dynamic";

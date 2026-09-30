@@ -61,7 +61,7 @@ export function SubmissionsClient({ submissions }: { submissions: AdminStartup[]
     <>
       <div role="tablist" aria-label="Submission status" className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:flex-wrap sm:px-0">
         {tabs.map(({ id, label, count }) => (
-          <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)} className={`min-h-10 shrink-0 rounded-full border px-3 text-sm font-medium transition-colors ${tab === id ? "border-[#FACC15] bg-[#FACC15] text-[#0A0A0C]" : "border-[#3F3F46] bg-[#121215] text-[#A1A1AA] hover:border-[#71717A] hover:text-[#F4F4F5]"}`}>
+          <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)} className={`min-h-10 shrink-0 rounded-full border px-3 text-sm font-medium transition-colors ${tab === id ? "border-[#FACC15] bg-[#FACC15] text-[#0A0A0C]" : "border-[#3F3F46] bg-[#121215] text-[#A1A1AA] hover:border-[#666A73] hover:text-[#F4F4F5]"}`}>
             {label}<span className="ml-1.5 tabular-nums opacity-75">{count}</span>
           </button>
         ))}
@@ -99,20 +99,20 @@ export function SubmissionsClient({ submissions }: { submissions: AdminStartup[]
 
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div className="min-w-0 rounded-lg border border-[#27272A] bg-[#0A0A0C] p-3">
-                      <p className="text-[11px] font-medium uppercase tracking-wider text-[#71717A]">Website</p>
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-[#666A73]">Website</p>
                       <a href={startup.website_url} target="_blank" rel="noreferrer" className="mt-1 block break-all text-sm text-[#FACC15] hover:underline">{startup.website_url || "Not provided"}</a>
-                      <p className="mt-2 text-[11px] font-medium uppercase tracking-wider text-[#71717A]">Demo</p>
-                      {startup.demo_video_url ? <a href={startup.demo_video_url} target="_blank" rel="noreferrer" className="mt-1 block break-all text-sm text-[#FACC15] hover:underline">{startup.demo_video_url}</a> : <span className="mt-1 block text-sm text-[#71717A]">Not provided</span>}
+                      <p className="mt-2 text-[11px] font-medium uppercase tracking-wider text-[#666A73]">Demo</p>
+                      {startup.demo_video_url ? <a href={startup.demo_video_url} target="_blank" rel="noreferrer" className="mt-1 block break-all text-sm text-[#FACC15] hover:underline">{startup.demo_video_url}</a> : <span className="mt-1 block text-sm text-[#666A73]">Not provided</span>}
                     </div>
                     <div className="rounded-lg border border-[#27272A] bg-[#0A0A0C] p-3">
-                      <p className="text-[11px] font-medium uppercase tracking-wider text-[#71717A]">Founder</p>
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-[#666A73]">Founder</p>
                       <p className="mt-1 text-sm text-[#F4F4F5]">{startup.profiles?.full_name || "Unknown founder"}</p>
                       <a href={startup.profiles?.email ? `mailto:${startup.profiles.email}` : undefined} className="mt-0.5 block break-all text-sm text-[#A1A1AA] hover:text-[#FACC15]">{startup.profiles?.email || "No email on profile"}</a>
                     </div>
                   </div>
 
                   <div>
-                    <p className="mb-1 text-[11px] font-medium uppercase tracking-wider text-[#71717A]">Pitch story</p>
+                    <p className="mb-1 text-[11px] font-medium uppercase tracking-wider text-[#666A73]">Pitch story</p>
                     <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-[#D4D4D8]">{startup.description || "No pitch story provided."}</p>
                   </div>
                   {startup.rejection_reason && <p className="rounded-lg border border-rose-900/50 bg-rose-950/20 p-3 text-sm text-rose-200">Reason: {startup.rejection_reason}</p>}
@@ -142,7 +142,7 @@ export function SubmissionsClient({ submissions }: { submissions: AdminStartup[]
           <section role="dialog" aria-modal="true" aria-labelledby="reject-title" className="w-full rounded-t-2xl border border-[#27272A] bg-[#121215] p-5 sm:max-w-md sm:rounded-2xl sm:p-6">
             <h2 id="reject-title" className="text-lg font-semibold text-[#F4F4F5]">Reject {rejecting.name}</h2>
             <p className="mt-1 text-sm text-[#A1A1AA]">Add a clear reason so the founder knows what to fix.</p>
-            <textarea autoFocus required minLength={3} maxLength={1000} placeholder="For example: demo link is not working" value={rejectReason} onChange={(event) => setRejectReason(event.target.value)} className="mt-4 w-full rounded-lg border border-[#3F3F46] bg-[#0A0A0C] p-3 text-sm text-[#F4F4F5] placeholder:text-[#71717A] focus:border-[#FACC15] focus:outline-none" rows={4} />
+            <textarea autoFocus required minLength={3} maxLength={1000} placeholder="For example: demo link is not working" value={rejectReason} onChange={(event) => setRejectReason(event.target.value)} className="mt-4 w-full rounded-lg border border-[#3F3F46] bg-[#0A0A0C] p-3 text-sm text-[#F4F4F5] placeholder:text-[#666A73] focus:border-[#FACC15] focus:outline-none" rows={4} />
             {errors[rejecting.id] && <p role="alert" className="mt-2 text-sm text-rose-400">{errors[rejecting.id]}</p>}
             <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <Button variant="outline" onClick={() => setRejecting(null)} className="border-[#3F3F46] bg-transparent text-[#F4F4F5]">Cancel</Button>

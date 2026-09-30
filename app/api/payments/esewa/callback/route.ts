@@ -4,13 +4,14 @@ import { getStartupById } from "@/lib/data/startups";
 import {
   verifyEsewaCallback,
   verifyEsewaTransaction,
+  ESEWA_MERCHANT_CODE,
 } from "@/lib/payments/esewa";
 import { isSandboxPayments } from "@/lib/payments/config";
 import {
   completePromotion,
-  failPromotion,
   getPromotionByReference,
 } from "@/lib/promotions/store";
+import { getSiteOrigin } from "@/lib/site-url";
 
 /**
  * eSewa return callback (TRD §4.2). eSewa redirects the founder's browser
@@ -22,7 +23,7 @@ import {
  */
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const origin = url.origin;
+  const origin = getSiteOrigin();
   const back = (slug: string | null, payment: string, ref?: string) => {
     const target = slug
       ? `${origin}/startups/${slug}/promote?payment=${payment}`
@@ -40,11 +41,14 @@ export async function GET(request: Request) {
 
   const reference = payload.transaction_uuid;
   const promotion = await getPromotionByReference(reference);
-  if (!promotion) return back(null, "failed", reference);
+  if (!promotion || promotion.provider !== "esewa" || promotion.status !== "pending") return back(null, "failed");
+  const expectedTotal = Number(promotion.amount_npr).toFixed(2);
+  if (Number(payload.total_amount).toFixed(2) !== expectedTotal || payload.product_code !== ESEWA_MERCHANT_CODE || !payload.transaction_code) {
+    return back(null, "failed");
+  }
   const startup = await getStartupById(promotion.startup_id);
 
   if (payload.status !== "COMPLETE") {
-    await failPromotion(reference);
     return back(startup?.slug ?? null, "failed", reference);
   }
 
@@ -56,12 +60,11 @@ export async function GET(request: Request) {
   // In sandbox mode a network failure / non-200 from the status API (common
   // against rc-epay for unregistered test transactions) is non-fatal — the
   // HMAC signature has already been verified. In live mode both must pass.
-  const verified = check.ok || (isSandboxPayments() && check.status === null);
+  const verified = check.ok || (process.env.NODE_ENV === "development" && isSandboxPayments() && check.status === null);
   if (!verified) {
-    await failPromotion(reference);
     return back(startup?.slug ?? null, "failed", reference);
   }
 
-  await completePromotion(reference, payload.transaction_code);
+  await completePromotion(reference, payload.transaction_code, "esewa");
   return back(startup?.slug ?? null, "success", reference);
 }

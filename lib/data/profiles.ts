@@ -1,5 +1,4 @@
-import type { Profile, StartupWithTags, Tag } from "@/types/database";
-import { getServerSupabase } from "@/lib/supabase/server";
+import type { StartupWithTags, Tag } from "@/types/database";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { reportReadFailure } from "@/lib/data/read-failure";
 
@@ -58,25 +57,5 @@ export async function getStartupsByFounder(
   } catch (error) {
     reportReadFailure("getStartupsByFounder", error);
     return [];
-  }
-}
-
-export async function getProfile(userId: string): Promise<Profile | null> {
-  if (!userId) return null;
-
-  try {
-    const supabase = await getServerSupabase();
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .limit(1)
-      .maybeSingle();
-
-    if (error) throw error;
-    return (data as Profile) ?? null;
-  } catch (error) {
-    reportReadFailure("getProfile", error);
-    return null;
   }
 }

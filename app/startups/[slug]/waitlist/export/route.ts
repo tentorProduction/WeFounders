@@ -13,7 +13,9 @@ import { listWaitlist } from "@/lib/waitlist/store";
  */
 
 function csvCell(value: string | null): string {
-  const text = value ?? "";
+  const raw = value ?? "";
+  // Spreadsheet programs may evaluate formula-like cell contents on open.
+  const text = /^[\t\r ]*[=+\-@]/.test(raw) ? `'${raw}` : raw;
   return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 

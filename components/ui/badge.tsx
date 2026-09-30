@@ -20,7 +20,7 @@ const badgeVariants = cva(
         fonepay: "border-red-200 bg-red-50 text-red-800 font-semibold",
         verified: "border-emerald-200 bg-emerald-50 text-emerald-800 font-semibold",
         // Stage badges
-        stage: "border-[#E4E4E7] bg-[#FFFFFF] text-[#18181B] font-semibold",
+        stage: "border-[#DADDE1] bg-[#FFFFFF] text-[#17181B] font-semibold",
       },
     },
     defaultVariants: {

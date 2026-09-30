@@ -9,6 +9,7 @@ import { getViewer } from "@/lib/auth/viewer";
 import { addWaitlistEntry, countWaitlist } from "@/lib/waitlist/store";
 import { isEmailConfigured, sendEmail } from "@/lib/email/resend";
 import { waitlistConfirmationEmail } from "@/lib/email/templates";
+import { clientAddress, isRateLimited } from "@/lib/security/rate-limit";
 // Types/initial value live outside this "use server" module — see the file.
 import type { WaitlistActionState } from "@/lib/action-state";
 
@@ -29,27 +30,6 @@ const waitlistSchema = z.object({
   notes: z.string().max(280).optional(),
   referralSource: z.string().max(120).optional(),
 });
-
-/** In-memory throttle — TODO(trd §5): replace with Upstash Redis ratelimit. */
-const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_MAX = 3;
-const submissions = new Map<string, number[]>();
-
-function isRateLimited(key: string): boolean {
-  const now = Date.now();
-  const recent = (submissions.get(key) ?? []).filter(
-    (timestamp) => now - timestamp < RATE_LIMIT_WINDOW_MS
-  );
-
-  if (recent.length >= RATE_LIMIT_MAX) {
-    submissions.set(key, recent);
-    return true;
-  }
-
-  recent.push(now);
-  submissions.set(key, recent);
-  return false;
-}
 
 export async function joinWaitlistAction(
   _prevState: WaitlistActionState,
@@ -80,12 +60,7 @@ export async function joinWaitlistAction(
   }
 
   const headerList = await headers();
-  const ip =
-    headerList.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    headerList.get("x-real-ip") ??
-    "unknown";
-
-  if (isRateLimited(ip)) {
+  if (await isRateLimited("waitlist", clientAddress(headerList), 3, 60_000)) {
     return {
       status: "error",
       message: "Too many signups from this network. Try again in a minute.",

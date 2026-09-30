@@ -1,3 +1,5 @@
+import { readBoundedBody } from "@/lib/security/request-body";
+
 /**
  * Shared request parsing for the payment initiate routes. The promote
  * checkout posts a plain HTML form, but JSON bodies are accepted too so the
@@ -8,8 +10,16 @@ export async function readPaymentRequest(
 ): Promise<URLSearchParams> {
   const contentType = request.headers.get("content-type") ?? "";
 
+  const rawBody = await readBoundedBody(request, 8_192);
+  if (rawBody === null) return new URLSearchParams();
+
   if (contentType.includes("application/json")) {
-    const body: unknown = await request.json().catch(() => ({}));
+    let body: unknown;
+    try {
+      body = JSON.parse(rawBody || "{}");
+    } catch {
+      return new URLSearchParams();
+    }
     const params = new URLSearchParams();
     if (body && typeof body === "object") {
       for (const [key, value] of Object.entries(body as Record<string, unknown>)) {
@@ -19,10 +29,6 @@ export async function readPaymentRequest(
     return params;
   }
 
-  const form = await request.formData().catch(() => new FormData());
-  const params = new URLSearchParams();
-  for (const [key, value] of form.entries()) {
-    params.set(key, String(value));
-  }
-  return params;
+  if (!contentType.includes("application/x-www-form-urlencoded")) return new URLSearchParams();
+  return new URLSearchParams(rawBody);
 }

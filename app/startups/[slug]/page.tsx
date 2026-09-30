@@ -1,3 +1,4 @@
+import { getSiteOrigin } from "@/lib/site-url";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -40,9 +41,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!startup) return { title: "Startup not found" };
 
+  const baseUrl = getSiteOrigin();
+  const canonical = new URL(`/startups/${startup.slug}`, baseUrl);
+
   return {
     title: `${startup.name} — ${startup.tagline}`,
     description: startup.description.slice(0, 160),
+    alternates: { canonical },
+    openGraph: {
+      title: `${startup.name} — ${startup.tagline}`,
+      description: startup.description.slice(0, 160),
+      url: canonical,
+      type: "website",
+    },
   };
 }
 
@@ -210,13 +221,13 @@ export default async function StartupShowcasePage({ params }: PageProps) {
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#DC2626] text-[#FFFFFF] font-bold text-h2 font-mono shrink-0">
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#FF4B3E] text-[#FFFFFF] font-bold text-h2 font-mono shrink-0">
             {startup.name[0].toUpperCase()}
           </div>
           <div className="min-w-0 flex-1 space-y-1">
             <h3 className="text-subheading font-bold text-foreground flex items-center gap-2">
               <span>{startup.name} Founding Team</span>
-              <Badge variant="outline" className="text-[10px] font-mono border-[#DC2626]/40 text-[#991B1B]">
+              <Badge variant="outline" className="text-[10px] font-mono border-[#FF4B3E]/40 text-[#991B1B]">
                 OP
               </Badge>
             </h3>

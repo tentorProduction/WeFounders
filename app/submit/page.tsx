@@ -69,6 +69,7 @@ export default function SubmitPage() {
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [policiesAccepted, setPoliciesAccepted] = useState(false);
 
   const toggleTag = (tag: string) => {
     setFormData((prev) => ({
@@ -98,6 +99,10 @@ export default function SubmitPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!policiesAccepted) {
+      setSubmissionError("Please agree to the Terms of Service and Privacy Policy before submitting.");
+      return;
+    }
     if (!validateStep1()) return;
 
     setIsSubmitting(true);
@@ -160,7 +165,7 @@ export default function SubmitPage() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
             <CheckCircle2 className="h-10 w-10" />
           </div>
-          <Badge variant="outline" className="border-[rgba(220,38,38,0.18)] bg-[#FAFAFA] text-[#DC2626] font-mono font-bold text-caption px-4 py-1.5 rounded-full">
+          <Badge variant="outline" className="border-[rgba(220,38,38,0.18)] bg-[#F2F3F5] text-[#FF4B3E] font-mono font-bold text-caption px-4 py-1.5 rounded-full">
             🚀 Submitted for review
           </Badge>
           <h1 className="text-display font-bold text-foreground">
@@ -229,6 +234,7 @@ export default function SubmitPage() {
           {/* Wizard Progress Bar */}
           <div className="flex items-center justify-between border-b border-border pb-4">
             <button
+              type="button"
               onClick={() => setStep(1)}
               className={`flex items-center gap-2 text-caption font-bold ${
                 step === 1 ? "text-primary" : "text-muted-foreground"
@@ -239,6 +245,7 @@ export default function SubmitPage() {
             </button>
 
             <button
+              type="button"
               onClick={() => validateStep1() && setStep(2)}
               className={`flex items-center gap-2 text-caption font-bold ${
                 step === 2 ? "text-primary" : "text-muted-foreground"
@@ -249,6 +256,7 @@ export default function SubmitPage() {
             </button>
 
             <button
+              type="button"
               onClick={() => validateStep1() && setStep(3)}
               className={`flex items-center gap-2 text-caption font-bold ${
                 step === 3 ? "text-primary" : "text-muted-foreground"
@@ -259,6 +267,7 @@ export default function SubmitPage() {
             </button>
 
             <button
+              type="button"
               onClick={() => validateStep1() && setStep(4)}
               className={`flex items-center gap-2 text-caption font-bold ${
                 step === 4 ? "text-primary" : "text-muted-foreground"
@@ -283,10 +292,11 @@ export default function SubmitPage() {
                 <h2 className="text-subheading font-bold text-foreground">Step 1: Product Identity</h2>
 
                 <div>
-                  <label className="block text-caption font-semibold text-foreground mb-1">
+                  <label htmlFor="startup-name" className="block text-caption font-semibold text-foreground mb-1">
                     Startup Name *
                   </label>
                   <input
+                    id="startup-name"
                     type="text"
                     required
                     placeholder="e.g. SajhaPay, Lekhani AI, Chhito"
@@ -297,10 +307,11 @@ export default function SubmitPage() {
                 </div>
 
                 <div>
-                  <label className="block text-caption font-semibold text-foreground mb-1">
+                  <label htmlFor="startup-tagline" className="block text-caption font-semibold text-foreground mb-1">
                     One-Sentence Pitch Tagline (≤ 80 Chars) *
                   </label>
                   <input
+                    id="startup-tagline"
                     type="text"
                     required
                     maxLength={80}
@@ -315,10 +326,11 @@ export default function SubmitPage() {
                 </div>
 
                 <div>
-                  <label className="block text-caption font-semibold text-foreground mb-1">
+                  <label htmlFor="startup-website" className="block text-caption font-semibold text-foreground mb-1">
                     Product Website or App Store URL * (Must be live; no placeholder URLs)
                   </label>
                   <input
+                    id="startup-website"
                     type="url"
                     required
                     placeholder="https://yourstartup.com"
@@ -330,10 +342,11 @@ export default function SubmitPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-caption font-semibold text-foreground mb-1">
+                    <label htmlFor="startup-category" className="block text-caption font-semibold text-foreground mb-1">
                       Category *
                     </label>
                     <select
+                      id="startup-category"
                       value={formData.category}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                       className="w-full rounded-2xl border border-input bg-background px-4 py-3 text-body text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
@@ -347,10 +360,11 @@ export default function SubmitPage() {
                   </div>
 
                   <div>
-                    <label className="block text-caption font-semibold text-foreground mb-1">
+                    <label htmlFor="startup-market" className="block text-caption font-semibold text-foreground mb-1">
                       Target Market *
                     </label>
                     <select
+                      id="startup-market"
                       value={formData.market}
                       onChange={(e) => setFormData({ ...formData, market: e.target.value })}
                       className="w-full rounded-2xl border border-input bg-background px-4 py-3 text-body text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
@@ -382,10 +396,11 @@ export default function SubmitPage() {
                 <h2 className="text-subheading font-bold text-foreground">Step 2: Media &amp; Tech Stack</h2>
 
                 <div>
-                  <label className="block text-caption font-semibold text-foreground mb-1">
+                  <label htmlFor="startup-demo" className="block text-caption font-semibold text-foreground mb-1">
                     YouTube or Loom Video Walkthrough URL (Optional)
                   </label>
                   <input
+                    id="startup-demo"
                     type="url"
                     placeholder="https://youtube.com/watch?v=..."
                     value={formData.demoVideoUrl}
@@ -395,10 +410,11 @@ export default function SubmitPage() {
                 </div>
 
                 <div>
-                  <label className="block text-caption font-semibold text-foreground mb-1">
+                  <label htmlFor="startup-story" className="block text-caption font-semibold text-foreground mb-1">
                     Detailed Product Story &amp; Vision
                   </label>
                   <textarea
+                    id="startup-story"
                     rows={4}
                     placeholder="What problem are you solving? Who is this for? What makes your solution unique?"
                     value={formData.description}
@@ -450,10 +466,11 @@ export default function SubmitPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-caption font-semibold text-foreground mb-1">
+                    <label htmlFor="founder-name" className="block text-caption font-semibold text-foreground mb-1">
                       Founder Name *
                     </label>
                     <input
+                      id="founder-name"
                       type="text"
                       required
                       placeholder="e.g. Aman Founder"
@@ -464,10 +481,11 @@ export default function SubmitPage() {
                   </div>
 
                   <div>
-                    <label className="block text-caption font-semibold text-foreground mb-1">
+                    <label htmlFor="founder-email" className="block text-caption font-semibold text-foreground mb-1">
                       Founder Email *
                     </label>
                     <input
+                      id="founder-email"
                       type="email"
                       required
                       placeholder="founder@wefounders.dev"
@@ -479,10 +497,11 @@ export default function SubmitPage() {
                 </div>
 
                 <div>
-                  <label className="block text-caption font-semibold text-foreground mb-1">
+                  <label htmlFor="founder-social" className="block text-caption font-semibold text-foreground mb-1">
                     X (Twitter) or LinkedIn Profile URL
                   </label>
                   <input
+                    id="founder-social"
                     type="url"
                     placeholder="https://x.com/yourhandle or https://linkedin.com/in/yourprofile"
                     value={formData.founderSocial}
@@ -520,6 +539,17 @@ export default function SubmitPage() {
                     ))}
                   </div>
                 </div>
+
+                <label className="flex items-start gap-3 text-sm leading-relaxed text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    required
+                    checked={policiesAccepted}
+                    onChange={(event) => setPoliciesAccepted(event.target.checked)}
+                    className="mt-1 h-4 w-4 accent-primary"
+                  />
+                  <span>I agree to the <Link href="/terms" className="text-foreground underline underline-offset-4">Terms of Service</Link> and acknowledge the <Link href="/privacy" className="text-foreground underline underline-offset-4">Privacy Policy</Link>.</span>
+                </label>
 
                 <div className="flex justify-between pt-2">
                   <Button type="button" variant="outline" onClick={() => setStep(3)}>

@@ -7,6 +7,8 @@ import { addCollabPost, normalizeContactChannel } from "@/lib/collab/store";
 import { getViewer } from "@/lib/auth/viewer";
 // Type/initial value live outside this "use server" module — see the file.
 import type { CollabPostActionState } from "@/lib/action-state";
+import { headers } from "next/headers";
+import { clientAddress, isRateLimited } from "@/lib/security/rate-limit";
 
 /**
  * Post a collab/co-founder opportunity (PRD §4.1, TRD §2 table 11,
@@ -70,6 +72,10 @@ export async function postOpportunityAction(
       status: "error",
       message: "Sign in with Google to post an opportunity.",
     };
+  }
+
+  if (await isRateLimited("collab-post", `${viewer.userId}:${clientAddress(await headers())}`, 5, 60 * 60_000)) {
+    return { status: "error", message: "Too many listings from this account. Try again later." };
   }
 
   try {

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { approveAllPending, createManualStartup, type ManualStartupInput } from "@/app/admin/actions";
 import type { StartupStage, TargetMarket } from "@/types/database";
 
-const fieldClass = "mt-1 w-full rounded-lg border border-[#27272A] bg-[#0A0A0C] px-3 py-2.5 text-sm text-[#F4F4F5] placeholder:text-[#71717A] focus:border-[#FACC15] focus:outline-none";
+const fieldClass = "mt-1 w-full rounded-lg border border-[#27272A] bg-[#0A0A0C] px-3 py-2.5 text-sm text-[#F4F4F5] placeholder:text-[#666A73] focus:border-[#FACC15] focus:outline-none";
 
 export function OverviewActions({ pendingCount }: { pendingCount: number }) {
   const [confirmOpen, setConfirmOpen] = useState(false);

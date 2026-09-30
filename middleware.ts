@@ -36,8 +36,12 @@ async function readSignedUserId(token: string, secret: string): Promise<string |
     const valid = await crypto.subtle.verify("HMAC", key, signatureBytes, new TextEncoder().encode(payload));
     if (!valid) return null;
 
-    const session = JSON.parse(new TextDecoder().decode(payloadBytes)) as { userId?: unknown };
-    return typeof session.userId === "string" && UUID_PATTERN.test(session.userId)
+    const session = JSON.parse(new TextDecoder().decode(payloadBytes)) as { userId?: unknown; issuedAt?: unknown; expiresAt?: unknown };
+    const now = Date.now();
+    return typeof session.userId === "string" && UUID_PATTERN.test(session.userId) &&
+      typeof session.issuedAt === "number" && Number.isFinite(session.issuedAt) && session.issuedAt <= now + 60_000 &&
+      typeof session.expiresAt === "number" && Number.isFinite(session.expiresAt) && session.expiresAt > now &&
+      session.expiresAt - session.issuedAt <= 30 * 24 * 60 * 60 * 1000
       ? session.userId
       : null;
   } catch {
@@ -47,16 +51,18 @@ async function readSignedUserId(token: string, secret: string): Promise<string |
 
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get(SESSION_COOKIE)?.value;
-  const secret = process.env.SESSION_SECRET ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const userId = token && secret ? await readSignedUserId(token, secret) : null;
+  const secret = process.env.SESSION_SECRET;
+  const userId = token && secret && new TextEncoder().encode(secret).byteLength >= 32
+    ? await readSignedUserId(token, secret)
+    : null;
 
   if (!userId) {
     return NextResponse.redirect(new URL("/?error=unauthenticated", request.url));
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !anonKey) {
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceRoleKey) {
     return NextResponse.redirect(new URL("/?error=unauthorized", request.url));
   }
 
@@ -66,8 +72,9 @@ export async function middleware(request: NextRequest) {
 
   try {
     const response = await fetch(profileUrl, {
-      headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}` },
+      headers: { apikey: serviceRoleKey, Authorization: `Bearer ${serviceRoleKey}` },
       cache: "no-store",
+      signal: AbortSignal.timeout(3_000),
     });
     const profiles = response.ok ? (await response.json()) as Array<{ role?: string }> : [];
     if (!profiles.some((profile) => profile.role === "admin")) {

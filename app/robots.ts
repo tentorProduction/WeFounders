@@ -1,14 +1,15 @@
+import { getSiteOrigin } from "@/lib/site-url";
 import type { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.wefounders.dev";
+  const baseUrl = getSiteOrigin();
 
   return {
     rules: [
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/payments/sandbox"],
+        disallow: ["/admin/", "/api/", "/payments/sandbox", "/profile"],
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,

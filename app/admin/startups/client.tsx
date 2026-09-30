@@ -84,7 +84,7 @@ export function LiveStartupsClient({ startups, availableTags }: { startups: Admi
               {startups.map((startup, index) => {
                 const saving = isPending && busyId === startup.id;
                 return (
-                  <tr key={startup.id} className="align-middle hover:bg-[#18181B]">
+                  <tr key={startup.id} className="align-middle hover:bg-[#17181B]">
                     <td className="px-4 py-3 font-mono text-[#A1A1AA]">#{index + 1}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
@@ -98,7 +98,7 @@ export function LiveStartupsClient({ startups, availableTags }: { startups: Admi
                     </td>
                     <td className="max-w-48 px-4 py-3">
                       <p className="truncate text-[#D4D4D8]">{startup.profiles?.full_name || "Unknown"}</p>
-                      <p className="truncate text-xs text-[#71717A]">{startup.profiles?.email}</p>
+                      <p className="truncate text-xs text-[#666A73]">{startup.profiles?.email}</p>
                     </td>
                     <td className="px-4 py-3"><Badge variant="outline" className="whitespace-nowrap border-[#3F3F46] text-[#D4D4D8]">{startup.target_market === "nepal_domestic" ? "Nepal 🇳🇵" : startup.target_market === "global_export" ? "World 🌎" : "Nepal + World"}</Badge></td>
                     <td className="px-4 py-3 text-right font-mono tabular-nums text-[#F4F4F5]">{startup.upvotes_count.toLocaleString()}</td>
@@ -134,7 +134,7 @@ export function LiveStartupsClient({ startups, availableTags }: { startups: Admi
               {availableTags.map((tag) => (
                 <label key={tag.id} className="flex min-h-11 items-center gap-3 rounded-lg border border-[#27272A] px-3 py-2 text-sm text-[#D4D4D8]">
                   <input type="checkbox" checked={selectedTagIds.includes(tag.id)} onChange={(event) => setSelectedTagIds((current) => event.target.checked ? [...current, tag.id] : current.filter((id) => id !== tag.id))} className="h-4 w-4 accent-[#FACC15]" />
-                  <span className="flex-1">{tag.name}</span><span className="text-xs capitalize text-[#71717A]">{tag.category}</span>
+                  <span className="flex-1">{tag.name}</span><span className="text-xs capitalize text-[#666A73]">{tag.category}</span>
                 </label>
               ))}
               {availableTags.length === 0 && <p className="text-sm text-[#A1A1AA]">No tags are configured yet.</p>}

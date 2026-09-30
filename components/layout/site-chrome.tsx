@@ -10,8 +10,11 @@ export function SiteChrome({ children, header, footer }: { children: ReactNode; 
 
   return (
     <div className={`flex min-h-screen flex-col ${isAdmin ? "" : "pb-[calc(76px+env(safe-area-inset-bottom))] md:pb-0"}`}>
+      <a href="#main-content" className="sr-only z-[110] rounded-md bg-background px-4 py-3 text-foreground focus:not-sr-only focus:fixed focus:left-3 focus:top-3">
+        Skip to content
+      </a>
       {!isAdmin && header}
-      <main className="flex-1">{children}</main>
+      <main id="main-content" className="flex-1">{children}</main>
       {!isAdmin && footer}
       {!isAdmin && <MobileNav />}
     </div>

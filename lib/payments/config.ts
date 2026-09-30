@@ -28,5 +28,5 @@ export function isSandboxPayments(): boolean {
  * real Khalti sandbox is used instead.
  */
 export function isKhaltiSimulated(): boolean {
-  return isSandboxPayments() && !process.env.KHALTI_SECRET_KEY;
+  return process.env.NODE_ENV === "development" && isSandboxPayments() && !process.env.KHALTI_SECRET_KEY;
 }

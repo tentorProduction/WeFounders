@@ -1,13 +1,17 @@
+import { getSiteOrigin } from "@/lib/site-url";
 import type { Metadata } from "next";
 import { Swords } from "lucide-react";
 
 import { getQuestBoard } from "@/lib/data/quests";
 import { QuestCard } from "@/components/quests/quest-card";
 
+const baseUrl = getSiteOrigin();
+
 export const metadata: Metadata = {
   title: "Testing Quests & Bounties",
   description:
     "Test real Nepali betas on real Nepali networks. Founders post the task; you file the report and earn NPR bounties and Karma.",
+  alternates: { canonical: new URL("/quests", baseUrl) },
 };
 
 export const dynamic = "force-dynamic";

@@ -1,3 +1,4 @@
+import { getSiteOrigin } from "@/lib/site-url";
 import React from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -5,10 +6,13 @@ import { ShieldCheck, Rocket, CheckCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
+const baseUrl = getSiteOrigin();
+
 export const metadata: Metadata = {
   title: "About & Manifesto — WeFounders",
   description:
     "Learn about WeFounders.dev, our curation acceptance bar, submission guidelines, and how we help Nepali founders reach early beta users.",
+  alternates: { canonical: new URL("/about", baseUrl) },
 };
 
 export default function AboutPage() {
@@ -59,7 +63,7 @@ export default function AboutPage() {
             </Badge>
             <span className="text-caption text-muted-foreground font-mono">Strict Curation Standard</span>
           </div>
-          <h2 className="text-display font-bold text-foreground">What Gets Featured on WeFounders</h2>
+          <h2 id="guidelines" className="text-display font-bold text-foreground">What Gets Featured on WeFounders</h2>
           <p className="text-body text-muted-foreground">
             To protect our community of early adopters, every submission is reviewed against our 5 core quality criteria before appearing on today&apos;s feed:
           </p>

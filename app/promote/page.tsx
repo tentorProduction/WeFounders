@@ -1,3 +1,4 @@
+import { getSiteOrigin } from "@/lib/site-url";
 import Link from "next/link";
 import { Megaphone } from "lucide-react";
 
@@ -5,10 +6,14 @@ import { getStartupFeed } from "@/lib/data/startups";
 import { StartupLogo } from "@/components/startups/startup-logo";
 import { Button } from "@/components/ui/button";
 
+const baseUrl = getSiteOrigin();
+
 export const metadata = {
   title: "Promote Your Startup Spotlight",
   description:
     "Put your beta in the Featured Spotlight at the top of the WeFounders discovery feed, paid via eSewa or Khalti.",
+  alternates: { canonical: new URL("/promote", baseUrl) },
+  robots: { index: false, follow: true },
 };
 
 export const dynamic = "force-dynamic";

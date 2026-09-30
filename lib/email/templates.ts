@@ -1,3 +1,4 @@
+import { getSiteOrigin } from "@/lib/site-url";
 import type { StartupWithTags } from "@/types/database";
 
 /**
@@ -5,21 +6,21 @@ import type { StartupWithTags } from "@/types/database";
  */
 
 const BLACK = "#000000";
-const INK = "#18181B";
-const MUTED = "#71717A";
+const INK = "#17181B";
+const MUTED = "#666A73";
 
 function shell(title: string, bodyHtml: string): string {
   return `<!doctype html>
 <html lang="en">
-  <body style="margin:0;padding:0;background:#FAFAFA;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:${INK};">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FAFAFA;padding:32px 16px;">
+  <body style="margin:0;padding:0;background:#F2F3F5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:${INK};">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F2F3F5;padding:32px 16px;">
       <tr>
         <td align="center">
-          <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#FFFFFF;border:1px solid #E4E4E7;border-radius:12px;overflow:hidden;">
+          <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#FFFFFF;border:1px solid #DADDE1;border-radius:12px;overflow:hidden;">
             <tr>
               <td style="background:${BLACK};padding:16px 24px;">
-                <span style="display:inline-block;width:28px;height:28px;line-height:28px;text-align:center;background:#DC2626;border-radius:8px;color:#FFFFFF;font-weight:700;font-size:14px;">W</span>
-                <span style="color:#FFFFFF;font-weight:700;font-size:16px;margin-left:8px;">WeFounders<span style="color:#DC2626;">.dev</span></span>
+                <span style="display:inline-block;width:28px;height:28px;line-height:28px;text-align:center;background:#FF4B3E;border-radius:8px;color:#FFFFFF;font-weight:700;font-size:14px;">W</span>
+                <span style="color:#FFFFFF;font-weight:700;font-size:16px;margin-left:8px;">WeFounders<span style="color:#FF4B3E;">.dev</span></span>
               </td>
             </tr>
             <tr>
@@ -55,7 +56,7 @@ export function waitlistConfirmationEmail(
   input: WaitlistConfirmationInput
 ): { subject: string; html: string; text: string } {
   const subject = `You're on the ${input.startup.name} beta waitlist`;
-  const cta = `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/startups/${input.startup.slug}`;
+  const cta = `${getSiteOrigin()}/startups/${input.startup.slug}`;
 
   const html = shell(
     `You&apos;re in — position #${input.position}`,
@@ -68,7 +69,7 @@ export function waitlistConfirmationEmail(
       &ldquo;${input.startup.tagline}&rdquo;
     </p>
     <p style="margin:0 0 24px;">
-      <a href="${cta}" style="display:inline-block;background:#DC2626;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:14px;padding:10px 20px;border-radius:9999px;">
+      <a href="${cta}" style="display:inline-block;background:#FF4B3E;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:14px;padding:10px 20px;border-radius:9999px;">
         View the launch &rarr;
       </a>
     </p>
@@ -104,7 +105,7 @@ export function founderLeadAlertEmail(
   input: FounderLeadAlertInput
 ): { subject: string; html: string; text: string } {
   const subject = `New beta lead: ${input.leadEmail}`;
-  const cta = `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/startups/${input.startup.slug}`;
+  const cta = `${getSiteOrigin()}/startups/${input.startup.slug}`;
 
   const html = shell(
     `New waitlist signup for ${input.startup.name}`,

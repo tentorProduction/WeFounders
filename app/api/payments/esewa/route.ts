@@ -8,6 +8,11 @@ import {
   type EsewaSignedForm,
 } from "@/lib/payments/esewa";
 import { readPaymentRequest } from "@/lib/payments/request";
+import { getViewer } from "@/lib/auth/viewer";
+import { getSiteOrigin } from "@/lib/site-url";
+import { isEsewaConfigured } from "@/lib/payments/esewa";
+import { hasTrustedOrigin } from "@/lib/security/request-origin";
+import { clientAddress, isRateLimited } from "@/lib/security/rate-limit";
 
 /**
  * eSewa EPAY v2 initiation (TRD §4.2, deployment guide §3.1).
@@ -18,6 +23,7 @@ import { readPaymentRequest } from "@/lib/payments/request";
  * rc-epay.esewa.com.np with the public EPAYTEST credentials — no real money.
  */
 export async function POST(request: Request) {
+  if (!hasTrustedOrigin(request)) return NextResponse.json({ error: "Untrusted request origin." }, { status: 403 });
   const params = await readPaymentRequest(request);
   const slug = params.get("startup_slug") ?? "";
   const tier = params.get("plan_tier") ?? "";
@@ -31,7 +37,17 @@ export async function POST(request: Request) {
     );
   }
 
-  const origin = new URL(request.url).origin;
+  const viewer = await getViewer();
+  if (!viewer.userId) return NextResponse.json({ error: "Sign in to promote a startup." }, { status: 401 });
+  if (viewer.userId !== startup.founder_id) return NextResponse.json({ error: "Only the startup founder can promote it." }, { status: 403 });
+  if (await isRateLimited("payment-initiate", `${viewer.userId}:${clientAddress(request.headers)}`, 5, 60 * 60_000)) {
+    return NextResponse.json({ error: "Too many payment attempts. Try again later." }, { status: 429 });
+  }
+  if (!isEsewaConfigured()) {
+    return NextResponse.json({ error: "eSewa payments are not configured." }, { status: 503 });
+  }
+
+  const origin = getSiteOrigin();
   const promotion = await createPendingPromotion({
     startupId: startup.id,
     founderId: startup.founder_id,

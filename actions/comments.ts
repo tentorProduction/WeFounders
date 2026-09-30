@@ -1,11 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { z } from "zod";
 
 import { getViewer, isFounderViewer } from "@/lib/auth/viewer";
 import { addComment } from "@/lib/comments";
 import { getStartupBySlug } from "@/lib/data/startups";
+import { clientAddress, isRateLimited } from "@/lib/security/rate-limit";
 // Type lives outside this "use server" module — see the file.
 import type { CommentActionState } from "@/lib/action-state";
 
@@ -46,6 +48,10 @@ export async function postCommentAction(
       status: "error",
       message: "Sign in with Google to join the discussion.",
     };
+  }
+
+  if (await isRateLimited("comment-post", `${viewer.userId}:${clientAddress(await headers())}`, 10, 60_000)) {
+    return { status: "error", message: "Please wait a moment before posting again." };
   }
 
   const startup = await getStartupBySlug(parsed.data.slug);

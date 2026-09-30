@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 
 import { getStartupById } from "@/lib/data/startups";
+import { getSiteOrigin } from "@/lib/site-url";
 import { isKhaltiSimulated } from "@/lib/payments/config";
 import { lookupKhaltiPayment } from "@/lib/payments/khalti";
 import {
   completePromotion,
-  failPromotion,
   getPromotionByReference,
 } from "@/lib/promotions/store";
 
@@ -18,7 +18,7 @@ import {
  */
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const origin = url.origin;
+  const origin = getSiteOrigin();
   const pidx = url.searchParams.get("pidx") ?? "";
   const reference = url.searchParams.get("purchase_order_id") ?? "";
 
@@ -32,7 +32,7 @@ export async function GET(request: Request) {
   };
 
   const promotion = reference ? await getPromotionByReference(reference) : null;
-  if (!promotion) return back(null, "failed");
+  if (!promotion || promotion.provider !== "khalti" || promotion.status !== "pending") return back(null, "failed");
   const startup = await getStartupById(promotion.startup_id);
 
   let status = "FAILED";
@@ -41,22 +41,27 @@ export async function GET(request: Request) {
   if (isKhaltiSimulated() && pidx.startsWith("sim_")) {
     status = url.searchParams.get("status") === "success" ? "COMPLETED" : "USER_CANCELED";
     transactionId = pidx;
-  } else if (pidx) {
+  } else if (pidx && promotion.payment_intent_id === pidx) {
     try {
       const lookup = await lookupKhaltiPayment(pidx);
-      status = lookup.status;
-      transactionId = lookup.transaction_id;
+      if (
+        lookup.pidx === pidx &&
+        lookup.total_amount === Math.round(Number(promotion.amount_npr) * 100) &&
+        lookup.status.toLowerCase() === "completed" && !lookup.refunded && typeof lookup.transaction_id === "string" && lookup.transaction_id.length > 0
+      ) {
+        status = "COMPLETED";
+        transactionId = lookup.transaction_id;
+      }
     } catch (error) {
       console.error("[khalti] lookup failed:", error);
     }
   }
 
   if (status === "COMPLETED") {
-    await completePromotion(promotion.reference_id, transactionId);
+    await completePromotion(promotion.reference_id, transactionId, "khalti");
     return back(startup?.slug ?? null, "success", promotion.reference_id);
   }
 
-  await failPromotion(promotion.reference_id);
   return back(
     startup?.slug ?? null,
     status === "USER_CANCELED" ? "canceled" : "failed",

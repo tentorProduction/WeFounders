@@ -5,6 +5,7 @@ import { AdminMobileNav } from "@/components/admin/mobile-nav";
 
 export const metadata = {
   title: "Admin Dashboard - WeFounders",
+  robots: { index: false, follow: false },
 };
 
 export default function AdminLayout({ children }: { children: ReactNode }) {

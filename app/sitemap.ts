@@ -1,3 +1,4 @@
+import { getSiteOrigin } from "@/lib/site-url";
 import type { MetadataRoute } from "next";
 
 import { getStartupFeed } from "@/lib/data/startups";
@@ -6,8 +7,7 @@ import { getStartupFeed } from "@/lib/data/startups";
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://www.wefounders.dev";
+  const baseUrl = getSiteOrigin();
   const now = new Date();
 
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -59,6 +59,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.7,
     },
+    { url: `${baseUrl}/faq`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${baseUrl}/privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${baseUrl}/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
   ];
 
   // Approved launches straight from the database — no static list to maintain.

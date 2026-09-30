@@ -20,6 +20,8 @@ export const SESSION_COOKIE = "wf_session";
 
 /** 30 days. */
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
+const SESSION_MAX_AGE_MS = SESSION_MAX_AGE_SECONDS * 1000;
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export interface SessionUser {
   /** `profiles.id` — the id every table references. */
@@ -32,12 +34,9 @@ export interface SessionUser {
 }
 
 function signingSecret(): string {
-  const secret =
-    process.env.SESSION_SECRET ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!secret) {
-    throw new Error(
-      "Set SESSION_SECRET (or SUPABASE_SERVICE_ROLE_KEY) to sign session cookies."
-    );
+  const secret = process.env.SESSION_SECRET;
+  if (!secret || Buffer.byteLength(secret, "utf8") < 32) {
+    throw new Error("Set SESSION_SECRET to a random value of at least 32 bytes.");
   }
   return secret;
 }
@@ -60,13 +59,14 @@ export function profileIdForFirebaseUid(uid: string): string {
 }
 
 function encodeSession(user: SessionUser): string {
-  const payload = Buffer.from(JSON.stringify(user), "utf8").toString("base64url");
+  const now = Date.now();
+  const payload = Buffer.from(JSON.stringify({ ...user, issuedAt: now, expiresAt: now + SESSION_MAX_AGE_MS }), "utf8").toString("base64url");
   return `${payload}.${sign(payload)}`;
 }
 
 function decodeSession(token: string): SessionUser | null {
-  const [payload, signature] = token.split(".");
-  if (!payload || !signature) return null;
+  const [payload, signature, extra] = token.split(".");
+  if (!payload || !signature || extra) return null;
 
   const expected = sign(payload);
   const a = Buffer.from(signature);
@@ -75,10 +75,25 @@ function decodeSession(token: string): SessionUser | null {
 
   try {
     const parsed = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
-    if (typeof parsed?.userId !== "string" || typeof parsed?.email !== "string") {
+    const now = Date.now();
+    if (
+      typeof parsed?.userId !== "string" || !UUID_PATTERN.test(parsed.userId) ||
+      typeof parsed?.email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(parsed.email) ||
+      typeof parsed?.firebaseUid !== "string" ||
+      typeof parsed?.issuedAt !== "number" || !Number.isFinite(parsed.issuedAt) ||
+      typeof parsed?.expiresAt !== "number" || !Number.isFinite(parsed.expiresAt) ||
+      parsed.expiresAt <= now || parsed.issuedAt > now + 60_000 ||
+      parsed.expiresAt - parsed.issuedAt > SESSION_MAX_AGE_MS
+    ) {
       return null;
     }
-    return parsed as SessionUser;
+    return {
+      userId: parsed.userId,
+      email: parsed.email,
+      name: typeof parsed.name === "string" ? parsed.name : null,
+      picture: typeof parsed.picture === "string" ? parsed.picture : null,
+      firebaseUid: parsed.firebaseUid,
+    };
   } catch {
     return null;
   }

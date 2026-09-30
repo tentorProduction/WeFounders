@@ -7,7 +7,7 @@ import { reportReadFailure } from "@/lib/data/read-failure";
  *
  * Listings link optionally to a startup, and the author's display name is
  * denormalized onto the row at write time so the board renders without needing
- * a profiles join (profiles are readable, but a join per card is wasteful).
+ * to expose private profile rows to anonymous database clients.
  */
 
 export type CollabPostWithAuthor = CollabPost & {

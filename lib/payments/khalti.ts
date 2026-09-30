@@ -9,12 +9,15 @@
  *     before marking the promotion paid (never trust the redirect alone).
  */
 
-export const KHALTI_BASE_URL =
-  process.env.KHALTI_ENV === "prod"
-    ? "https://a.khalti.com"
-    : "https://a.khalti.com"; // sandbox shares the base URL
+export const KHALTI_BASE_URL = process.env.PAYMENTS_MODE === "live"
+  ? "https://khalti.com/api/v2"
+  : "https://dev.khalti.com/api/v2";
 
 const KHALTI_SECRET_KEY = process.env.KHALTI_SECRET_KEY ?? "";
+
+export function isKhaltiConfigured(): boolean {
+  return Boolean(KHALTI_SECRET_KEY);
+}
 
 export interface KhaltiInitiateParams {
   amountNpr: number; // whole NPR; converted to paisa internally
@@ -37,10 +40,9 @@ export interface KhaltiInitiateResult {
 export interface KhaltiLookupResult {
   pidx: string;
   total_amount: number; // paisa
-  status: "PENDING" | "COMPLETED" | "EXPIRED" | "USER_CANCELED" | "INITIATED";
+  status: string;
   transaction_id: string | null;
-  purchase_order_id: string;
-  purchase_order_name: string;
+  refunded?: boolean;
 }
 
 function requireSecretKey(): string {
@@ -59,7 +61,7 @@ function requireSecretKey(): string {
 export async function initiateKhaltiPayment(
   params: KhaltiInitiateParams
 ): Promise<KhaltiInitiateResult> {
-  const response = await fetch(`${KHALTI_BASE_URL}/api/v2/epay/initiate/`, {
+  const response = await fetch(`${KHALTI_BASE_URL}/epayment/initiate/`, {
     method: "POST",
     headers: {
       Authorization: `Key ${requireSecretKey()}`,
@@ -77,11 +79,14 @@ export async function initiateKhaltiPayment(
   });
 
   if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`Khalti initiate failed (${response.status}): ${body}`);
+    throw new Error(`Khalti initiate failed (${response.status}).`);
   }
 
-  return (await response.json()) as KhaltiInitiateResult;
+  const result = (await response.json()) as { pidx?: unknown; payment_url?: unknown };
+  if (typeof result.pidx !== "string" || typeof result.payment_url !== "string") {
+    throw new Error("Khalti returned an invalid payment response.");
+  }
+  return { pidx: result.pidx, paymentUrl: result.payment_url };
 }
 
 /**
@@ -91,7 +96,7 @@ export async function initiateKhaltiPayment(
 export async function lookupKhaltiPayment(
   pidx: string
 ): Promise<KhaltiLookupResult> {
-  const response = await fetch(`${KHALTI_BASE_URL}/api/v2/epay/lookup/`, {
+  const response = await fetch(`${KHALTI_BASE_URL}/epayment/lookup/`, {
     method: "POST",
     headers: {
       Authorization: `Key ${requireSecretKey()}`,
@@ -102,9 +107,18 @@ export async function lookupKhaltiPayment(
   });
 
   if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`Khalti lookup failed (${response.status}): ${body}`);
+    throw new Error(`Khalti lookup failed (${response.status}).`);
   }
 
-  return (await response.json()) as KhaltiLookupResult;
+  const result = (await response.json()) as Partial<KhaltiLookupResult>;
+  if (typeof result.pidx !== "string" || typeof result.total_amount !== "number" || typeof result.status !== "string") {
+    throw new Error("Khalti returned an invalid lookup response.");
+  }
+  return {
+    pidx: result.pidx,
+    total_amount: result.total_amount,
+    status: result.status,
+    transaction_id: typeof result.transaction_id === "string" ? result.transaction_id : null,
+    refunded: result.refunded === true,
+  };
 }

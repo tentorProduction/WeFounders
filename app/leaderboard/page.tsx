@@ -1,12 +1,16 @@
+import { getSiteOrigin } from "@/lib/site-url";
 import type { Metadata } from "next";
 
 import { getStartupFeed } from "@/lib/data/startups";
 import { LeaderboardView } from "@/components/rankings/leaderboard-view";
 
+const baseUrl = getSiteOrigin();
+
 export const metadata: Metadata = {
   title: "Founder Leaderboard",
   description:
     "Top ranked Nepali products by verified on-platform engagement — upvotes, opt-in waitlists and accepted testing reports.",
+  alternates: { canonical: new URL("/leaderboard", baseUrl) },
 };
 
 export const dynamic = "force-dynamic";

@@ -6,12 +6,14 @@ import { formatPlanPrice, getPlan } from "@/lib/promotions/plans";
 import { getPromotionByReference } from "@/lib/promotions/store";
 import { isSandboxPayments } from "@/lib/payments/config";
 import { Button } from "@/components/ui/button";
+import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Payment Gateway Sandbox",
   description: "Test eSewa and Khalti payment checkout flows for WeFounders promotions.",
+  robots: { index: false, follow: false },
 };
 
 interface PageProps {
@@ -26,6 +28,7 @@ interface PageProps {
  * with a `sim_` pidx, which the callback accepts only in simulated mode.
  */
 export default async function SandboxCheckoutPage({ searchParams }: PageProps) {
+  if (process.env.NODE_ENV === "production") notFound();
   const params = await searchParams;
   const ref = typeof params.ref === "string" ? params.ref : "";
 
