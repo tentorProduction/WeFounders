@@ -7,6 +7,7 @@ import { Menu, Search, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { UserButton } from "@/components/auth/user-button";
+import { BrandLogo } from "@/components/brand/brand-logo";
 
 const NAV_LINKS = [
   { href: "/", label: "Launches" },
@@ -165,17 +166,11 @@ export function SiteHeader() {
               className="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-[#FF4B3E] rounded-md"
               onClick={() => setMobileOpen(false)}
             >
-              {/* Gold rounded square icon: 30px on mobile, 32px on desktop */}
-              <span
-                aria-hidden
-                className="flex h-[34px] w-[34px] items-center justify-center rounded-full bg-[#17181B] font-archivo text-[14px] font-black text-white shadow-sm"
-              >
-                W
-              </span>
-              {/* Wordmark: hidden on mobile (<640px) to prevent horizontal overflow */}
-              <span className="hidden sm:inline-block font-archivo font-bold text-[18px] text-[#17181B] tracking-tight">
-                WeFounders
-              </span>
+              {/* Brand mark, with the wordmark shown from 640px up to prevent horizontal overflow */}
+              <BrandLogo
+                markClassName="h-[26px] text-[#17181B] sm:h-[28px]"
+                wordmarkClassName="hidden text-[#17181B] sm:inline-block"
+              />
             </Link>
           </div>
 

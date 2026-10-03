@@ -80,7 +80,7 @@ export function SubmissionsClient({ submissions }: { submissions: AdminStartup[]
                 <div className="min-w-0 flex-1 space-y-4">
                   <div className="flex min-w-0 items-start gap-3 sm:gap-4">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={startup.logo_url || "/icon.svg"} alt="" className="h-12 w-12 shrink-0 rounded-lg border border-[#27272A] bg-[#0A0A0C] object-cover sm:h-14 sm:w-14" />
+                    <img src={startup.logo_url || "/icon.png"} alt="" className="h-12 w-12 shrink-0 rounded-lg border border-[#27272A] bg-[#0A0A0C] object-cover sm:h-14 sm:w-14" />
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <h2 className="text-lg font-semibold text-[#F4F4F5] sm:text-xl">{startup.name}</h2>

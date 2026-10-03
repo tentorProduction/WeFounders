@@ -89,7 +89,7 @@ export function LiveStartupsClient({ startups, availableTags }: { startups: Admi
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={startup.logo_url || "/icon.svg"} alt="" className="h-9 w-9 rounded-lg border border-[#27272A] bg-[#0A0A0C] object-cover" />
+                        <img src={startup.logo_url || "/icon.png"} alt="" className="h-9 w-9 rounded-lg border border-[#27272A] bg-[#0A0A0C] object-cover" />
                         <div className="min-w-0">
                           <p className="max-w-52 truncate font-semibold text-[#F4F4F5]">{startup.name}</p>
                           <div className="mt-1 flex flex-wrap gap-1">{startup.tags.slice(0, 3).map((tag) => <span key={tag.id} className="rounded-full border border-[#3F3F46] px-1.5 py-0.5 text-[10px] text-[#A1A1AA]">{tag.name}</span>)}</div>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { BrandLogo } from "@/components/brand/brand-logo";
 import { CookieSettingsButton } from "@/components/privacy/cookie-settings-button";
 
 const PRODUCT_LINKS = [
@@ -37,15 +38,10 @@ export function SiteFooter() {
         {/* Brand Column */}
         <div className="space-y-3">
           <Link href="/" className="flex items-center gap-2">
-            <span
-              aria-hidden
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-[#FF4B3E] font-archivo text-xs font-bold text-white"
-            >
-              W
-            </span>
-            <span className="text-[18px] font-archivo font-bold tracking-tight text-white">
-              We<span className="text-[#FF4B3E]">Founders</span>
-            </span>
+            <BrandLogo
+              markClassName="h-[24px] text-white"
+              wordmarkClassName="text-white"
+            />
             <Badge variant="outline" className="border-white/20 bg-white/8 text-[10px] font-mono text-white/60">
               .dev 🇳🇵
             </Badge>

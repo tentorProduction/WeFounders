@@ -89,7 +89,7 @@ const jsonLd = {
       "@id": `${siteUrl}/#organization`,
       name: "WeFounders",
       url: siteUrl,
-      logo: `${siteUrl}/icon.svg`,
+      logo: `${siteUrl}/logo.png`,
       sameAs: [
         "https://twitter.com/wefounders_dev",
         "https://linkedin.com/company/wefounders-dev",
