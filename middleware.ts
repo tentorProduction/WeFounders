@@ -1,20 +1,36 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest, type NextFetchEvent } from "next/server";
 
 const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
 
-export default clerkMiddleware(async (auth, request) => {
-  if (isAdminRoute(request)) {
-    const { userId } = await auth();
-    if (userId) return;
-    const signInUrl = new URL(
-      process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? "/sign-in",
-      request.url
-    );
-    signInUrl.searchParams.set("redirect_url", request.url);
-    return NextResponse.redirect(signInUrl);
+const isClerkConfigured = Boolean(
+  (process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || process.env.CLERK_PUBLISHABLE_KEY) &&
+    process.env.CLERK_SECRET_KEY
+);
+
+export default async function middleware(request: NextRequest, event: NextFetchEvent) {
+  if (!isClerkConfigured) {
+    return NextResponse.next();
   }
-});
+
+  try {
+    return await clerkMiddleware(async (auth, req) => {
+      if (isAdminRoute(req)) {
+        const { userId } = await auth();
+        if (userId) return;
+        const signInUrl = new URL(
+          process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? "/sign-in",
+          req.url
+        );
+        signInUrl.searchParams.set("redirect_url", req.url);
+        return NextResponse.redirect(signInUrl);
+      }
+    })(request, event);
+  } catch (error) {
+    console.error("[middleware] Clerk invocation failed:", error);
+    return NextResponse.next();
+  }
+}
 
 export const config = {
   matcher: [
