@@ -1,22 +1,22 @@
 [
   {
-    "slug": "chhito-delivery",
-    "name": "Chhito Delivery",
-    "tagline": "Same-day delivery across Kathmandu valley for e-commerce.",
-    "problem": "Local e-commerce businesses lose sales due to unreliable 2-3 day delivery times in Kathmandu, and high return rates on cash-on-delivery.",
-    "solution": "A modern logistics API and dashboard that assigns riders instantly. We guarantee same-day delivery inside the ring road or the delivery is free.",
-    "category": "logistics",
-    "tags": ["logistics", "esewa", "ntc-ncell"],
-    "websiteUrl": "https://chhito.com",
-    "logoUrl": "https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?w=200&h=200&fit=crop",
+    "slug": "synthflow-ai",
+    "name": "Synthflow AI",
+    "tagline": "Real-time conversational voice agents for global customer support.",
+    "problem": "Customer support teams struggle with high ticket volumes and slow response times across distributed timezones.",
+    "solution": "Autonomous ultra-low-latency voice agents that resolve tier-1 queries, schedule appointments, and sync directly with modern CRMs.",
+    "category": "ai-ml",
+    "tags": ["ai-ml", "saas", "devtools"],
+    "websiteUrl": "https://synthflow.example.com",
+    "logoUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&h=200&fit=crop",
     "screenshots": [
-      "https://images.unsplash.com/photo-1550569400-d86b225916de?w=800&h=450&fit=crop"
+      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop"
     ],
     "founder": {
-      "fullName": "Aarav Sharma",
-      "username": "aarav",
-      "email": "aarav@chhito.com"
+      "fullName": "Elena Rostova",
+      "username": "elena",
+      "email": "elena@example.com"
     },
-    "launchDate": "2026-09-25T10:00:00Z"
+    "launchDate": "2026-10-01T10:00:00Z"
   }
 ]

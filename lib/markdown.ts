@@ -1,12 +1,9 @@
 /**
- * Minimal, dependency-free markdown renderer for startup pitches (PRD §4.1).
+ * Minimal, dependency-free markdown renderer for startup pitches.
  *
  * Security model: every line is HTML-escaped FIRST, then a small, fixed set of
  * block/inline patterns is applied. Raw HTML in user content is therefore
  * never executed, and link hrefs are restricted to http(s)/mailto/relative.
- *
- * TODO: swap for react-markdown + remark-gfm when we need tables, images and
- * nested lists.
  */
 
 const ESCAPES: Record<string, string> = {

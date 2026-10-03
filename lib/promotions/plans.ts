@@ -1,6 +1,5 @@
 /**
- * Promotion packages sold to founders (PRD §4.1 monetization, TRD §4.1,
- * deployment guide §3). Prices are whole Nepali Rupees.
+ * Promotion packages for featured launch spotlights and weekly placements.
  */
 
 export type PlanTier = "featured_48h" | "weekly_7d";

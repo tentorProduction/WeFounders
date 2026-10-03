@@ -1,7 +1,7 @@
 -- ============================================================================
--- WeFounders.dev — Database Schema (TRD §2, §3)
--- Nepal's startup launch & beta platform: startups, testing quests, collab
--- board, eSewa/Khalti promotion ledger. Postgres 15+ / Neon.
+-- WeFounders.dev — Database Schema
+-- Global startup launch & beta platform: startups, testing quests, collab
+-- board, promotion ledger. Postgres 15+ / Neon.
 --
 -- Apply once, in the Neon Console → SQL Editor, with the pooled connection
 -- string pasted into DATABASE_URL (.env.local). This file is idempotent only

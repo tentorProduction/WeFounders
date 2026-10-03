@@ -35,6 +35,7 @@ yarn-error.log*
 .freebuff
 .agents
 skills-lock.json
+.playwright-mcp
 
 # local server logs
 *.log
