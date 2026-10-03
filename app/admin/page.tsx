@@ -3,6 +3,8 @@ import { OverviewActions } from "@/components/admin/overview-actions";
 import { getSiteStats } from "@/lib/data/siteStats";
 import { sql } from "@/lib/db/neon";
 
+export const dynamic = "force-dynamic";
+
 function utcDayRange() {
   const now = new Date();
   const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0));
@@ -12,20 +14,29 @@ function utcDayRange() {
 export default async function AdminOverviewPage() {
   const { start, end } = utcDayRange();
 
-  const [siteStats, pendingRows, todayRows] = await Promise.all([
-    getSiteStats(),
-    sql`
-      select count(*)::int as total from startups
-      where status in ('pending_approval', 'draft')
-    `,
-    sql`
-      select count(*)::int as total from startups
-      where status = 'approved' and launch_date >= ${start} and launch_date < ${end}
-    `,
-  ]);
+  let siteStats = { verifiedLaunches: 0, waitlistedTesters: 0, totalUpvotes: 0 };
+  let pendingCount = 0;
+  let todayCount = 0;
+  let errorMsg: string | null = null;
 
-  const pendingCount = (pendingRows[0] as { total?: number } | undefined)?.total ?? 0;
-  const todayCount = (todayRows[0] as { total?: number } | undefined)?.total ?? 0;
+  try {
+    const [stats, pendingRows, todayRows] = await Promise.all([
+      getSiteStats(),
+      sql`
+        select count(*)::int as total from startups
+        where status in ('pending_approval', 'draft')
+      `,
+      sql`
+        select count(*)::int as total from startups
+        where status = 'approved' and launch_date >= ${start} and launch_date < ${end}
+      `,
+    ]);
+    siteStats = stats;
+    pendingCount = (pendingRows[0] as { total?: number } | undefined)?.total ?? 0;
+    todayCount = (todayRows[0] as { total?: number } | undefined)?.total ?? 0;
+  } catch (error) {
+    errorMsg = error instanceof Error ? error.message : "Database connection unavailable";
+  }
 
   const metrics = [
     { label: "Pending Submissions", value: pendingCount, icon: Clock, iconClass: "text-[#FACC15]" },
@@ -36,6 +47,11 @@ export default async function AdminOverviewPage() {
 
   return (
     <div className="space-y-6 sm:space-y-8">
+      {errorMsg && (
+        <div role="alert" className="rounded-lg border border-amber-900/60 bg-amber-950/20 p-4 text-amber-200 text-sm">
+          <strong>Database Notice:</strong> {errorMsg}. Ensure <code>DATABASE_URL</code> is configured in your deployment environment variables.
+        </div>
+      )}
       <div>
         <p className="text-xs font-medium uppercase tracking-[0.16em] text-[#A1A1AA]">WeFounders operations</p>
         <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[#F4F4F5] sm:text-3xl">Admin overview</h1>

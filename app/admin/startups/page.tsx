@@ -3,6 +3,8 @@ import { LiveStartupsClient } from "./client";
 import type { Tag } from "@/types/database";
 import type { AdminStartup } from "../types";
 
+export const dynamic = "force-dynamic";
+
 /** Approved launches with their tags and founder contact, in one round trip. */
 const ADMIN_STARTUPS_SELECT = `
   select

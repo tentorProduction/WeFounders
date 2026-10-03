@@ -2,6 +2,8 @@ import { sql } from "@/lib/db/neon";
 import type { QuestWithStartup } from "@/types/database";
 import { AdminQuestsClient } from "./client";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminQuestsPage() {
   try {
     const [quests, startups, reports] = await Promise.all([

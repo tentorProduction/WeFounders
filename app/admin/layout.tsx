@@ -9,6 +9,8 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   // Every admin page below reads with the RLS-bypassing client, so the role
   // check belongs here and not only in middleware.ts.

@@ -16,7 +16,7 @@ export default function OpenGraphImage() {
     (
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "72px", background: "#F2F3F5", color: "#17181B", fontFamily: "Arial, sans-serif" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "18px", fontSize: 32, fontWeight: 700 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element -- satori has no next/image */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={BRAND_MARK_URI} alt="" width={54} height={43} />
           wefounders<span style={{ color: "#FF4B3E" }}>.global</span>
         </div>

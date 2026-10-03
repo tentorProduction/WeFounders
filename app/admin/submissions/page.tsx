@@ -2,6 +2,8 @@ import { raw, sql } from "@/lib/db/neon";
 import { SubmissionsClient } from "./client";
 import type { AdminStartup } from "../types";
 
+export const dynamic = "force-dynamic";
+
 /** Every submission regardless of status, newest first. */
 const ADMIN_SUBMISSIONS_SELECT = `
   select

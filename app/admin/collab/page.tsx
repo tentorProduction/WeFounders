@@ -1,6 +1,8 @@
 import { raw, sql } from "@/lib/db/neon";
 import { CollabModeration, type CollabAdminPost } from "./client";
 
+export const dynamic = "force-dynamic";
+
 const COLLAB_ADMIN_SELECT = `
   select
     p.id, p.title, p.role_type, p.description, p.equity_or_compensation,
