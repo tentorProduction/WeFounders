@@ -19,10 +19,6 @@ Copy `.env.example` to `.env.local` and fill it in. Next.js also loads a plain
 | `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL` | `/submit` |
 | `NEXT_PUBLIC_SITE_URL` | Used for metadata, sitemap and payment callbacks. |
 
-Variables that used to exist and can be deleted: `NEXT_PUBLIC_SUPABASE_URL`,
-`NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`,
-`SESSION_SECRET`, and every `NEXT_PUBLIC_FIREBASE_*`.
-
 ## 2. Applying the schema
 
 `db/schema.sql` is the single source of truth. It creates the enums, 12 tables,

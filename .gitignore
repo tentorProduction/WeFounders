@@ -32,6 +32,9 @@ yarn-error.log*
 
 # local tooling
 .kilo
+.freebuff
+.agents
+skills-lock.json
 
 # local server logs
 *.log
