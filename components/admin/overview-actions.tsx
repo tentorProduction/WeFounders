@@ -76,7 +76,7 @@ export function OverviewActions({ pendingCount }: { pendingCount: number }) {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 id="admin-modal-title" className="text-lg font-semibold text-[#F4F4F5]">{confirmOpen ? "Approve all pending submissions?" : "Add startup manually"}</h2>
-                <p className="mt-1 text-sm text-[#A1A1AA]">{confirmOpen ? `${pendingCount} startups will be approved for today’s Kathmandu batch.` : "The startup will enter Pending Review and use an existing founder profile."}</p>
+                <p className="mt-1 text-sm text-[#A1A1AA]">{confirmOpen ? `${pendingCount} startups will be approved for today’s batch.` : "The startup will enter Pending Review and use an existing founder profile."}</p>
               </div>
               <button onClick={closeModals} aria-label="Close dialog" className="rounded-md p-2 text-[#A1A1AA] hover:bg-[#27272A] hover:text-white"><X className="h-4 w-4" /></button>
             </div>
@@ -94,7 +94,7 @@ export function OverviewActions({ pendingCount }: { pendingCount: number }) {
                 <label className="block text-sm text-[#D4D4D8]">Website URL<input name="websiteUrl" type="url" required placeholder="https://" className={fieldClass} /></label>
                 <label className="block text-sm text-[#D4D4D8]">Pitch story<textarea name="description" required rows={3} maxLength={10000} className={fieldClass} /></label>
                 <div className="grid grid-cols-2 gap-3">
-                  <label className="block text-sm text-[#D4D4D8]">Market<select name="targetMarket" className={fieldClass}><option value="nepal_domestic">Made for Nepal</option><option value="global_export">Built for World</option><option value="hybrid">Nepal + Global</option></select></label>
+                  <label className="block text-sm text-[#D4D4D8]">Market<select name="targetMarket" className={fieldClass}><option value="global_export">Global Launch</option><option value="hybrid">Multi-Region / Hybrid</option><option value="nepal_domestic">Regional / Local</option></select></label>
                   <label className="block text-sm text-[#D4D4D8]">Stage<select name="stage" className={fieldClass}><option value="concept">Concept</option><option value="closed_alpha">Closed alpha</option><option value="public_beta">Public beta</option><option value="launched">Launched</option></select></label>
                 </div>
                 {error && <p role="alert" className="text-sm text-rose-400">{error}</p>}

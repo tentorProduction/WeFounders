@@ -9,7 +9,7 @@ const baseUrl = getSiteOrigin();
 export const metadata: Metadata = {
   title: "Search Startups & Betas",
   description:
-    "Explore Nepali products and betas by category, tech stack, payment rail, or keyword.",
+    "Explore products and betas by category, tech stack, ecosystem, or keyword.",
   alternates: { canonical: new URL("/search", baseUrl) },
 };
 

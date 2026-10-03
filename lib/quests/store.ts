@@ -1,9 +1,9 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+import { sql } from "@/lib/db/neon";
 
 /**
  * Quest submission store (TRD §2 table 9).
  *
- * Supabase `quest_submissions` is the only store. `testing_quests` and
+ * Neon `quest_submissions` is the only store. `testing_quests` and
  * `startups.submissions_count` are maintained by database triggers, so the
  * board never needs to add up local rows to know how full a quest is.
  */
@@ -38,26 +38,37 @@ export interface StoredQuestSubmission {
 export async function addQuestSubmission(
   input: QuestSubmissionInput
 ): Promise<StoredQuestSubmission> {
-  const supabase = createAdminClient();
+  // The driver serialises a JS array to Postgres array-literal syntax, so
+  // `proof_screenshots` (text[]) binds directly; an object binds as JSON text,
+  // which `jsonb` then parses.
+  const proofScreenshots = input.proofScreenshots ?? [];
+  const deviceInfo = input.deviceInfo ?? null;
 
-  const { data, error } = await supabase
-    .from("quest_submissions")
-    .insert({
-      quest_id: input.questId,
-      tester_id: input.testerId,
-      tester_name: input.testerName,
-      feedback_text: input.feedbackText,
-      rating_ux: input.ratingUx,
-      rating_speed: input.ratingSpeed,
-      proof_screenshots: input.proofScreenshots,
-      device_info: input.deviceInfo,
-      status: "pending",
-    })
-    .select()
-    .single();
+  const rows = (await sql`
+    insert into quest_submissions (
+      quest_id, tester_id, tester_name, feedback_text,
+      rating_ux, rating_speed, proof_screenshots, device_info, status
+    )
+    values (
+      ${input.questId}::uuid,
+      ${input.testerId}::uuid,
+      ${input.testerName},
+      ${input.feedbackText},
+      ${input.ratingUx},
+      ${input.ratingSpeed},
+      ${proofScreenshots},
+      ${deviceInfo}::jsonb,
+      'pending'
+    )
+    returning
+      id, quest_id, tester_id, tester_name, feedback_text, rating_ux,
+      rating_speed, proof_screenshots, device_info, founder_feedback,
+      status, created_at
+  `) as unknown as StoredQuestSubmission[];
 
-  if (error) throw new Error(`Could not file that report: ${error.message}`);
-  return data as StoredQuestSubmission;
+  const inserted = rows[0];
+  if (!inserted) throw new Error("Could not file that report.");
+  return inserted;
 }
 
 /** Submissions filed against one quest, newest first. */
@@ -67,15 +78,17 @@ export async function listQuestSubmissions(
   if (!questId) return [];
 
   try {
-    const supabase = createAdminClient();
-    const { data, error } = await supabase
-      .from("quest_submissions")
-      .select("*")
-      .eq("quest_id", questId)
-      .order("created_at", { ascending: false });
+    const rows = (await sql`
+      select
+        id, quest_id, tester_id, tester_name, feedback_text, rating_ux,
+        rating_speed, proof_screenshots, device_info, founder_feedback,
+        status, created_at
+      from quest_submissions
+      where quest_id = ${questId}::uuid
+      order by created_at desc
+    `) as unknown as StoredQuestSubmission[];
 
-    if (error) throw error;
-    return (data ?? []) as StoredQuestSubmission[];
+    return rows;
   } catch (error) {
     console.error("[quests] submission read failed:", error);
     return [];

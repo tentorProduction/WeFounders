@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { Users } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { countOf } from "@/lib/pluralize";
 import type { CollabType } from "@/types/database";
 import { CollabCard } from "@/components/collab/collab-card";
 import type { CollabPostWithAuthor } from "@/lib/data/collab";
+import { EmptyState } from "@/components/ui/empty-state";
 import { PostOpportunityModal } from "@/components/collab/post-opportunity-modal";
 
 const ROLE_FILTERS: { value: CollabType | "all"; label: string }[] = [
@@ -25,6 +28,20 @@ export function CollabBoard({ posts }: { posts: CollabPostWithAuthor[] }) {
     filter === "all"
       ? posts
       : posts.filter((post) => post.role_type === filter);
+
+  // With nothing posted, six filter chips and a "0 listings" grid read as a
+  // broken board — lead with the empty state instead.
+  if (posts.length === 0) {
+    return (
+      <EmptyState
+        icon={Users}
+        title="No opportunities yet"
+        description="Be the first founder to post one."
+        hint="Share a role, a gig, or a call for your first hundred beta testers."
+        actionSlot={<PostOpportunityModal />}
+      />
+    );
+  }
 
   return (
     <div className="space-y-5">
@@ -50,10 +67,18 @@ export function CollabBoard({ posts }: { posts: CollabPostWithAuthor[] }) {
         </span>
       </div>
 
+      <p className="font-mono text-caption text-muted-foreground">
+        Showing {countOf(visible.length, "listing")}
+      </p>
+
       {visible.length === 0 ? (
-        <p className="rounded-xl border border-dashed p-10 text-center text-body text-muted-foreground">
-          No listings in this category yet — be the first to post one.
-        </p>
+        <EmptyState
+          compact
+          icon={Users}
+          title="Nothing in this category"
+          description="There are no listings with this role right now."
+          action={{ label: "Show all listings", onClick: () => setFilter("all") }}
+        />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((post) => (

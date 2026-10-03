@@ -11,8 +11,9 @@ const badgeVariants = cva(
         default: "border-transparent bg-primary text-primary-foreground shadow-sm",
         secondary: "border-border bg-secondary text-secondary-foreground font-medium",
         outline: "border-border text-foreground bg-transparent font-medium",
-        // Market badges mapped to Auralis Clean Paper palette
-        nepal: "border-red-200 bg-red-50 text-red-800 font-bold shadow-xs",
+        // Market badges mapped to clean paper palette
+        regional: "border-slate-200 bg-slate-50 text-slate-800 font-semibold shadow-xs",
+        nepal: "border-slate-200 bg-slate-50 text-slate-800 font-semibold shadow-xs",
         global: "border-blue-200 bg-blue-50 text-blue-800 font-bold shadow-xs",
         // Ecosystem gateway badges
         esewa: "border-emerald-200 bg-emerald-50 text-emerald-800 font-semibold",

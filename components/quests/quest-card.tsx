@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Gift, Smartphone, Users } from "lucide-react";
+import { DeviceMobile, Gift, Users } from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 import type { QuestWithStartup } from "@/types/database";
@@ -66,19 +66,19 @@ export function QuestCard({ quest, className }: QuestCardProps) {
       <div className="mt-3 flex flex-wrap items-center gap-3 text-caption text-muted-foreground">
         {quest.target_devices && (
           <span className="inline-flex items-center gap-1">
-            <Smartphone className="h-3.5 w-3.5" aria-hidden />
+            <DeviceMobile className="h-3.5 w-3.5" weight="bold" aria-hidden />
             {quest.target_devices}
           </span>
         )}
         <span className="inline-flex items-center gap-1 tabular-nums">
-          <Users className="h-3.5 w-3.5" aria-hidden />
+          <Users className="h-3.5 w-3.5" weight="bold" aria-hidden />
           {quest.submissions_count}/{quest.max_submissions} testers
         </span>
       </div>
 
       {quest.reward_description && (
         <p className="mt-2 inline-flex w-fit items-center gap-1.5 rounded-md border border-badge-esewa/25 bg-badge-esewa/10 px-2 py-1 text-caption font-medium text-foreground">
-          <Gift className="h-3.5 w-3.5 text-badge-esewa" aria-hidden />
+          <Gift className="h-3.5 w-3.5 text-badge-esewa" weight="fill" aria-hidden />
           {quest.reward_description}
         </p>
       )}

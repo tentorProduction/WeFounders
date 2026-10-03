@@ -1,28 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useClerk } from "@clerk/nextjs";
 import { Loader2, LogOut, Plus } from "lucide-react";
+import { useState } from "react";
 
-import { useAuth } from "@/lib/firebase/auth-context";
 import { Button } from "@/components/ui/button";
 
 /** Sign-out and primary account actions for the profile page. */
 export function AccountActions() {
-  const { signOutUser } = useAuth();
-  const router = useRouter();
+  const { signOut } = useClerk();
   const [isSigningOut, setIsSigningOut] = useState(false);
 
-  const handleSignOut = async () => {
+  const handleSignOut = () => {
     setIsSigningOut(true);
-    try {
-      await signOutUser();
-      router.push("/");
-      router.refresh();
-    } finally {
-      setIsSigningOut(false);
-    }
+    // Clerk clears its own session cookie and navigates; the server reads
+    // that cookie, so there is nothing left to clean up here.
+    void signOut({ redirectUrl: "/" });
   };
 
   return (

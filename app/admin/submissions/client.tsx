@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { GlobeHemisphereWest, GlobeSimple, MapPin } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { approveStartup, rejectStartup, scheduleStartupTomorrow, toggleFeatured } from "../actions";
@@ -8,8 +9,29 @@ import type { AdminStartup } from "../types";
 
 type QueueTab = "pending" | "scheduled" | "approved" | "rejected";
 
-function marketLabel(market: AdminStartup["target_market"]) {
-  return market === "nepal_domestic" ? "Made for Nepal 🇳🇵" : market === "global_export" ? "Built for World 🌎" : "Nepal + Global";
+function MarketBadge({ market }: { market: AdminStartup["target_market"] }) {
+  if (market === "nepal_domestic") {
+    return (
+      <Badge variant="outline" className="border-[#3F3F46] text-[#D4D4D8] inline-flex items-center gap-1.5">
+        <MapPin className="h-3 w-3 text-[#FF4B3E]" weight="bold" />
+        <span>Regional</span>
+      </Badge>
+    );
+  }
+  if (market === "global_export") {
+    return (
+      <Badge variant="outline" className="border-[#3F3F46] text-[#D4D4D8] inline-flex items-center gap-1.5">
+        <GlobeHemisphereWest className="h-3 w-3 text-[#FF4B3E]" weight="bold" />
+        <span>Global</span>
+      </Badge>
+    );
+  }
+  return (
+    <Badge variant="outline" className="border-[#3F3F46] text-[#D4D4D8] inline-flex items-center gap-1.5">
+      <GlobeSimple className="h-3 w-3 text-[#FF4B3E]" weight="bold" />
+      <span>Hybrid</span>
+    </Badge>
+  );
 }
 
 export function SubmissionsClient({ submissions }: { submissions: AdminStartup[] }) {
@@ -91,7 +113,7 @@ export function SubmissionsClient({ submissions }: { submissions: AdminStartup[]
                   </div>
 
                   <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline" className="border-[#3F3F46] text-[#D4D4D8]">{marketLabel(startup.target_market)}</Badge>
+                    <MarketBadge market={startup.target_market} />
                     {industryTags.map((tag) => <Badge key={tag.id} variant="outline" className="border-[#3F3F46] text-[#A1A1AA]">{tag.name}</Badge>)}
                     {startup.tags.filter((tag) => tag.category !== "industry").map((tag) => <Badge key={tag.id} variant="outline" className="border-[#3F3F46] text-[#A1A1AA]">{tag.name}</Badge>)}
                     <Badge variant="outline" className="border-[#3F3F46] text-[#A1A1AA]">{startup.stage.replaceAll("_", " ")}</Badge>

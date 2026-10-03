@@ -24,12 +24,15 @@ export default async function HomePage() {
   // A paid promotion wins the spotlight over the founder-flagged launch.
   const featured = activeFeatured?.startup ?? featuredLaunch;
 
+  // Computed once on the server: the client must not call `new Date()` during
+  // render or the batch label hydrates against a different timestamp.
+  const now = new Date();
   const batchDate = new Intl.DateTimeFormat("en-GB", {
     day: "numeric",
     month: "short",
     year: "numeric",
-    timeZone: "Asia/Kathmandu",
-  }).format(new Date());
+    timeZone: "UTC",
+  }).format(now);
 
   return (
     <div className="site-container py-6 sm:py-8">
@@ -37,6 +40,7 @@ export default async function HomePage() {
         startups={startups}
         featured={featured}
         batchDate={batchDate}
+        batchDateIso={now.toISOString()}
         siteStats={siteStats}
       />
     </div>

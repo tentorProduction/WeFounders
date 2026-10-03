@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { getViewer } from "@/lib/auth/viewer";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { sql } from "@/lib/db/neon";
 import { z } from "zod";
 import { getStartupById } from "@/lib/data/startups";
 import { clientAddress, isRateLimited } from "@/lib/security/rate-limit";
@@ -58,24 +58,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "That startup is not available for voting." }, { status: 404 });
   }
 
-  const supabase = createAdminClient();
-
   try {
     if (voted) {
-      const { error } = await supabase
-        .from("upvotes")
-        .upsert(
-          { startup_id: startupId, user_id: viewer.userId },
-          { onConflict: "startup_id,user_id", ignoreDuplicates: true }
-        );
-      if (error) throw error;
+      await sql`
+        insert into upvotes (startup_id, user_id)
+        values (${startupId}::uuid, ${viewer.userId}::uuid)
+        on conflict (startup_id, user_id) do nothing
+      `;
     } else {
-      const { error } = await supabase
-        .from("upvotes")
-        .delete()
-        .eq("startup_id", startupId)
-        .eq("user_id", viewer.userId);
-      if (error) throw error;
+      await sql`
+        delete from upvotes
+        where startup_id = ${startupId}::uuid
+          and user_id = ${viewer.userId}::uuid
+      `;
     }
   } catch (error) {
     console.error("[upvotes] write failed:", error);
@@ -85,10 +80,9 @@ export async function POST(request: Request) {
     );
   }
 
-  const { count } = await supabase
-    .from("upvotes")
-    .select("id", { count: "exact", head: true })
-    .eq("startup_id", startupId);
+  const rows = (await sql`
+    select count(*)::int as total from upvotes where startup_id = ${startupId}::uuid
+  `) as { total: number }[];
 
-  return NextResponse.json({ ok: true, voted, count: count ?? null });
+  return NextResponse.json({ ok: true, voted, count: rows[0]?.total ?? null });
 }

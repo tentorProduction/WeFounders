@@ -1,43 +1,37 @@
-import type { StartupWithTags, Tag } from "@/types/database";
-import { createAdminClient } from "@/lib/supabase/admin";
+import type { StartupWithTags } from "@/types/database";
+import { raw, sql } from "@/lib/db/neon";
 import { reportReadFailure } from "@/lib/data/read-failure";
 
 /**
- * Profile reads. `getStartupsByFounder` deliberately uses the service role:
- * a founder can see their own drafts and rejected submissions, which the public
- * anon policy hides. Callers must pass the authenticated viewer's own id.
+ * Profile reads.
+ *
+ * `getStartupsByFounder` returns more than the public feed does, because a
+ * founder can see their own drafts and rejected submissions that the feed's
+ * `status = 'approved'` filter hides. Neon has no row-level client at all —
+ * every query here runs server-side — so visibility is the caller's
+ * responsibility: callers must pass the authenticated viewer's own id.
  */
 
-const STARTUP_SELECT = `
-  id, founder_id, slug, name, tagline, description, website_url,
-  demo_video_url, logo_url, banner_url, stage, target_market, status,
-  launch_date, upvotes_count, comments_count, waitlist_count,
-  is_featured, featured_until, created_at, updated_at,
-  startup_tags ( tags ( id, name, slug, category ) )
+const STARTUP_WITH_TAGS = `
+  select
+    s.id, s.founder_id, s.slug, s.name, s.tagline, s.description,
+    s.website_url, s.demo_video_url, s.logo_url, s.banner_url, s.stage,
+    s.target_market, s.status, s.rejection_reason, s.launch_date,
+    s.upvotes_count, s.comments_count, s.waitlist_count, s.is_featured,
+    s.featured_until, s.created_at, s.updated_at,
+    coalesce(
+      (
+        select json_agg(json_build_object(
+          'id', t.id, 'name', t.name, 'slug', t.slug, 'category', t.category
+        ) order by t.name)
+        from startup_tags st
+        join tags t on t.id = st.tag_id
+        where st.startup_id = s.id
+      ),
+      '[]'::json
+    ) as tags
+  from startups s
 `;
-
-function toStartup(row: unknown): StartupWithTags {
-  const record = (row ?? {}) as Record<string, unknown>;
-  const { startup_tags: joins, ...rest } = record;
-
-  const tags: Tag[] = Array.isArray(joins)
-    ? joins
-        .map((join) => {
-          const embedded = (join ?? {}) as Record<string, unknown>;
-          const raw = embedded.tags;
-          return (Array.isArray(raw) ? raw[0] : raw) as Record<string, unknown> | null;
-        })
-        .filter((tag): tag is Record<string, unknown> => Boolean(tag?.id))
-        .map((tag) => ({
-          id: tag.id as string,
-          name: tag.name as string,
-          slug: tag.slug as string,
-          category: ((tag.category as string | null) ?? "industry") as Tag["category"],
-        }))
-    : [];
-
-  return { ...(rest as unknown as StartupWithTags), tags };
-}
 
 export async function getStartupsByFounder(
   founderId: string
@@ -45,15 +39,13 @@ export async function getStartupsByFounder(
   if (!founderId) return [];
 
   try {
-    const supabase = createAdminClient();
-    const { data, error } = await supabase
-      .from("startups")
-      .select(STARTUP_SELECT)
-      .eq("founder_id", founderId)
-      .order("created_at", { ascending: false });
+    const rows = (await sql`
+      ${raw(STARTUP_WITH_TAGS)}
+      where s.founder_id = ${founderId}::uuid
+      order by s.created_at desc
+    `) as unknown as StartupWithTags[];
 
-    if (error) throw error;
-    return (data ?? []).map((row) => toStartup(row));
+    return rows;
   } catch (error) {
     reportReadFailure("getStartupsByFounder", error);
     return [];

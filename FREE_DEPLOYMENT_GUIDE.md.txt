@@ -31,13 +31,17 @@ Service
 	Vercel Hobby Tier
 	Automated GitHub CI/CD, global CDN, Serverless functions, SSL.
 	NPR 0 / Free
-	Database & Auth
-	Supabase Free Tier
-	500 MB PostgreSQL 16 database, 50,000 monthly active users, RLS.
+	Database
+	Neon Free Tier
+	Serverless PostgreSQL, 0.5 GB storage, autoscaling compute.
 	NPR 0 / Free
 	File / Media Storage
-	Supabase Storage
-	1 GB file storage (enough for 10,000+ compressed WebP logos & banners).
+	Media
+	External URLs in the database (logos & screenshots hosted by the founder or a CDN).
+	NPR 0 / Free
+	Auth
+	Clerk Free Tier
+	10,000 monthly active users, Google sign-in, hosted sign-in pages.
 	NPR 0 / Free
 	Redis Rate Limiting
 	Upstash Redis Free
@@ -79,17 +83,17 @@ Step 1: Claim Free Domain
 4. Set Name Servers to Cloudflare or Vercel:
    * ns1.vercel-dns.com
    * ns2.vercel-dns.com
-Step 2: Set Up Free Supabase Backend
-1. Go to https://supabase.com and create a free project in the Singapore (ap-southeast-1) or Mumbai (ap-south-1) region.
-2. Open the SQL Editor and paste the schema from TRD.md.
-3. Copy your project URL, anon key, and service role key into your .env.local.
+Step 2: Set Up Neon & Clerk
+1. Go to https://console.neon.tech, create a project and a branch, then copy the pooled connection string into DATABASE_URL in .env.local.
+2. Open the SQL Editor and paste db/schema.sql, then run npm run db:setup to confirm it applied.
+3. Go to https://dashboard.clerk.com, enable the Google sign-in method, and copy the publishable and secret keys into .env.local.
 Step 3: Push to GitHub & Deploy on Vercel
 1. Push the code repository to GitHub.
 2. Go to https://vercel.com/new and import the repository.
 3. Add your environment variables:
-   * NEXT_PUBLIC_SUPABASE_URL
-   * NEXT_PUBLIC_SUPABASE_ANON_KEY
-   * SUPABASE_SERVICE_ROLE_KEY
+   * DATABASE_URL
+   * NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+   * CLERK_SECRET_KEY
    * ESEWA_MERCHANT_CODE
    * ESEWA_SECRET_KEY
    * KHALTI_SECRET_KEY

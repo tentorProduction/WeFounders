@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import { cn, timeAgo } from "@/lib/utils";
+import { countOf } from "@/lib/pluralize";
 import { renderMarkdown } from "@/lib/markdown";
 import { getViewer, isFounderViewer } from "@/lib/auth/viewer";
 import { getCommentThread } from "@/lib/comments";
@@ -26,7 +27,7 @@ import { ShowcaseUpvote } from "@/components/startups/showcase-upvote";
 import { StartupGallery } from "@/components/startups/startup-gallery";
 import { StartupLogo } from "@/components/startups/startup-logo";
 import { TagPill } from "@/components/startups/tag-pill";
-import { WaitlistCta, WaitlistForm } from "@/components/startups/waitlist";
+import { WaitlistForm } from "@/components/startups/waitlist";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -116,7 +117,7 @@ export default async function StartupShowcasePage({ params }: PageProps) {
               <Badge variant="stage">{STAGE_LABELS[startup.stage]}</Badge>
               <Badge
                 variant={
-                  startup.target_market === "global_export" ? "global" : "nepal"
+                  startup.target_market === "global_export" ? "global" : "regional"
                 }
               >
                 {MARKET_LABELS[startup.target_market]}
@@ -138,19 +139,21 @@ export default async function StartupShowcasePage({ params }: PageProps) {
                 <TrendingUp className="h-4 w-4 text-primary" aria-hidden />
                 <dt className="sr-only">Upvotes</dt>
                 <dd className="font-semibold tabular-nums text-foreground">
-                  {startup.upvotes_count}
+                  {countOf(startup.upvotes_count, "upvote")}
                 </dd>
               </div>
               <div className="flex items-center gap-1.5">
                 <Users className="h-4 w-4" aria-hidden />
                 <dt className="sr-only">Waitlist</dt>
-                <dd className="tabular-nums">{totalWaitlist} on waitlist</dd>
+                <dd className="tabular-nums">
+                  {countOf(totalWaitlist, "waitlist")}
+                </dd>
               </div>
               <div className="flex items-center gap-1.5">
                 <MessageSquare className="h-4 w-4" aria-hidden />
                 <dt className="sr-only">Comments</dt>
                 <dd className="tabular-nums">
-                  {comments.length} {comments.length === 1 ? "comment" : "comments"}
+                  {countOf(comments.length, "comment")}
                 </dd>
               </div>
               <p className="italic">
@@ -168,7 +171,11 @@ export default async function StartupShowcasePage({ params }: PageProps) {
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <WaitlistCta slug={startup.slug} startupName={startup.name} />
+          {/* One canonical waitlist action: the hero CTA scrolls to the form
+              below rather than opening a second, identical copy of it. */}
+          <Button asChild>
+            <a href="#waitlist">Join the beta waitlist</a>
+          </Button>
           <Button asChild variant="outline">
             <a href={startup.website_url} target="_blank" rel="noreferrer">
               <Globe className="h-4 w-4" aria-hidden />
@@ -203,9 +210,17 @@ export default async function StartupShowcasePage({ params }: PageProps) {
             dangerouslySetInnerHTML={{ __html: renderMarkdown(pitch) }}
           />
         ) : (
-          <p className="mt-3 text-body text-muted-foreground">
-            The founder hasn&apos;t written up {startup.name} yet.
-          </p>
+          <div className="mt-3 space-y-3">
+            <p className="text-body text-muted-foreground">
+              The founder hasn&apos;t added a detailed description yet.
+            </p>
+            <Button asChild variant="outline" size="sm">
+              <a href={startup.website_url} target="_blank" rel="noreferrer">
+                Visit Website
+                <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+              </a>
+            </Button>
+          </div>
         )}
       </section>
 
@@ -232,7 +247,7 @@ export default async function StartupShowcasePage({ params }: PageProps) {
               </Badge>
             </h3>
             <p className="text-caption text-muted-foreground">
-              Building for {MARKET_LABELS[startup.target_market]} · Kathmandu NPT
+              Building for {MARKET_LABELS[startup.target_market]} · Global Community
             </p>
           </div>
         </div>
@@ -246,9 +261,9 @@ export default async function StartupShowcasePage({ params }: PageProps) {
             <p className="mt-1 text-caption text-muted-foreground">
               Get an invite as soon as {startup.name} opens the next cohort.{" "}
               <span className="font-medium text-foreground">
-                {totalWaitlist}
+                {countOf(totalWaitlist, "builder")}
               </span>{" "}
-              builders are already in line.
+              {totalWaitlist === 1 ? "is" : "are"} already in line.
             </p>
           </div>
 

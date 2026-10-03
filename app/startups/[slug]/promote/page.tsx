@@ -102,8 +102,8 @@ export default async function PromoteStartupPage({
         month: "short",
         hour: "2-digit",
         minute: "2-digit",
-        timeZone: "Asia/Kathmandu",
-      }).format(activeFeatured.until)
+        timeZone: "UTC",
+      }).format(activeFeatured.until) + " UTC"
     : null;
 
   return (
@@ -175,7 +175,7 @@ export default async function PromoteStartupPage({
       )}
 
       <p className="mt-6 text-body font-semibold">
-        Put {startup.name} in front of Nepal&apos;s builders
+        Put {startup.name} in front of early adopters worldwide
       </p>
       <p className="text-caption text-muted-foreground">
         Promotions place your beta in the glowing Featured Spotlight at the top

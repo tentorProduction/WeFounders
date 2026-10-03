@@ -8,7 +8,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
  * Toggling a vote updates the UI immediately, then persists in two layers:
  *  1. localStorage — instant, survives reloads, works signed-out (Nepal's
  *     low-bandwidth reality: the feed stays usable offline).
- *  2. Supabase `upvotes`, via POST /api/upvotes — signed-in viewers only. The
+ *  2. the `upvotes` table, via POST /api/upvotes — signed-in viewers only. The
  *     `upvotes_counter` trigger owns the totals, so a dropped request self-heals
  *     on the next feed load.
  */

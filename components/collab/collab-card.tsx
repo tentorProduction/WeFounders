@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Mail, MessageCircle, Send } from "lucide-react";
+import { Suitcase } from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 import type { CollabPost, CollabType } from "@/types/database";
@@ -62,7 +63,7 @@ export function CollabCard({ post, className }: CollabCardProps) {
       )}
     >
       <div className="flex flex-wrap items-center gap-1.5">
-        <Badge variant="nepal">{ROLE_LABELS[post.role_type]}</Badge>
+        <Badge variant="regional">{ROLE_LABELS[post.role_type]}</Badge>
         {post.is_active ? (
           <Badge variant="verified">Active</Badge>
         ) : (
@@ -92,8 +93,9 @@ export function CollabCard({ post, className }: CollabCardProps) {
       </p>
 
       {post.equity_or_compensation && (
-        <p className="mt-2 inline-flex w-fit items-center rounded-md border border-badge-khalti/25 bg-badge-khalti/10 px-2 py-1 text-caption font-medium text-foreground">
-          💼 {post.equity_or_compensation}
+        <p className="mt-2 inline-flex w-fit items-center gap-1.5 rounded-md border border-badge-khalti/25 bg-badge-khalti/10 px-2 py-1 text-caption font-medium text-foreground">
+          <Suitcase className="h-3.5 w-3.5 text-[#FF4B3E]" weight="bold" aria-hidden />
+          <span>{post.equity_or_compensation}</span>
         </p>
       )}
 

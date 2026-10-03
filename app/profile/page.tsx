@@ -5,7 +5,7 @@ import { Megaphone, Rocket, Shield, TrendingUp, Users } from "lucide-react";
 import { getViewer } from "@/lib/auth/viewer";
 import { getStartupsByFounder } from "@/lib/data/profiles";
 import { AccountActions } from "@/components/auth/account-actions";
-import { SignInButton } from "@/components/auth/sign-in-button";
+import { AuthCard } from "@/components/auth/auth-card";
 import { StartupLogo } from "@/components/startups/startup-logo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -50,33 +50,15 @@ export default async function ProfilePage() {
 
   if (!viewer.authenticated || !viewer.userId) {
     return (
-      <div className="site-container max-w-xl space-y-6 py-12 text-center">
-        <div className="space-y-6 rounded-[10px] border border-[#DADDE1] bg-[#FFFFFF] p-8 shadow-xs md:p-10">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[10px] bg-[#FF4B3E] font-archivo text-display font-bold text-[#F2F3F5] shadow-xs">
-            W
-          </div>
-
-          <div className="space-y-2">
-            <Badge
-              variant="outline"
-              className="rounded-full border-[rgba(220,38,38,0.18)] bg-[#F2F3F5] px-3 py-1 font-mono text-caption font-bold text-[#FF4B3E]"
-            >
-              Builder Profile
-            </Badge>
-            <h1 className="font-archivo text-display font-bold text-[#17181B]">
-              Sign in to WeFounders
-            </h1>
-            <p className="text-body text-[#666A73]">
-              Track your launches, export waitlist leads, upvote products and earn
-              testing bounties.
-            </p>
-          </div>
-
-          <div className="flex justify-center pt-2">
-            <SignInButton size="lg" className="w-full max-w-xs py-6 text-body" />
-          </div>
-        </div>
-      </div>
+      <AuthCard
+        title="Welcome, builder."
+        description="Track launches, waitlists, feedback, and community activity."
+        benefits={[
+          "See your waitlist leads and export them",
+          "Upvote products and join testing bounties",
+          "Promote a launch when you are ready",
+        ]}
+      />
     );
   }
 
@@ -161,7 +143,7 @@ export default async function ProfilePage() {
               No submissions yet
             </h3>
             <p className="mx-auto max-w-sm text-body text-muted-foreground">
-              Submit your beta to get your first users from Nepal&apos;s builder
+              Submit your beta to get your first users from our global builder
               community.
             </p>
             <Button asChild className="mt-2">

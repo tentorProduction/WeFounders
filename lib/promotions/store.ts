@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { sql } from "@/lib/db/neon";
 import { getPlan, type PlanTier } from "@/lib/promotions/plans";
 import { getStartupById } from "@/lib/data/startups";
 import type { PaymentProvider, Promotion, StartupWithTags } from "@/types/database";
@@ -9,11 +9,12 @@ import type { PaymentProvider, Promotion, StartupWithTags } from "@/types/databa
  *
  * Records a `pending` promotion when the founder starts checkout, then flips it
  * to `completed` — and activates the startup's featured placement — only after
- * the gateway callback has been verified. Supabase is the only store.
+ * the gateway callback has been verified. Neon is the only store.
  *
- * Every write here goes through the service-role client: the ledger must not be
- * forgeable from a browser, so no insert/update policy exists for it and only
- * verified gateway callbacks (which run server-side) may move money state.
+ * Every function here is server-only. The ledger must not be forgeable from a
+ * browser, so nothing in this module may ever be called from a client
+ * component: only verified gateway callbacks (which run server-side) may move
+ * money state.
  */
 
 function makeReference(slug: string): string {
@@ -48,24 +49,27 @@ export async function createPendingPromotion(
   }
 
   const slug = (await getStartupById(input.startupId))?.slug ?? "startup";
-  const supabase = createAdminClient();
 
-  const { data, error } = await supabase
-    .from("promotions")
-    .insert({
-      startup_id: input.startupId,
-      founder_id: input.founderId,
-      amount_npr: plan.priceNpr,
-      provider: input.provider,
-      reference_id: makeReference(slug),
-      plan_tier: input.planTier,
-      status: "pending",
-    })
-    .select()
-    .single();
+  const rows = (await sql`
+    insert into promotions (
+      startup_id, founder_id, amount_npr, provider,
+      reference_id, plan_tier, status
+    )
+    values (
+      ${input.startupId}::uuid,
+      ${input.founderId}::uuid,
+      ${plan.priceNpr},
+      ${input.provider},
+      ${makeReference(slug)},
+      ${input.planTier},
+      'pending'
+    )
+    returning *
+  `) as unknown as Promotion[];
 
-  if (error) throw new Error(`Could not open a payment record: ${error.message}`);
-  return data as Promotion;
+  const promotion = rows[0];
+  if (!promotion) throw new Error("Could not open a payment record.");
+  return promotion;
 }
 
 export async function getPromotionByReference(
@@ -73,19 +77,11 @@ export async function getPromotionByReference(
 ): Promise<Promotion | null> {
   if (!referenceId) return null;
 
-  const supabase = createAdminClient();
-  const { data, error } = await supabase
-    .from("promotions")
-    .select("*")
-    .eq("reference_id", referenceId)
-    .limit(1)
-    .maybeSingle();
+  const rows = (await sql`
+    select * from promotions where reference_id = ${referenceId} limit 1
+  `) as unknown as Promotion[];
 
-  if (error) {
-    console.error("[promotions] lookup failed:", error);
-    return null;
-  }
-  return (data as Promotion) ?? null;
+  return rows[0] ?? null;
 }
 
 /** Bind a gateway intent to exactly one pending promotion before redirecting. */
@@ -93,18 +89,17 @@ export async function bindPaymentIntent(referenceId: string, pidx: string): Prom
   if (!referenceId || referenceId.length > 100 || !pidx || pidx.length > 160) {
     throw new Error("Invalid payment intent.");
   }
-  const supabase = createAdminClient();
-  const { data, error } = await supabase
-    .from("promotions")
-    .update({ payment_intent_id: pidx })
-    .eq("reference_id", referenceId)
-    .eq("provider", "khalti")
-    .eq("status", "pending")
-    .is("payment_intent_id", null)
-    .select("id")
-    .maybeSingle();
-  if (error) throw new Error(`Could not attach payment intent: ${error.message}`);
-  if (!data) throw new Error("Payment intent could not be attached to this promotion.");
+  const rows = (await sql`
+    update promotions
+    set payment_intent_id = ${pidx}
+    where reference_id = ${referenceId}
+      and provider = 'khalti'
+      and status = 'pending'
+      and payment_intent_id is null
+    returning id
+  `) as { id: string }[];
+
+  if (!rows[0]) throw new Error("Payment intent could not be attached to this promotion.");
 }
 
 /**
@@ -120,7 +115,6 @@ export async function completePromotion(
   const promotion = await getPromotionByReference(referenceId);
   if (!promotion || promotion.provider !== provider || promotion.status !== "pending") return null;
 
-  const supabase = createAdminClient();
   const plan = getPlan(promotion.plan_tier);
   if (!plan) {
     // Never grant a guessed duration for a tier we do not recognise.
@@ -132,49 +126,45 @@ export async function completePromotion(
     Date.now() + plan.durationHours * 3_600_000
   ).toISOString();
 
-  const { data, error } = await supabase
-    .from("promotions")
-    .update({
-      status: "completed",
-      transaction_id: transactionId ?? promotion.transaction_id,
-      verified_at: verifiedAt,
-    })
-    .eq("reference_id", referenceId)
-    .eq("provider", provider)
-    .eq("status", "pending")
-    .select()
-    .maybeSingle();
+  const completed = (await sql`
+    update promotions
+    set status = 'completed',
+        transaction_id = ${transactionId ?? promotion.transaction_id},
+        verified_at = ${verifiedAt}
+    where reference_id = ${referenceId}
+      and provider = ${provider}
+      and status = 'pending'
+    returning *
+  `) as unknown as Promotion[];
 
-  if (error) {
-    console.error("[promotions] could not complete promotion:", error);
-    return null;
-  }
-  if (!data) return getPromotionByReference(referenceId);
+  // No row means a concurrent callback already completed it.
+  if (!completed[0]) return getPromotionByReference(referenceId);
 
-  const { error: featureError } = await supabase
-    .from("startups")
-    .update({ is_featured: true, featured_until: until })
-    .eq("id", promotion.startup_id);
-
-  if (featureError) {
+  try {
+    await sql`
+      update startups
+      set is_featured = true, featured_until = ${until}
+      where id = ${promotion.startup_id}::uuid
+    `;
+  } catch (featureError) {
     // The payment is recorded; the placement can be retried by an operator.
     console.error("[promotions] could not activate featured slot:", featureError);
   }
 
-  return data as Promotion;
+  return completed[0];
 }
 
 export async function failPromotion(referenceId: string): Promise<void> {
   const promotion = await getPromotionByReference(referenceId);
   if (!promotion || promotion.status === "completed") return;
 
-  const supabase = createAdminClient();
-  const { error } = await supabase
-    .from("promotions")
-    .update({ status: "failed" })
-    .eq("reference_id", referenceId);
-
-  if (error) console.error("[promotions] could not mark promotion failed:", error);
+  try {
+    await sql`
+      update promotions set status = 'failed' where reference_id = ${referenceId}
+    `;
+  } catch (error) {
+    console.error("[promotions] could not mark promotion failed:", error);
+  }
 }
 
 /** The latest promotion row for a startup (any status), if any. */
@@ -183,20 +173,14 @@ export async function getLatestPromotion(
 ): Promise<Promotion | null> {
   if (!startupId) return null;
 
-  const supabase = createAdminClient();
-  const { data, error } = await supabase
-    .from("promotions")
-    .select("*")
-    .eq("startup_id", startupId)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const rows = (await sql`
+    select * from promotions
+    where startup_id = ${startupId}::uuid
+    order by created_at desc
+    limit 1
+  `) as unknown as Promotion[];
 
-  if (error) {
-    console.error("[promotions] latest lookup failed:", error);
-    return null;
-  }
-  return (data as Promotion) ?? null;
+  return rows[0] ?? null;
 }
 
 export interface ActiveFeatured {
@@ -207,21 +191,14 @@ export interface ActiveFeatured {
 
 /** The completed, unexpired promotion that currently owns the spotlight. */
 export async function getActiveFeatured(): Promise<ActiveFeatured | null> {
-  const supabase = createAdminClient();
-  const { data, error } = await supabase
-    .from("promotions")
-    .select("*")
-    .eq("status", "completed")
-    .order("verified_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const rows = (await sql`
+    select * from promotions
+    where status = 'completed'
+    order by verified_at desc
+    limit 1
+  `) as unknown as Promotion[];
 
-  if (error) {
-    console.error("[promotions] featured lookup failed:", error);
-    return null;
-  }
-
-  const promotion = (data as Promotion) ?? null;
+  const promotion = rows[0] ?? null;
   if (!promotion) return null;
 
   const until = expiryOf(promotion);

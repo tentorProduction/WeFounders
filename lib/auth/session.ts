@@ -1,54 +1,39 @@
-import { createHash, createHmac, timingSafeEqual } from "node:crypto";
-import { cookies } from "next/headers";
+import { createHash } from "node:crypto";
 
-import { createAdminClient } from "@/lib/supabase/admin";
+import { auth, currentUser } from "@clerk/nextjs/server";
+
+import { sql } from "@/lib/db/neon";
 import "server-only";
 
 /**
- * Session cookies for a Firebase-authenticated user.
+ * The signed-in identity, as the rest of the app sees it.
  *
- * After the browser signs in with Google (via Firebase), it posts the Firebase
- * ID token to /api/auth/session. The server verifies it, upserts the matching
- * `profiles` row, and issues a signed, HttpOnly cookie carrying the profile id.
- * Every subsequent server read uses that cookie as the identity — no Supabase
- * auth session is involved.
- *
- * The cookie is HMAC-SHA256 signed, so it cannot be forged even though its
- * payload is readable.
+ * Clerk owns sign-in (its session cookie is HttpOnly and verified by Clerk's
+ * SDK, so there is no second session to mint here). What this module adds is
+ * the mapping from a Clerk user to a `profiles` row: every table in the schema
+ * references `profiles.id`, and that row is provisioned on first sight of the
+ * user rather than by a webhook, so a missing webhook delivery can never lock
+ * a founder out of their own profile.
  */
 
-export const SESSION_COOKIE = "wf_session";
-
-/** 30 days. */
-const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
-const SESSION_MAX_AGE_MS = SESSION_MAX_AGE_SECONDS * 1000;
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
+/** `profiles.id` — the id every table references. */
 export interface SessionUser {
-  /** `profiles.id` — the id every table references. */
   userId: string;
   email: string;
   name: string | null;
   picture: string | null;
-  /** The Firebase uid this session was minted from. */
-  firebaseUid: string;
 }
 
-function signingSecret(): string {
-  const secret = process.env.SESSION_SECRET;
-  if (!secret || Buffer.byteLength(secret, "utf8") < 32) {
-    throw new Error("Set SESSION_SECRET to a random value of at least 32 bytes.");
-  }
-  return secret;
+interface ProfileRow {
+  id: string;
+  email: string;
+  full_name: string | null;
+  avatar_url: string | null;
 }
 
-function sign(payload: string): string {
-  return createHmac("sha256", signingSecret()).update(payload).digest("base64url");
-}
-
-/** Stable UUID derived from the Firebase uid, so replays land on the same row. */
-export function profileIdForFirebaseUid(uid: string): string {
-  const hex = createHash("sha256").update(`wefounders:${uid}`).digest("hex");
+/** Stable UUID derived from the Clerk user id, so a repeat sign-in lands on the same row. */
+export function profileIdForClerkUserId(clerkUserId: string): string {
+  const hex = createHash("sha256").update(`wefounders:${clerkUserId}`).digest("hex");
   // Shape it as a v5-style UUID (version + variant nibbles set).
   return [
     hex.slice(0, 8),
@@ -59,124 +44,88 @@ export function profileIdForFirebaseUid(uid: string): string {
   ].join("-");
 }
 
-function encodeSession(user: SessionUser): string {
-  const now = Date.now();
-  const payload = Buffer.from(JSON.stringify({ ...user, issuedAt: now, expiresAt: now + SESSION_MAX_AGE_MS }), "utf8").toString("base64url");
-  return `${payload}.${sign(payload)}`;
+/** Clerk emails are unique per instance, but the column is still `not null`. */
+function fallbackEmail(clerkUserId: string): string {
+  return `${clerkUserId.replace(/[^a-z0-9]/gi, "").slice(0, 24)}@no-email.clerk.local`;
 }
 
-function decodeSession(token: string): SessionUser | null {
-  const [payload, signature, extra] = token.split(".");
-  if (!payload || !signature || extra) return null;
+function toSession(row: ProfileRow): SessionUser {
+  return {
+    userId: row.id,
+    email: row.email,
+    name: row.full_name,
+    picture: row.avatar_url,
+  };
+}
 
-  const expected = sign(payload);
-  const a = Buffer.from(signature);
-  const b = Buffer.from(expected);
-  if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
+async function insertProfile(
+  clerkUserId: string,
+  username: string,
+  user: NonNullable<Awaited<ReturnType<typeof currentUser>>>
+): Promise<void> {
+  const email = user.primaryEmailAddress?.emailAddress ?? fallbackEmail(clerkUserId);
+  const name = [user.firstName, user.lastName].filter(Boolean).join(" ") || user.username || email.split("@")[0];
+  const userId = profileIdForClerkUserId(clerkUserId);
 
-  try {
-    const parsed = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
-    const now = Date.now();
-    if (
-      typeof parsed?.userId !== "string" || !UUID_PATTERN.test(parsed.userId) ||
-      typeof parsed?.email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(parsed.email) ||
-      typeof parsed?.firebaseUid !== "string" ||
-      typeof parsed?.issuedAt !== "number" || !Number.isFinite(parsed.issuedAt) ||
-      typeof parsed?.expiresAt !== "number" || !Number.isFinite(parsed.expiresAt) ||
-      parsed.expiresAt <= now || parsed.issuedAt > now + 60_000 ||
-      parsed.expiresAt - parsed.issuedAt > SESSION_MAX_AGE_MS
-    ) {
-      return null;
+  // `username` is unique across every account, so a collision is expected now
+  // and then; retry once with a Clerk-id qualified handle rather than failing
+  // the sign-in.
+  for (const handle of [username, `user_${clerkUserId.replace(/[^a-z0-9]/gi, "").slice(0, 16)}`]) {
+    try {
+      await sql`
+        insert into profiles (id, clerk_user_id, email, full_name, username, avatar_url)
+        values (${userId}::uuid, ${clerkUserId}, ${email}, ${name}, ${handle}, ${user.imageUrl})
+        on conflict (id) do update set
+          email      = excluded.email,
+          full_name  = excluded.full_name,
+          avatar_url = excluded.avatar_url
+      `;
+      return;
+    } catch (error) {
+      console.warn("[auth] profile insert fell back to a qualified handle:", error);
     }
-    return {
-      userId: parsed.userId,
-      email: parsed.email,
-      name: typeof parsed.name === "string" ? parsed.name : null,
-      picture: typeof parsed.picture === "string" ? parsed.picture : null,
-      firebaseUid: parsed.firebaseUid,
-    };
-  } catch {
-    return null;
   }
+
+  throw new Error("Could not provision a profile for that account.");
 }
 
-/**
- * Create or update the profile for a verified Firebase identity, then return
- * the session payload. Profile writes use the service role because the row is
- * provisioned by the server, not by a signed-in Supabase user.
- */
-export async function provisionProfile(identity: {
-  uid: string;
-  email: string;
-  name: string | null;
-  picture: string | null;
-}): Promise<SessionUser> {
-  const userId = profileIdForFirebaseUid(identity.uid);
-  const fallbackHandle = (identity.email.split("@")[0] || "builder")
+async function ensureProfile(clerkUserId: string): Promise<ProfileRow | null> {
+  const existing = (await sql`
+    select id, email, full_name, avatar_url from profiles where clerk_user_id = ${clerkUserId} limit 1
+  `) as unknown as ProfileRow[];
+  if (existing[0]) return existing[0];
+
+  const user = await currentUser();
+  if (!user) return null;
+
+  const baseHandle = (user.username ?? user.primaryEmailAddress?.emailAddress?.split("@")[0] ?? "builder")
     .toLowerCase()
     .replace(/[^a-z0-9_]/g, "")
     .slice(0, 20) || "builder";
 
-  const supabase = createAdminClient();
+  await insertProfile(clerkUserId, `${baseHandle}_${clerkUserId.slice(0, 6)}`.slice(0, 30), user);
 
-  const { error } = await supabase.from("profiles").upsert(
-    {
-      id: userId,
-      firebase_uid: identity.uid,
-      email: identity.email,
-      full_name: identity.name ?? fallbackHandle,
-      username: `${fallbackHandle}_${identity.uid.slice(0, 6)}`.slice(0, 30),
-      avatar_url: identity.picture,
-    },
-    { onConflict: "id", ignoreDuplicates: false }
-  );
-
-  if (error) {
-    // A username collision on a different row should not block sign-in; retry
-    // with a uid-qualified handle.
-    console.warn(`[auth] profile upsert fell back: ${error.message}`);
-    const { error: retryError } = await supabase.from("profiles").upsert(
-      {
-        id: userId,
-        firebase_uid: identity.uid,
-        email: identity.email,
-        full_name: identity.name ?? fallbackHandle,
-        username: `user_${identity.uid.slice(0, 12)}`,
-        avatar_url: identity.picture,
-      },
-      { onConflict: "id" }
-    );
-    if (retryError) throw new Error(`Could not provision profile: ${retryError.message}`);
-  }
-
-  return {
-    userId,
-    email: identity.email,
-    name: identity.name,
-    picture: identity.picture,
-    firebaseUid: identity.uid,
-  };
+  const created = (await sql`
+    select id, email, full_name, avatar_url from profiles where clerk_user_id = ${clerkUserId} limit 1
+  `) as unknown as ProfileRow[];
+  return created[0] ?? null;
 }
 
-export async function setSessionCookie(user: SessionUser): Promise<void> {
-  const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE, encodeSession(user), {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: SESSION_MAX_AGE_SECONDS,
-  });
-}
-
-export async function clearSessionCookie(): Promise<void> {
-  const cookieStore = await cookies();
-  cookieStore.delete(SESSION_COOKIE);
-}
-
-/** Read the signed session from the request cookies, if it is valid. */
+/**
+ * The current signed-in user, or null when the visitor is anonymous.
+ *
+ * Never throws for an anonymous or not-yet-provisioned user: caller pages gate
+ * on the null result rather than on an exception.
+ */
 export async function readSession(): Promise<SessionUser | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(SESSION_COOKIE)?.value;
-  return token ? decodeSession(token) : null;
+  const { userId: clerkUserId } = await auth();
+  if (!clerkUserId) return null;
+
+  try {
+    const profile = await ensureProfile(clerkUserId);
+    return profile ? toSession(profile) : null;
+  } catch (error) {
+    console.error("[auth] could not resolve the signed-in profile:", error);
+    return null;
+  }
 }

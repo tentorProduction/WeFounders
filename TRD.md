@@ -283,9 +283,9 @@ ________________
 
 
 6. Deployment, Environment & CI/CD
-* Hosting: Vercel for Next.js App, Supabase Cloud (Singapore / Mumbai region for lowest latency to Nepal).
+* Hosting: Vercel for Next.js App, Neon (serverless Postgres, closest region to Nepal), Clerk for auth.
 * Environment Variables:
-   * NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
+   * DATABASE_URL, NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY, CLERK_SECRET_KEY
    * UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN
    * KHALTI_PUBLIC_KEY, KHALTI_SECRET_KEY
    * ESEWA_MERCHANT_CODE, ESEWA_SECRET_KEY

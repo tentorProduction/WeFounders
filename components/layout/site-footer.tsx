@@ -2,134 +2,121 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { CookieSettingsButton } from "@/components/privacy/cookie-settings-button";
+import { GlobeHemisphereWest } from "@/components/icons";
 
-const PRODUCT_LINKS = [
-  { href: "/", label: "Explore Today's Feed" },
-  { href: "/leaderboard", label: "Founder Leaderboard" },
-  { href: "/quests", label: "Testing Quests & Bounties" },
-  { href: "/collab", label: "Co-founders & Gigs" },
-  { href: "/promote", label: "Spotlight Promotion" },
+const DISCOVER_LINKS = [
+  { href: "/", label: "Launches" },
+  { href: "/leaderboard", label: "Leaderboard" },
+  { href: "/quests", label: "Quests" },
+  { href: "/collab", label: "Collab" },
+  { href: "/promote", label: "Spotlight" },
 ];
 
 const RESOURCE_LINKS = [
-  { href: "/about", label: "About & Manifesto" },
-  { href: "/about#guidelines", label: "Submission Guidelines" },
-  { href: "/about#curation", label: "21% Curation Standard" },
-  { href: "/profile", label: "Founder Analytics Dashboard" },
-  { href: "/faq", label: "Frequently Asked Questions" },
-  { href: "/privacy", label: "Privacy Policy" },
-  { href: "/terms", label: "Terms of Service" },
+  { href: "/about", label: "About" },
+  { href: "/about#guidelines", label: "Guidelines" },
+  { href: "/about#curation", label: "Curation" },
+  { href: "/faq", label: "FAQ" },
 ];
 
 const COMMUNITY_LINKS = [
-  { href: "https://github.com/tentorProduction/WeFounders", label: "GitHub Repository" },
-  { href: "https://x.com/wefounders_dev", label: "X / Twitter (@wefounders_dev)" },
-  { href: "https://discord.gg/wefounders", label: "Builder Discord" },
-  { href: "mailto:hello@wefounders.dev", label: "Email: hello@wefounders.dev" },
+  { href: "https://github.com/tentorProduction/WeFounders", label: "GitHub" },
+  { href: "https://x.com/wefounders_dev", label: "X / Twitter" },
+  { href: "https://discord.gg/wefounders", label: "Discord" },
+  { href: "mailto:hello@wefounders.dev", label: "hello@wefounders.dev" },
+];
+
+const LEGAL_LINKS = [
+  { href: "/privacy", label: "Privacy" },
+  { href: "/terms", label: "Terms" },
 ];
 
 /**
- * WeFounders Footer Component (#FFFFFF background, #DADDE1 borders)
+ * WeFounders Footer (#17181B surface). Kept to a single compact band: brand,
+ * three link groups, and a legal/status strip, so it never outweighs the
+ * content above it.
  */
 export function SiteFooter() {
   return (
-    <footer className="site-container mb-4 mt-20 overflow-hidden rounded-[28px] bg-[#17181B] text-caption text-white">
-      <div className="grid gap-8 px-6 py-10 sm:grid-cols-2 sm:px-10 lg:grid-cols-4 lg:py-12">
-        {/* Brand Column */}
+    <footer className="site-container mb-4 mt-16 overflow-hidden rounded-[28px] bg-[#17181B] text-caption text-white">
+      <div className="grid gap-8 px-6 py-9 sm:grid-cols-2 sm:px-10 lg:grid-cols-4 lg:py-10">
+        {/* Brand */}
         <div className="space-y-3">
           <Link href="/" className="flex items-center gap-2">
-            <BrandLogo
-              markClassName="h-[24px] text-white"
-              wordmarkClassName="text-white"
-            />
-            <Badge variant="outline" className="border-white/20 bg-white/8 text-[10px] font-mono text-white/60">
-              .dev 🇳🇵
+            <BrandLogo markClassName="h-[22px] text-white" wordmarkClassName="text-white" />
+            <Badge
+              variant="outline"
+              className="border-white/20 bg-white/8 text-[10px] font-mono text-white/80 inline-flex items-center gap-1 py-0.5 px-2"
+            >
+              <GlobeHemisphereWest className="h-3 w-3 text-[#FF4B3E]" weight="bold" />
+              <span>GLOBAL</span>
             </Badge>
           </Link>
-          <p className="text-white/60 leading-relaxed">
-            Nepal&apos;s launchpad for world-class startups. Get your early beta users from Nepal&apos;s builder community.
+          <p className="max-w-xs text-tiny leading-relaxed text-white/60">
+            The global startup launchpad. Discover world-class products, join
+            active betas, and help founders ship.
           </p>
-          <div className="pt-1 text-tiny font-mono text-white/50">
-            Contact: <a href="mailto:hello@wefounders.dev" className="text-white hover:underline">hello@wefounders.dev</a>
-          </div>
         </div>
 
-        {/* Product Navigation */}
-        <nav aria-label="Product links" className="space-y-3">
-          <h3 className="text-tiny font-bold uppercase tracking-wider text-white font-mono">
-            Platform
-          </h3>
-          <ul className="space-y-2">
-            {PRODUCT_LINKS.map(({ href, label }) => (
-              <li key={href}>
-                <Link
-                  href={href}
-                  className="text-white/60 transition-colors hover:text-white underline-offset-4 hover:underline"
-                >
-                  {label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <FooterGroup title="Discover" links={DISCOVER_LINKS} />
+        <FooterGroup title="Resources" links={RESOURCE_LINKS} />
 
-        {/* Resources & Guidelines */}
-        <nav aria-label="Resource links" className="space-y-3">
-          <h3 className="text-tiny font-bold uppercase tracking-wider text-white font-mono">
-            Resources &amp; Curation
-          </h3>
-          <ul className="space-y-2">
-            {RESOURCE_LINKS.map(({ href, label }) => (
-              <li key={href}>
-                <Link
-                  href={href}
-                  className="text-white/60 transition-colors hover:text-white underline-offset-4 hover:underline"
-                >
-                  {label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        {/* Community & Socials */}
-        <nav aria-label="Community links" className="space-y-3">
-          <h3 className="text-tiny font-bold uppercase tracking-wider text-white font-mono">
-            Community
-          </h3>
-          <ul className="space-y-2">
-            {COMMUNITY_LINKS.map(({ href, label }) => (
-              <li key={label}>
-                <a
-                  href={href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-white/60 transition-colors hover:text-white underline-offset-4 hover:underline"
-                >
-                  {label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <div className="space-y-3">
+          <FooterGroup title="Community" links={COMMUNITY_LINKS} />
+        </div>
       </div>
 
       <div className="border-t border-white/12">
-        <div className="site-container flex flex-col items-center justify-between gap-3 py-6 text-tiny text-white/60 sm:flex-row font-mono">
-          <p>© 2026 WeFounders.dev — Startup Discovery &amp; Beta Launchpad</p>
-          <p className="flex flex-wrap items-center gap-2">
-            <span>Kathmandu NPT Timezone</span>
-            <span>•</span>
-            <span>Made with 🇳🇵 Pride</span>
-            {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
-              <>
-                <span>•</span>
-                <CookieSettingsButton />
-              </>
-            )}
+        <div className="site-container flex flex-col items-center justify-between gap-3 py-5 font-mono text-tiny text-white/60 sm:flex-row">
+          <p>© 2026 WeFounders</p>
+
+          <nav aria-label="Legal" className="flex items-center gap-4">
+            {LEGAL_LINKS.map(({ href, label }) => (
+              <Link key={href} href={href} className="transition-colors hover:text-white">
+                {label}
+              </Link>
+            ))}
+            {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && <CookieSettingsButton />}
+          </nav>
+
+          <p className="flex items-center gap-2">
+            <span>Global Edition</span>
+            <span aria-hidden>·</span>
+            <span className="inline-flex items-center gap-1.5">
+              <GlobeHemisphereWest className="h-3.5 w-3.5 text-[#FF4B3E]" weight="bold" />
+              Built for Builders Worldwide
+            </span>
           </p>
         </div>
       </div>
     </footer>
+  );
+}
+
+function FooterGroup({
+  title,
+  links,
+}: {
+  title: string;
+  links: { href: string; label: string }[];
+}) {
+  return (
+    <nav aria-label={title} className="space-y-2.5">
+      <h3 className="font-mono text-tiny font-bold uppercase tracking-wider text-white/80">
+        {title}
+      </h3>
+      <ul className="space-y-2">
+        {links.map(({ href, label }) => (
+          <li key={href}>
+            <Link
+              href={href}
+              className="text-tiny text-white/60 underline-offset-4 transition-colors hover:text-white hover:underline"
+            >
+              {label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }

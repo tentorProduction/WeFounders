@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { cn, timeAgo } from "@/lib/utils";
+import { plural } from "@/lib/pluralize";
 import type {
   StartupStage,
   StartupWithTags,
@@ -10,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { StartupLogo } from "@/components/startups/startup-logo";
 import { TagPill, type TagPillTag } from "@/components/startups/tag-pill";
 import { UpvoteButton } from "@/components/startups/upvote-button";
+import { GlobeHemisphereWest, GlobeSimple, MapPin } from "@/components/icons";
 
 export interface StartupCardUpvote {
   count: number;
@@ -35,8 +37,8 @@ export const STAGE_LABELS: Record<StartupStage, string> = {
 };
 
 export const MARKET_LABELS: Record<TargetMarket, string> = {
-  nepal_domestic: "MADE FOR NEPAL",
-  global_export: "BUILT FOR WORLD",
+  nepal_domestic: "REGIONAL",
+  global_export: "GLOBAL",
   hybrid: "HYBRID",
 };
 
@@ -49,6 +51,14 @@ const GATEWAY_BADGES: Record<
   fonepay: { label: "Fonepay", variant: "fonepay" },
 };
 
+/** Visible technology tags before the row collapses into a "+N" summary. */
+const MAX_VISIBLE_TAGS = 3;
+
+/**
+ * The one startup card used by the feed, search, leaderboard and every other
+ * list. One markup tree scales from 320px to desktop instead of shipping a
+ * duplicated mobile layout beside a desktop one.
+ */
 export function StartupCard({
   startup,
   upvote,
@@ -57,199 +67,87 @@ export function StartupCard({
   rank,
   className,
 }: StartupCardProps) {
+  const href = `/startups/${startup.slug}`;
   const gateways = startup.tags.filter((tag) => GATEWAY_BADGES[tag.slug]);
-  const ecosystemTags = startup.tags.filter((tag) => !GATEWAY_BADGES[tag.slug]).slice(0, 3);
+  const ecosystemTags = startup.tags.filter((tag) => !GATEWAY_BADGES[tag.slug]);
+  const visibleTags = ecosystemTags.slice(0, MAX_VISIBLE_TAGS);
+  const hiddenTagCount = ecosystemTags.length - visibleTags.length;
 
   return (
     <article
       className={cn(
-        "godly-card deck-card animate-fade-in-up group relative transition-all duration-200 cursor-pointer shadow-apple-sm hover:shadow-apple-md",
-        "rounded-[22px] border border-white/80 bg-white/82 p-4 sm:p-5 backdrop-blur-sm",
+        "godly-card deck-card group relative transition-all duration-200",
+        "rounded-[22px] border border-white/80 bg-white/82 p-4 backdrop-blur-sm sm:p-5",
         className
       )}
     >
-      {/* ========================================================= */}
-      {/* MOBILE LAYOUT (≤ 768px): Dedicated Single-Column Stack     */}
-      {/* ========================================================= */}
-      <div className="block md:hidden space-y-2.5">
-        {/* TOP ROW: Monogram tile (48px) + Product Name/Rank (Center) + Upvote (FAR RIGHT) */}
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            <Link
-              href={`/startups/${startup.slug}`}
-              aria-label={`Open ${startup.name}`}
-              className="press-scale shrink-0"
-            >
-              <StartupLogo
-                name={startup.name}
-                logoUrl={startup.logo_url}
-                seed={startup.slug}
-                size={48}
-              />
-            </Link>
-
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                {typeof rank === "number" && (
-                  <span className="text-[12px] font-mono font-medium text-[#666A73]">
-                    #{rank}
-                  </span>
-                )}
-                <Link
-                  href={`/startups/${startup.slug}`}
-                  className="font-archivo text-[17px] font-bold text-[#17181B] truncate hover:text-[#FF4B3E] transition-colors"
-                >
-                  {startup.name}
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* Upvote Button Pinned Far Right (Min 44px Touch Target) */}
-          <div className="shrink-0 flex items-center justify-end min-w-[44px] min-h-[44px]">
-            <UpvoteButton
-              count={upvote.count}
-              voted={upvote.voted}
-              pending={upvote.pending}
-              onToggle={upvote.onToggle}
-            />
-          </div>
-        </div>
-
-        {/* BADGE ROW: Dedicated row for PUBLIC BETA / STAGE / MARKET pills */}
-        <div className="flex flex-wrap items-center gap-[6px]">
-          <Badge variant="stage" className="text-[11px] font-mono px-[10px] py-[4px] rounded-full">
-            {STAGE_LABELS[startup.stage]}
-          </Badge>
-          <Badge
-            variant={startup.target_market === "global_export" ? "global" : "nepal"}
-            className="text-[11px] font-mono px-[10px] py-[4px] rounded-full"
-          >
-            {MARKET_LABELS[startup.target_market]}
-          </Badge>
-          {gateways.map((tag) => {
-            const gateway = GATEWAY_BADGES[tag.slug];
-            return (
-              <Badge key={tag.id} variant={gateway.variant} className="text-[11px] font-mono px-[10px] py-[4px] rounded-full">
-                {gateway.label}
-              </Badge>
-            );
-          })}
-        </div>
-
-        {/* DESCRIPTION: Full card width, high contrast #666A73, line-height 1.6 */}
-        <Link
-          href={`/startups/${startup.slug}`}
-          className="block text-[14px] font-sans text-[#666A73] leading-relaxed w-full hover:text-[#17181B] transition-colors"
-        >
-          {startup.tagline}
-        </Link>
-
-        {/* TAGS ROW: flex-wrap freely, 6px gap, 12px font #666A73 text on #F2F3F5 bg */}
-        {startup.tags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-[6px] pt-0.5">
-            {ecosystemTags.map((tag) => (
-              <button
-                key={tag.id}
-                type="button"
-                onClick={() => onSelectTag?.(tag)}
-                className={cn(
-                  "inline-flex items-center gap-1 rounded-[8px] border border-[#DADDE1] bg-[#F2F3F5] px-2.5 py-1 text-[12px] font-mono text-[#666A73] transition-colors",
-                  activeTagSlug === tag.slug && "border-[#FF4B3E] text-[#FF4B3E] bg-[#FF4B3E]/10 font-semibold"
-                )}
-              >
-                <span className="h-1.5 w-1.5 rounded-full bg-[#666A73]" />
-                {tag.name}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* META ROW: Dedicated bottom row, single line truncated */}
-        <div className="pt-2 border-t border-[#DADDE1]/60 flex items-center justify-between text-[12px] font-mono text-[#666A73] truncate">
-          <div className="flex items-center gap-2 truncate">
-            <Link
-              href={`/startups/${startup.slug}#waitlist`}
-              className="hover:text-[#FF4B3E] hover:underline font-semibold"
-            >
-              Waitlist ({startup.waitlist_count})
-            </Link>
-            <span>·</span>
-            <Link
-              href={`/startups/${startup.slug}`}
-              className="hover:text-[#17181B] flex items-center gap-1"
-            >
-              💬 {startup.comments_count}
-            </Link>
-            <span>·</span>
-            <span>{timeAgo(startup.launch_date ?? startup.created_at)}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* ========================================================= */}
-      {/* DESKTOP LAYOUT (≥ 769px / md:): Untouched Original Grid    */}
-      {/* ========================================================= */}
-      <div className="hidden md:grid md:grid-cols-[58px_1fr_auto] md:items-start md:gap-5">
-        {/* Left: 52px Logo */}
-        <Link
-          href={`/startups/${startup.slug}`}
-          aria-label={`Open ${startup.name}`}
-          className="press-scale shrink-0"
-        >
+      <div className="grid grid-cols-[48px_1fr] gap-x-3.5 sm:grid-cols-[52px_1fr_auto] sm:gap-x-5">
+        {/* 1. Logo */}
+        <Link href={href} aria-label={`Open ${startup.name}`} className="press-scale">
           <StartupLogo
             name={startup.name}
             logoUrl={startup.logo_url}
             seed={startup.slug}
-            size={58}
+            size={48}
           />
         </Link>
 
-        {/* Center: Product Information */}
-        <div className="min-w-0 space-y-1">
-          {/* Row 1 — Title, Rank, Badges */}
+        {/* 2-6. Identity, status, market, technology */}
+        <div className="min-w-0 space-y-2">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             {typeof rank === "number" && (
-              <span
-                aria-hidden
-                className="text-meta font-semibold tabular-nums text-text-muted font-mono"
-              >
+              <span aria-hidden className="font-mono text-tiny text-muted-foreground">
                 #{rank}
               </span>
             )}
             <Link
-              href={`/startups/${startup.slug}`}
-              className="text-product font-archivo font-bold text-[#17181B] transition-colors hover:text-[#FF4B3E] focus:outline-none"
+              href={href}
+              className="min-w-0 truncate font-archivo text-[17px] font-bold text-[#17181B] transition-colors hover:text-[#FF4B3E] focus-visible:outline-none sm:text-product"
             >
               {startup.name}
             </Link>
-            <Badge variant="stage">{STAGE_LABELS[startup.stage]}</Badge>
-            <Badge
-              variant={
-                startup.target_market === "global_export" ? "global" : "nepal"
-              }
-            >
-              {MARKET_LABELS[startup.target_market]}
-            </Badge>
           </div>
 
-          {/* Row 2 — Clamped Description */}
-          <Link href={`/startups/${startup.slug}`} className="block text-body text-[#666A73] line-clamp-2 leading-relaxed hover:text-[#17181B]">
+          {/* 3. Tagline */}
+          <Link
+            href={href}
+            className="line-clamp-2 block text-caption leading-relaxed text-[#666A73] transition-colors hover:text-[#17181B]"
+          >
             {startup.tagline}
           </Link>
 
-          {/* Row 3 — Tech Stack & Tags */}
-          {startup.tags.length > 0 && (
-            <div className="pt-1 flex flex-wrap items-center gap-1.5">
-              {gateways.map((tag) => {
-                const gateway = GATEWAY_BADGES[tag.slug];
-                return (
-                  <Badge key={tag.id} variant={gateway.variant}>
-                    {gateway.label}
-                  </Badge>
-                );
-              })}
-              {ecosystemTags.map((tag) => (
+          {/* 4-5. Status + market */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <Badge variant="stage" className="px-2 py-0.5 text-tiny">
+              {STAGE_LABELS[startup.stage]}
+            </Badge>
+            <Badge
+              variant={startup.target_market === "global_export" ? "global" : "regional"}
+              className="inline-flex items-center gap-1 px-2 py-0.5 text-tiny"
+            >
+              {startup.target_market === "global_export" ? (
+                <GlobeHemisphereWest className="h-3 w-3" weight="bold" />
+              ) : startup.target_market === "hybrid" ? (
+                <GlobeSimple className="h-3 w-3" weight="bold" />
+              ) : (
+                <MapPin className="h-3 w-3" weight="bold" />
+              )}
+              {MARKET_LABELS[startup.target_market]}
+            </Badge>
+            {gateways.map((tag) => {
+              const gateway = GATEWAY_BADGES[tag.slug];
+              return (
+                <Badge key={tag.id} variant={gateway.variant} className="px-2 py-0.5 text-tiny">
+                  {gateway.label}
+                </Badge>
+              );
+            })}
+          </div>
+
+          {/* 6. Technology — capped, full list lives on the detail page */}
+          {ecosystemTags.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              {visibleTags.map((tag) => (
                 <TagPill
                   key={tag.id}
                   tag={tag}
@@ -257,36 +155,45 @@ export function StartupCard({
                   onSelect={onSelectTag}
                 />
               ))}
+              {hiddenTagCount > 0 && (
+                <Link
+                  href={href}
+                  className="font-mono text-tiny text-muted-foreground underline-offset-4 transition-colors hover:text-[#17181B] hover:underline"
+                >
+                  {`+${hiddenTagCount} more`}
+                </Link>
+              )}
             </div>
           )}
         </div>
 
-        {/* Right: Upvote Control & Action Links */}
-        <div className="flex shrink-0 flex-col items-end gap-1.5">
+        {/* 7-8. Community metrics + action */}
+        <div className="col-span-2 flex items-center justify-between gap-3 border-t border-[#DADDE1]/60 pt-3 sm:col-span-1 sm:flex-col sm:items-end sm:border-0 sm:pt-0">
           <UpvoteButton
             count={upvote.count}
             voted={upvote.voted}
             pending={upvote.pending}
             onToggle={upvote.onToggle}
           />
-          <div className="flex items-center gap-2 text-tiny font-mono text-muted-foreground">
+
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-tiny text-[#666A73] sm:justify-end">
             <Link
-              href={`/startups/${startup.slug}#waitlist`}
-              className="hover:text-[#FF4B3E] hover:underline font-semibold"
+              href={`${href}#waitlist`}
+              className="font-semibold transition-colors hover:text-[#FF4B3E] hover:underline"
             >
-              Waitlist ({startup.waitlist_count})
+              {startup.waitlist_count} {plural(startup.waitlist_count, "Waitlist")}
             </Link>
-            <span>•</span>
-            <Link
-              href={`/startups/${startup.slug}`}
-              className="hover:text-[#17181B] flex items-center gap-1"
-            >
-              💬 {startup.comments_count}
+            <span aria-hidden>·</span>
+            <Link href={href} className="transition-colors hover:text-[#17181B]">
+              {startup.comments_count} {plural(startup.comments_count, "Comment")}
             </Link>
+            <span aria-hidden className="hidden sm:inline">
+              ·
+            </span>
+            <span className="hidden sm:inline">
+              {timeAgo(startup.launch_date ?? startup.created_at)}
+            </span>
           </div>
-          <span className="text-[11px] text-[#666A73] font-mono text-right">
-            {timeAgo(startup.launch_date ?? startup.created_at)}
-          </span>
         </div>
       </div>
     </article>

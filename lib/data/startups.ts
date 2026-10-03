@@ -1,9 +1,9 @@
 import type { StartupWithTags, Tag } from "@/types/database";
-import { getServerSupabase } from "@/lib/supabase/server";
+import { raw, sql } from "@/lib/db/neon";
 import { reportReadFailure } from "@/lib/data/read-failure";
 
 /**
- * Startup reads — Supabase is the single source of truth.
+ * Startup reads — Neon Postgres is the single source of truth.
  *
  * There is no fixture fallback: when the table is empty the feed renders a
  * real empty state, which is the honest thing to show on a platform that has
@@ -12,49 +12,33 @@ import { reportReadFailure } from "@/lib/data/read-failure";
  * 500; the write paths in the lib stores surface errors instead.
  */
 
-/** Columns + the tags join, shared by every read below. */
-const STARTUP_SELECT = `
-  id, founder_id, slug, name, tagline, description, website_url,
-  demo_video_url, logo_url, banner_url, stage, target_market, status,
-  launch_date, upvotes_count, comments_count, waitlist_count,
-  is_featured, featured_until, created_at, updated_at,
-  startup_tags ( tags ( id, name, slug, category ) )
-`;
-
 /**
- * PostgREST returns an embedded to-one relation as an object, but supabase-js
- * cannot prove that without generated database types, so it types the embed as
- * an array. Normalise both shapes here rather than casting at every call site.
+ * The startup row plus its tags, aggregated in one round trip.
+ *
+ * `coalesce(json_agg(...), '[]')` keeps `tags` an array even when a startup has
+ * none — the previous PostgREST embed could return null here, which the UI had
+ * to defend against.
  */
-function asRecord(value: unknown): Record<string, unknown> {
-  return (value ?? {}) as Record<string, unknown>;
-}
-
-function toTags(row: unknown): Tag[] {
-  const joins = asRecord(row).startup_tags;
-  if (!Array.isArray(joins)) return [];
-
-  return joins
-    .map((join) => {
-      const embedded = asRecord(join).tags;
-      return asRecord(Array.isArray(embedded) ? embedded[0] : embedded);
-    })
-    .filter((tag) => typeof tag.id === "string")
-    .map((tag) => ({
-      id: tag.id as string,
-      name: tag.name as string,
-      slug: tag.slug as string,
-      // `tags.category` is free text in the database; narrow it for the UI.
-      category: ((tag.category as string | null) ?? "industry") as Tag["category"],
-    }));
-}
-
-function toStartup(row: unknown): StartupWithTags {
-  // Drop the raw join so the result matches the `StartupWithTags` shape.
-  const rest = { ...asRecord(row) };
-  delete rest.startup_tags;
-  return { ...(rest as unknown as StartupWithTags), tags: toTags(row) };
-}
+const STARTUP_WITH_TAGS = `
+  select
+    s.id, s.founder_id, s.slug, s.name, s.tagline, s.description,
+    s.website_url, s.demo_video_url, s.logo_url, s.banner_url, s.stage,
+    s.target_market, s.status, s.rejection_reason, s.launch_date,
+    s.upvotes_count, s.comments_count, s.waitlist_count, s.is_featured,
+    s.featured_until, s.created_at, s.updated_at,
+    coalesce(
+      (
+        select json_agg(json_build_object(
+          'id', t.id, 'name', t.name, 'slug', t.slug, 'category', t.category
+        ) order by t.name)
+        from startup_tags st
+        join tags t on t.id = st.tag_id
+        where st.startup_id = s.id
+      ),
+      '[]'::json
+    ) as tags
+  from startups s
+`;
 
 function logReadFailure(what: string, error: unknown): void {
   reportReadFailure(what, error);
@@ -66,30 +50,25 @@ function logReadFailure(what: string, error: unknown): void {
 
 export interface FeedOptions {
   limit?: number;
-  /** Restrict to these slugs (used by lookups that batch by slug). */
   orderBy?: "upvotes" | "newest";
 }
 
 /** Approved launches, highest upvotes first — the homepage discovery feed. */
 export async function getStartupFeed(options: FeedOptions = {}): Promise<StartupWithTags[]> {
   try {
-    const supabase = await getServerSupabase();
-
-    let query = supabase
-      .from("startups")
-      .select(STARTUP_SELECT)
-      .eq("status", "approved");
-
-    query =
+    const order =
       options.orderBy === "newest"
-        ? query.order("launch_date", { ascending: false })
-        : query.order("upvotes_count", { ascending: false });
+        ? "order by s.launch_date desc"
+        : "order by s.upvotes_count desc";
+    const limit = options.limit ?? 200;
 
-    if (options.limit) query = query.limit(options.limit);
-
-    const { data, error } = await query;
-    if (error) throw error;
-    return (data ?? []).map((row) => toStartup(row));
+    const rows = await sql`
+      ${raw(STARTUP_WITH_TAGS)}
+      where s.status = 'approved'
+      ${raw(order)}
+      limit ${limit}
+    `;
+    return rows as unknown as StartupWithTags[];
   } catch (error) {
     logReadFailure("getStartupFeed", error);
     return [];
@@ -99,19 +78,15 @@ export async function getStartupFeed(options: FeedOptions = {}): Promise<Startup
 /** The promoted slot, rendered by FeaturedSpotlight. */
 export async function getFeaturedStartup(): Promise<StartupWithTags | null> {
   try {
-    const supabase = await getServerSupabase();
-    const { data, error } = await supabase
-      .from("startups")
-      .select(STARTUP_SELECT)
-      .eq("status", "approved")
-      .eq("is_featured", true)
-      .limit(1)
-      .maybeSingle();
+    const rows = (await sql`
+      ${raw(STARTUP_WITH_TAGS)}
+      where s.status = 'approved' and s.is_featured = true
+      limit 1
+    `) as unknown as StartupWithTags[];
 
-    if (error) throw error;
-    if (!data) return null;
+    const startup = rows[0] ?? null;
+    if (!startup) return null;
 
-    const startup = toStartup(data);
     // An expired promotion must not keep the spotlight.
     if (startup.featured_until && new Date(startup.featured_until).getTime() <= Date.now()) {
       return null;
@@ -133,27 +108,24 @@ export async function getStartupBySlug(slug: string): Promise<StartupWithTags | 
   if (!needle) return null;
 
   try {
-    const supabase = await getServerSupabase();
+    // A lone `%` or `_` would act as a wildcard in ILIKE and match everything.
+    const pattern = `%${needle.replace(/[\\%_]/g, (ch) => `\\${ch}`)}%`;
 
-    const { data, error } = await supabase
-      .from("startups")
-      .select(STARTUP_SELECT)
-      .ilike("slug", needle)
-      .limit(1)
-      .maybeSingle();
+    const rows = (await sql`
+      ${raw(STARTUP_WITH_TAGS)}
+      where lower(s.slug) like lower(${pattern})
+      limit 1
+    `) as unknown as StartupWithTags[];
 
-    if (error) throw error;
-    if (data) return toStartup(data);
+    if (rows[0]) return rows[0];
 
-    const { data: byName, error: nameError } = await supabase
-      .from("startups")
-      .select(STARTUP_SELECT)
-      .ilike("name", needle)
-      .limit(1)
-      .maybeSingle();
+    const byName = (await sql`
+      ${raw(STARTUP_WITH_TAGS)}
+      where lower(s.name) like lower(${pattern})
+      limit 1
+    `) as unknown as StartupWithTags[];
 
-    if (nameError) throw nameError;
-    return byName ? toStartup(byName) : null;
+    return byName[0] ?? null;
   } catch (error) {
     logReadFailure("getStartupBySlug", error);
     return null;
@@ -164,16 +136,13 @@ export async function getStartupById(id: string): Promise<StartupWithTags | null
   if (!id) return null;
 
   try {
-    const supabase = await getServerSupabase();
-    const { data, error } = await supabase
-      .from("startups")
-      .select(STARTUP_SELECT)
-      .eq("id", id)
-      .limit(1)
-      .maybeSingle();
+    const rows = (await sql`
+      ${raw(STARTUP_WITH_TAGS)}
+      where s.id = ${id}::uuid
+      limit 1
+    `) as unknown as StartupWithTags[];
 
-    if (error) throw error;
-    return data ? toStartup(data) : null;
+    return rows[0] ?? null;
   } catch (error) {
     logReadFailure("getStartupById", error);
     return null;
@@ -190,19 +159,21 @@ export async function searchStartups(term: string, limit = 24): Promise<StartupW
   if (!needle) return [];
 
   try {
-    const supabase = await getServerSupabase();
-    const { data, error } = await supabase
-      .from("startups")
-      .select(STARTUP_SELECT)
-      .eq("status", "approved")
-      .or(
-        `name.ilike.%${needle}%,tagline.ilike.%${needle}%,description.ilike.%${needle}%`
-      )
-      .order("upvotes_count", { ascending: false })
-      .limit(limit);
+    const pattern = `%${needle.replace(/[\\%_]/g, (ch) => `\\${ch}`)}%`;
 
-    if (error) throw error;
-    return (data ?? []).map((row) => toStartup(row));
+    const rows = (await sql`
+      ${raw(STARTUP_WITH_TAGS)}
+      where s.status = 'approved'
+        and (
+          s.name ilike ${pattern}
+          or s.tagline ilike ${pattern}
+          or s.description ilike ${pattern}
+        )
+      order by s.upvotes_count desc
+      limit ${limit}
+    `) as unknown as StartupWithTags[];
+
+    return rows;
   } catch (error) {
     logReadFailure("searchStartups", error);
     return [];
@@ -212,19 +183,13 @@ export async function searchStartups(term: string, limit = 24): Promise<StartupW
 /** Unique ecosystem tags — used for filter suggestions. */
 export async function getAllTags(): Promise<Tag[]> {
   try {
-    const supabase = await getServerSupabase();
-    const { data, error } = await supabase
-      .from("tags")
-      .select("id, name, slug, category")
-      .order("name", { ascending: true });
+    const rows = (await sql`
+      select id, name, slug, coalesce(category, 'industry') as category
+      from tags
+      order by name asc
+    `) as unknown as Tag[];
 
-    if (error) throw error;
-    return (data ?? []).map((tag) => ({
-      id: tag.id,
-      name: tag.name,
-      slug: tag.slug,
-      category: (tag.category ?? "industry") as Tag["category"],
-    }));
+    return rows;
   } catch (error) {
     logReadFailure("getAllTags", error);
     return [];

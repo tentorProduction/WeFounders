@@ -43,7 +43,7 @@ export function reportReadFailure(scope: string, error: unknown): void {
     const message = error instanceof Error ? error.message : String(error);
     console.warn(
       `[data/${scope}] continuing with an empty result. ` +
-        `Has supabase/schema.sql been applied? (${message})`
+        `Has db/schema.sql been applied to Neon? (${message})`
     );
   }
 }

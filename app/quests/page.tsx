@@ -1,16 +1,18 @@
 import { getSiteOrigin } from "@/lib/site-url";
 import type { Metadata } from "next";
-import { Swords } from "lucide-react";
+import { Sword } from "@/components/icons";
 
 import { getQuestBoard } from "@/lib/data/quests";
+import { countOf } from "@/lib/pluralize";
 import { QuestCard } from "@/components/quests/quest-card";
+import { EmptyState } from "@/components/ui/empty-state";
 
 const baseUrl = getSiteOrigin();
 
 export const metadata: Metadata = {
   title: "Testing Quests & Bounties",
   description:
-    "Test real Nepali betas on real Nepali networks. Founders post the task; you file the report and earn NPR bounties and Karma.",
+    "Test real product betas across real devices and platforms. Founders post the task; you file the report and earn bounties and Karma.",
   alternates: { canonical: new URL("/quests", baseUrl) },
 };
 
@@ -31,34 +33,30 @@ export default async function QuestsPage() {
       <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="flex items-center gap-2 text-caption font-medium uppercase tracking-wide text-primary">
-            <Swords className="h-4 w-4" aria-hidden />
+            <Sword className="h-4 w-4" weight="bold" aria-hidden />
             Bounties
           </p>
           <h1 className="mt-1 text-display font-bold tracking-tight">
             Testing Quests
           </h1>
           <p className="mt-1 max-w-xl text-body text-muted-foreground">
-            Founders post a real task on a real device or network. You file the
-            proof; the bounty — NPR via eSewa/Khalti, or Karma — is yours when
-            they accept it.
+            Founders post a real testing task. You file the proof; the bounty —
+            cash rewards or Karma — is yours when they accept it.
           </p>
         </div>
-        <p className="text-caption text-muted-foreground">
-          <span className="font-semibold tabular-nums text-foreground">
-            {active.length}
-          </span>{" "}
-          active quests ·{" "}
-          <span className="font-semibold tabular-nums text-foreground">
-            {openSlots}
-          </span>{" "}
-          open tester slots
+        <p className="font-mono text-caption text-muted-foreground">
+          {countOf(active.length, "active quest")} · {countOf(openSlots, "open tester slot")}
         </p>
       </header>
 
       {quests.length === 0 ? (
-        <p className="rounded-xl border border-dashed p-10 text-center text-body text-muted-foreground">
-          No quests right now — founders post new ones every launch day.
-        </p>
+        <EmptyState
+          icon={Sword}
+          title="No active quests"
+          description="There aren't any testing quests available right now."
+          hint="New quests appear when founders launch."
+          action={{ label: "Explore startups", href: "/" }}
+        />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {quests.map((quest) => (

@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useClerk, useUser } from "@clerk/nextjs";
 import { LogOut, User as UserIcon } from "lucide-react";
 
-import { useAuth } from "@/lib/firebase/auth-context";
 import { Button } from "@/components/ui/button";
 import { SignInButton } from "@/components/auth/sign-in-button";
 import {
@@ -17,28 +17,33 @@ import {
 
 /**
  * Header identity control. Signed out it offers Google sign-in; signed in it
- * shows the account menu. The profile menu is only enabled once the server
- * session exists, so links that rely on server-side identity never dead-end.
+ * shows the account menu. Identity and sign-out both come from Clerk, so the
+ * menu cannot drift from the session the server sees.
  */
 export function UserButton() {
-  const { user, session, loading, signOutUser } = useAuth();
+  const { isLoaded, isSignedIn, user } = useUser();
+  const { signOut } = useClerk();
 
-  if (loading) {
+  if (!isLoaded) {
     return <div className="h-9 w-24 animate-pulse rounded-full bg-secondary" />;
   }
 
-  if (!user) {
+  if (!isSignedIn || !user) {
     return (
       <SignInButton
         size="sm"
         variant="outline"
-        showError={false}
         className="border-border bg-card text-foreground hover:bg-secondary"
       />
     );
   }
 
-  const displayName = user.displayName || session?.name || user.email?.split("@")[0] || "You";
+  const email = user.primaryEmailAddress?.emailAddress ?? "";
+  const displayName =
+    [user.firstName, user.lastName].filter(Boolean).join(" ") ||
+    user.username ||
+    email.split("@")[0] ||
+    "You";
 
   return (
     <DropdownMenu>
@@ -48,10 +53,10 @@ export function UserButton() {
           size="sm"
           className="gap-2 border-border bg-background hover:bg-secondary px-2.5 shadow-apple-xs"
         >
-          {user.photoURL ? (
+          {user.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={user.photoURL}
+              src={user.imageUrl}
               alt=""
               className="h-6 w-6 rounded-full border border-border object-cover"
             />
@@ -73,7 +78,7 @@ export function UserButton() {
               {displayName}
             </p>
             <p className="truncate text-caption leading-none text-muted-foreground">
-              {user.email}
+              {email}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -90,7 +95,7 @@ export function UserButton() {
         <DropdownMenuSeparator className="bg-border" />
 
         <DropdownMenuItem
-          onClick={signOutUser}
+          onSelect={() => void signOut({ redirectUrl: "/" })}
           className="cursor-pointer gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive"
         >
           <LogOut className="h-4 w-4" />

@@ -96,10 +96,20 @@ const config: Config = {
         display: ["2.75rem", { lineHeight: "1.15", fontWeight: "700", letterSpacing: "-0.02em" }], // 44px
         hero: ["2.25rem", { lineHeight: "1.2", fontWeight: "700", letterSpacing: "-0.015em" }],   // 36px
         heading: ["1.5rem", { lineHeight: "1.3", fontWeight: "600", letterSpacing: "-0.01em" }],    // 24px
+        /* h1/h2/h3 mirror the semantic levels: page titles, section headings, card titles. */
+        h1: ["2rem", { lineHeight: "1.2", fontWeight: "700", letterSpacing: "-0.015em" }],         // 32px
+        h2: ["1.375rem", { lineHeight: "1.3", fontWeight: "600", letterSpacing: "-0.01em" }],        // 22px
+        h3: ["1.0625rem", { lineHeight: "1.35", fontWeight: "600", letterSpacing: "-0.005em" }],     // 17px
         product: ["1.25rem", { lineHeight: "1.35", fontWeight: "600" }],                             // 20px
+        /* subheading sits between heading and product: card and section titles. */
+        subheading: ["1.0625rem", { lineHeight: "1.35", fontWeight: "600", letterSpacing: "-0.005em" }], // 17px
         body: ["0.9375rem", { lineHeight: "1.5", fontWeight: "400" }],                               // 15px
+        /* caption is the default UI text size: buttons, chips, supporting copy. */
+        caption: ["0.8125rem", { lineHeight: "1.45", fontWeight: "400" }],                          // 13px
         meta: ["0.8125rem", { lineHeight: "1.4", fontWeight: "400" }],                               // 13px
         badge: ["0.75rem", { lineHeight: "1.2", fontWeight: "600", letterSpacing: "0.02em" }],      // 12px
+        /* tiny is metadata only: timestamps, counts, footnotes. */
+        tiny: ["0.6875rem", { lineHeight: "1.35", fontWeight: "400" }],                              // 11px
       },
     },
   },

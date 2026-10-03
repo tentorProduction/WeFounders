@@ -10,7 +10,7 @@ export async function AdminHeader() {
     <header className="flex h-16 shrink-0 items-center justify-between gap-3 border-b border-[#27272A] bg-[#121215] px-4 sm:px-6">
       <div className="flex items-center gap-4">
         <div className="flex flex-col">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-[#A1A1AA]">Kathmandu Batch Clock</span>
+          <span className="text-[10px] font-mono uppercase tracking-wider text-[#A1A1AA]">Batch Clock (UTC)</span>
           <KathmanduClock />
         </div>
       </div>

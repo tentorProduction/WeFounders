@@ -29,7 +29,7 @@ const GATEWAYS: Array<{
     key: "esewa",
     label: "eSewa EPAY",
     dotClass: "bg-foreground",
-    note: "Nepal's digital wallet, by F1Soft",
+    note: "Digital wallet & instant checkout",
   },
   {
     key: "khalti",

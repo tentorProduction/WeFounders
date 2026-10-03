@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Users } from "lucide-react";
 
 import { listCollabPosts } from "@/lib/collab/store";
+import { countOf } from "@/lib/pluralize";
 import { CollabBoard } from "@/components/collab/collab-board";
 
 const baseUrl = getSiteOrigin();
@@ -10,7 +11,7 @@ const baseUrl = getSiteOrigin();
 export const metadata: Metadata = {
   title: "Collab & Co-founder Board",
   description:
-    "Find a co-founder, a founding engineer, a designer, or your first hundred beta testers — from Nepal's builder community.",
+    "Find a co-founder, a founding engineer, a designer, or your first hundred beta testers from our global builder community.",
   alternates: { canonical: new URL("/collab", baseUrl) },
 };
 
@@ -32,18 +33,12 @@ export default async function CollabPage() {
           Collab &amp; Co-founder Board
         </h1>
         <p className="mt-1 max-w-xl text-body text-muted-foreground">
-          Equity roles, paid gigs, and first-users calls from builders across
-          Nepal. Contacts stay hidden until you choose to reveal them.
+          Equity roles, paid gigs, and first-users calls from builders worldwide.
+          Contacts stay hidden until you choose to reveal them.
         </p>
-        <p className="mt-2 text-caption text-muted-foreground">
-          <span className="font-semibold tabular-nums text-foreground">
-            {activeCount}
-          </span>{" "}
-          active listings ·{" "}
-          <span className="font-semibold tabular-nums text-foreground">
-            {posts.length}
-          </span>{" "}
-          total
+        <p className="mt-2 font-mono text-caption text-muted-foreground">
+          {countOf(activeCount, "active listing", "active listings")} ·{" "}
+          {countOf(posts.length, "listing")} total
         </p>
       </header>
 

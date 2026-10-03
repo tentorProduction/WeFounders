@@ -4,9 +4,9 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { getViewer } from "@/lib/auth/viewer";
+import { sql } from "@/lib/db/neon";
 import { clientAddress, isRateLimited } from "@/lib/security/rate-limit";
 import { headers } from "next/headers";
-import { createAdminClient } from "@/lib/supabase/admin";
 // Types/initial value live outside this "use server" module — see the file.
 import type { StartupSubmissionActionState } from "@/lib/action-state";
 
@@ -15,11 +15,10 @@ import type { StartupSubmissionActionState } from "@/lib/action-state";
  *
  * Writes a real `startups` row owned by the signed-in founder with status
  * `pending_approval` — it does not appear in the public feed until a moderator
- * approves it, which is why the RLS read policy only exposes `approved` rows.
+ * approves it, which is why the feed query filters on `status = 'approved'`.
  *
- * The write uses the service role because identity comes from our verified
- * session rather than a Supabase auth session; `founder_id` is never taken from
- * the form.
+ * Identity comes from the verified session rather than from the form, so
+ * `founder_id` is never taken from client input.
  */
 
 const submissionSchema = z.object({
@@ -45,23 +44,14 @@ function slugify(value: string): string {
 }
 
 /** Ensure the slug is free, appending a short suffix when it is taken. */
-async function uniqueSlug(
-  base: string,
-  supabase: ReturnType<typeof createAdminClient>
-): Promise<string> {
+async function uniqueSlug(base: string): Promise<string> {
   const root = base || `startup-${Date.now().toString(36)}`;
 
   for (let attempt = 0; attempt < 6; attempt += 1) {
     const candidate = attempt === 0 ? root : `${root}-${attempt + 1}`;
-    const { data, error } = await supabase
-      .from("startups")
-      .select("id")
-      .eq("slug", candidate)
-      .limit(1)
-      .maybeSingle();
+    const rows = await sql`select id from startups where slug = ${candidate} limit 1`;
 
-    if (error) throw error;
-    if (!data) return candidate;
+    if (rows.length === 0) return candidate;
   }
 
   return `${root}-${Date.now().toString(36)}`;
@@ -71,10 +61,7 @@ async function uniqueSlug(
  * Resolve each submitted label to a tag id, creating the tag when it is not in
  * the taxonomy yet, so a founder's choices are never silently dropped.
  */
-async function resolveTagIds(
-  labels: string[],
-  supabase: ReturnType<typeof createAdminClient>
-): Promise<string[]> {
+async function resolveTagIds(labels: string[]): Promise<string[]> {
   const wanted = new Map<string, string>();
   for (const label of labels) {
     const slug = slugify(label);
@@ -83,33 +70,23 @@ async function resolveTagIds(
   if (wanted.size === 0) return [];
 
   const slugs = [...wanted.keys()];
-  const { data: existing, error } = await supabase
-    .from("tags")
-    .select("id, slug")
-    .in("slug", slugs);
-  if (error) throw error;
+  const incoming = slugs.map((slug) => ({ slug, name: wanted.get(slug) ?? slug }));
 
-  const ids = new Map((existing ?? []).map((tag) => [tag.slug, tag.id]));
+  // `on conflict do nothing` leaves an existing tag untouched; the select below
+  // then returns every id, whether the row was just created or already there.
+  await sql`
+    insert into tags (slug, name, category)
+    select incoming.slug, incoming.name, 'stack'
+    from jsonb_to_recordset(${JSON.stringify(incoming)}::jsonb)
+      as incoming(slug text, name text)
+    on conflict (slug) do nothing
+  `;
 
-  const missing = slugs.filter((slug) => !ids.has(slug));
-  if (missing.length > 0) {
-    const { data: created, error: createError } = await supabase
-      .from("tags")
-      .upsert(
-        missing.map((slug) => ({
-          slug,
-          name: wanted.get(slug) ?? slug,
-          category: "stack",
-        })),
-        { onConflict: "slug" }
-      )
-      .select("id, slug");
-    if (createError) throw createError;
+  const rows = (await sql`
+    select id from tags where slug = any(${slugs}::text[])
+  `) as { id: string }[];
 
-    for (const tag of created ?? []) ids.set(tag.slug, tag.id);
-  }
-
-  return [...ids.values()];
+  return rows.map((row) => row.id);
 }
 
 export async function submitStartupAction(
@@ -162,39 +139,47 @@ export async function submitStartupAction(
     };
   }
 
-  const supabase = createAdminClient();
-  const slug = await uniqueSlug(slugify(parsed.data.name), supabase);
+  const slug = await uniqueSlug(slugify(parsed.data.name));
 
   try {
-    const { data: startup, error } = await supabase
-      .from("startups")
-      .insert({
-        founder_id: viewer.userId,
-        slug,
-        name: parsed.data.name,
-        tagline: parsed.data.tagline,
-        description: parsed.data.description,
-        website_url: parsed.data.websiteUrl,
-        demo_video_url: parsed.data.demoVideoUrl || null,
-        stage: parsed.data.stage,
-        target_market: parsed.data.market,
-        status: "pending_approval",
-      })
-      .select("id")
-      .single();
+    const inserted = (await sql`
+      insert into startups (
+        founder_id, slug, name, tagline, description,
+        website_url, demo_video_url, stage, target_market, status
+      )
+      values (
+        ${viewer.userId}::uuid,
+        ${slug},
+        ${parsed.data.name},
+        ${parsed.data.tagline},
+        ${parsed.data.description},
+        ${parsed.data.websiteUrl},
+        ${parsed.data.demoVideoUrl || null},
+        ${parsed.data.stage}::startup_stage,
+        ${parsed.data.market}::target_market,
+        'pending_approval'
+      )
+      returning id
+    `) as { id: string }[];
 
-    if (error) throw error;
+    const startupId = inserted[0]?.id;
+    if (!startupId) throw new Error("Startup insert returned no id.");
 
     // The industry the founder picked is stored as a tag alongside the stack.
     const labels = [parsed.data.category, ...parsed.data.tags].filter(Boolean);
-    const tagIds = await resolveTagIds(labels, supabase);
+    const tagIds = await resolveTagIds(labels);
 
     if (tagIds.length > 0) {
-      const { error: tagError } = await supabase.from("startup_tags").insert(
-        tagIds.map((tagId) => ({ startup_id: startup.id, tag_id: tagId }))
-      );
-      // A tag failure must not lose the submission itself.
-      if (tagError) console.error("[startups] could not attach tags:", tagError);
+      try {
+        await sql`
+          insert into startup_tags (startup_id, tag_id)
+          select ${startupId}::uuid, unnest(${tagIds}::uuid[])
+          on conflict do nothing
+        `;
+      } catch (tagError) {
+        // A tag failure must not lose the submission itself.
+        console.error("[startups] could not attach tags:", tagError);
+      }
     }
 
     revalidatePath("/profile");

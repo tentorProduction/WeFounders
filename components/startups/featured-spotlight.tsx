@@ -1,5 +1,14 @@
 import Link from "next/link";
-import { ArrowUpRight, Flame, MessageSquare, TrendingUp, Users } from "lucide-react";
+import {
+  ArrowUpRight,
+  ChatCircle,
+  Flame,
+  GlobeHemisphereWest,
+  GlobeSimple,
+  MapPin,
+  TrendUp,
+  Users,
+} from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 import type { StartupWithTags } from "@/types/database";
@@ -41,7 +50,7 @@ export function FeaturedSpotlight({
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#DADDE1] pb-4 mb-5">
         <div className="flex items-center gap-2">
           <Badge className="gap-1.5 bg-[#FF4B3E] text-[#F2F3F5] font-mono font-bold text-badge uppercase tracking-wider px-3 py-1 rounded-full shadow-xs">
-            <Flame className="h-3.5 w-3.5 fill-current text-[#F2F3F5]" aria-hidden />
+            <Flame className="h-3.5 w-3.5 text-[#F2F3F5]" weight="fill" aria-hidden />
             FEATURED
           </Badge>
           <span className="text-meta font-medium text-[#666A73]">
@@ -72,9 +81,17 @@ export function FeaturedSpotlight({
               <Badge variant="stage">{STAGE_LABELS[startup.stage]}</Badge>
               <Badge
                 variant={
-                  startup.target_market === "global_export" ? "global" : "nepal"
+                  startup.target_market === "global_export" ? "global" : "regional"
                 }
+                className="inline-flex items-center gap-1"
               >
+                {startup.target_market === "global_export" ? (
+                  <GlobeHemisphereWest className="h-3 w-3" weight="bold" />
+                ) : startup.target_market === "hybrid" ? (
+                  <GlobeSimple className="h-3 w-3" weight="bold" />
+                ) : (
+                  <MapPin className="h-3 w-3" weight="bold" />
+                )}
                 {MARKET_LABELS[startup.target_market]}
               </Badge>
             </div>
@@ -102,19 +119,19 @@ export function FeaturedSpotlight({
         <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border pt-4 mt-5">
           <dl className="flex flex-wrap items-center gap-x-5 gap-y-1 text-meta text-text-secondary">
             <div className="flex items-center gap-1.5">
-              <TrendingUp className="h-4 w-4 text-primary" aria-hidden />
+              <TrendUp className="h-4 w-4 text-primary" weight="bold" aria-hidden />
               <dt className="sr-only">Upvotes</dt>
               <dd className="font-semibold tabular-nums text-foreground">{upvote.count} upvotes</dd>
             </div>
             <div className="flex items-center gap-1.5">
-              <Users className="h-4 w-4 text-text-muted" aria-hidden />
+              <Users className="h-4 w-4 text-text-muted" weight="bold" aria-hidden />
               <dt className="sr-only">Waitlist</dt>
               <dd className="font-medium tabular-nums">
                 {startup.waitlist_count} on waitlist
               </dd>
             </div>
             <div className="flex items-center gap-1.5">
-              <MessageSquare className="h-4 w-4 text-text-muted" aria-hidden />
+              <ChatCircle className="h-4 w-4 text-text-muted" weight="bold" aria-hidden />
               <dt className="sr-only">Comments</dt>
               <dd className="font-medium tabular-nums">
                 {startup.comments_count} comments

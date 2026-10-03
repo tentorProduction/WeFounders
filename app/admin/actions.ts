@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { verifyAdmin } from "@/lib/auth/admin";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { sql } from "@/lib/db/neon";
 import type { StartupStage, TargetMarket } from "@/types/database";
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -11,15 +11,9 @@ function assertId(id: string) {
   if (!UUID_PATTERN.test(id)) throw new Error("Invalid record id.");
 }
 
-function kathmanduBatchDate(daysAhead = 0): string {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Kathmandu",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(new Date());
-  const value = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
-  return new Date(Date.UTC(Number(value.year), Number(value.month) - 1, Number(value.day) + daysAhead, -5, -45)).toISOString();
+function getBatchDate(daysAhead = 0): string {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + daysAhead, 0, 0, 0)).toISOString();
 }
 
 function refreshAdminData() {
@@ -33,37 +27,31 @@ function refreshAdminData() {
 export async function setCollabPostActive(postId: string, isActive: boolean) {
   await verifyAdmin();
   assertId(postId);
-  const { data, error } = await createAdminClient()
-    .from("collab_posts")
-    .update({ is_active: isActive })
-    .eq("id", postId)
-    .select("id")
-    .maybeSingle();
-  if (error) throw new Error(`Could not update listing: ${error.message}`);
-  if (!data) throw new Error("Listing was not found.");
+  const rows = await sql`
+    update collab_posts set is_active = ${isActive} where id = ${postId}::uuid returning id
+  `;
+  if (rows.length === 0) throw new Error("Listing was not found.");
   refreshAdminData();
 }
 
 export async function approveStartup(startupId: string, launchDate?: string) {
   await verifyAdmin();
   assertId(startupId);
-  const supabase = createAdminClient();
-  const parsedDate = launchDate ? new Date(launchDate) : new Date(kathmanduBatchDate());
+  const parsedDate = launchDate ? new Date(launchDate) : new Date(getBatchDate());
   if (Number.isNaN(parsedDate.valueOf())) throw new Error("Invalid launch date.");
 
-  const { data, error } = await supabase
-    .from("startups")
-    .update({ status: "approved", launch_date: parsedDate.toISOString(), rejection_reason: null })
-    .eq("id", startupId)
-    .select("id")
-    .maybeSingle();
-  if (error) throw new Error(`Could not approve startup: ${error.message}`);
-  if (!data) throw new Error("Startup was not found.");
+  const rows = await sql`
+    update startups
+    set status = 'approved', launch_date = ${parsedDate.toISOString()}, rejection_reason = null
+    where id = ${startupId}::uuid
+    returning id
+  `;
+  if (rows.length === 0) throw new Error("Startup was not found.");
   refreshAdminData();
 }
 
 export async function scheduleStartupTomorrow(startupId: string) {
-  await approveStartup(startupId, kathmanduBatchDate(1));
+  await approveStartup(startupId, getBatchDate(1));
 }
 
 export async function rejectStartup(startupId: string, reason: string) {
@@ -74,56 +62,42 @@ export async function rejectStartup(startupId: string, reason: string) {
     throw new Error("Enter a rejection reason between 3 and 1000 characters.");
   }
 
-  const supabase = createAdminClient();
-  const { data, error } = await supabase
-    .from("startups")
-    .update({ status: "rejected", rejection_reason: safeReason })
-    .eq("id", startupId)
-    .select("id")
-    .maybeSingle();
-  if (error) throw new Error(`Could not reject startup: ${error.message}`);
-  if (!data) throw new Error("Startup was not found.");
+  const rows = await sql`
+    update startups set status = 'rejected', rejection_reason = ${safeReason}
+    where id = ${startupId}::uuid
+    returning id
+  `;
+  if (rows.length === 0) throw new Error("Startup was not found.");
   refreshAdminData();
 }
 
 export async function toggleFeatured(startupId: string, isFeatured: boolean) {
   await verifyAdmin();
   assertId(startupId);
-  const supabase = createAdminClient();
-  const { data, error } = await supabase
-    .from("startups")
-    .update({ is_featured: isFeatured })
-    .eq("id", startupId)
-    .select("id")
-    .maybeSingle();
-  if (error) throw new Error(`Could not update spotlight: ${error.message}`);
-  if (!data) throw new Error("Startup was not found.");
+  const rows = await sql`
+    update startups set is_featured = ${isFeatured} where id = ${startupId}::uuid returning id
+  `;
+  if (rows.length === 0) throw new Error("Startup was not found.");
   refreshAdminData();
 }
 
 export async function deleteStartup(startupId: string) {
   await verifyAdmin();
   assertId(startupId);
-  const supabase = createAdminClient();
-  const { data, error } = await supabase
-    .from("startups")
-    .delete()
-    .eq("id", startupId)
-    .select("id")
-    .maybeSingle();
-  if (error) throw new Error(`Could not delete startup: ${error.message}`);
-  if (!data) throw new Error("Startup was not found.");
+  const rows = await sql`
+    delete from startups where id = ${startupId}::uuid returning id
+  `;
+  if (rows.length === 0) throw new Error("Startup was not found.");
   refreshAdminData();
 }
 
 export async function approveAllPending() {
   await verifyAdmin();
-  const supabase = createAdminClient();
-  const { error } = await supabase
-    .from("startups")
-    .update({ status: "approved", launch_date: kathmanduBatchDate(), rejection_reason: null })
-    .in("status", ["pending_approval", "draft"]);
-  if (error) throw new Error(`Could not approve pending startups: ${error.message}`);
+  await sql`
+    update startups
+    set status = 'approved', launch_date = ${getBatchDate()}, rejection_reason = null
+    where status in ('pending_approval', 'draft')
+  `;
   refreshAdminData();
 }
 
@@ -159,39 +133,39 @@ export async function createManualStartup(input: ManualStartupInput) {
     throw new Error("Enter a valid HTTP or HTTPS website URL.");
   }
 
-  const supabase = createAdminClient();
-  const { data: founder, error: founderError } = await supabase
-    .from("profiles")
-    .select("id")
-    .eq("email", founderEmail)
-    .maybeSingle();
-  if (founderError) throw new Error(`Could not find founder: ${founderError.message}`);
+  const founders = (await sql`
+    select id from profiles where email = ${founderEmail} limit 1
+  `) as { id: string }[];
+  const founder = founders[0];
   if (!founder) throw new Error("That founder must sign in once before a startup can be created for them.");
 
   const slugBase = name.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 55) || "startup";
   const slug = `${slugBase}-${crypto.randomUUID().slice(0, 8)}`;
-  const { error } = await supabase.from("startups").insert({
-    founder_id: founder.id,
-    slug,
-    name,
-    tagline,
-    description,
-    website_url: websiteUrl,
-    logo_url: "",
-    target_market: input.targetMarket,
-    stage: input.stage,
-    status: "pending_approval",
-  });
-  if (error) throw new Error(`Could not create startup: ${error.message}`);
+  await sql`
+    insert into startups (
+      founder_id, slug, name, tagline, description,
+      website_url, logo_url, target_market, stage, status
+    )
+    values (
+      ${founder.id}::uuid,
+      ${slug},
+      ${name},
+      ${tagline},
+      ${description},
+      ${websiteUrl},
+      '',
+      ${input.targetMarket}::target_market,
+      ${input.stage}::startup_stage,
+      'pending_approval'
+    )
+  `;
   refreshAdminData();
 }
 
 export async function resetUpvotes(startupId: string) {
   await verifyAdmin();
   assertId(startupId);
-  const supabase = createAdminClient();
-  const { error } = await supabase.from("upvotes").delete().eq("startup_id", startupId);
-  if (error) throw new Error(`Could not reset upvotes: ${error.message}`);
+  await sql`delete from upvotes where startup_id = ${startupId}::uuid`;
   refreshAdminData();
 }
 
@@ -200,23 +174,27 @@ export async function updateStartupTags(startupId: string, tagIds: string[]) {
   assertId(startupId);
   const ids = [...new Set(tagIds)];
   if (ids.some((id) => !UUID_PATTERN.test(id))) throw new Error("Invalid tag selection.");
-  const supabase = createAdminClient();
 
-  const { data: currentRows, error: currentError } = await supabase
-    .from("startup_tags").select("tag_id").eq("startup_id", startupId);
-  if (currentError) throw new Error(`Could not load startup tags: ${currentError.message}`);
-  const current = new Set((currentRows ?? []).map((row) => row.tag_id));
+  const currentRows = (await sql`
+    select tag_id from startup_tags where startup_id = ${startupId}::uuid
+  `) as { tag_id: string }[];
+  const current = new Set(currentRows.map((row) => row.tag_id));
   const requested = new Set(ids);
   const removeIds = [...current].filter((id) => !requested.has(id));
   const addIds = ids.filter((id) => !current.has(id));
 
   if (addIds.length) {
-    const { error } = await supabase.from("startup_tags").insert(addIds.map((tagId) => ({ startup_id: startupId, tag_id: tagId })));
-    if (error) throw new Error(`Could not add tags: ${error.message}`);
+    await sql`
+      insert into startup_tags (startup_id, tag_id)
+      select ${startupId}::uuid, unnest(${addIds}::uuid[])
+      on conflict do nothing
+    `;
   }
   if (removeIds.length) {
-    const { error } = await supabase.from("startup_tags").delete().eq("startup_id", startupId).in("tag_id", removeIds);
-    if (error) throw new Error(`Tags were added, but old tags could not be removed: ${error.message}`);
+    await sql`
+      delete from startup_tags
+      where startup_id = ${startupId}::uuid and tag_id = any(${removeIds}::uuid[])
+    `;
   }
   refreshAdminData();
 }

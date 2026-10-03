@@ -4,7 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/lib/firebase/auth-context";
+import { useAuth } from "@clerk/nextjs";
+
+import { CaretUp } from "@/components/icons";
 
 export interface UpvoteButtonProps {
   count: number;
@@ -30,7 +32,7 @@ export function UpvoteButton({
   size = "default",
   className,
 }: UpvoteButtonProps) {
-  const { user } = useAuth();
+  const { isSignedIn } = useAuth();
   const router = useRouter();
   const [popped, setPopped] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -44,7 +46,7 @@ export function UpvoteButton({
   function handleClick() {
     if (disabled) return;
 
-    if (!user) {
+    if (!isSignedIn) {
       router.push("/profile");
       return;
     }
@@ -65,7 +67,7 @@ export function UpvoteButton({
       aria-label={voted ? `Remove upvote (${count})` : `Upvote (${count})`}
       title={voted ? "Remove your upvote" : "Upvote this beta"}
       className={cn(
-        "inline-flex select-none items-center justify-center gap-1.5 rounded-full border font-semibold tabular-nums transition-all duration-quick active:scale-[0.97]",
+        "inline-flex select-none items-center justify-center gap-1 rounded-full border font-semibold tabular-nums transition-all duration-quick active:scale-[0.97]",
         "h-11 min-w-[3.25rem] px-3 sm:h-9 sm:min-w-[3rem]",
         voted
           ? "border-[#FF4B3E] bg-[#FF4B3E] text-[#F2F3F5] shadow-sm font-bold"
@@ -77,17 +79,15 @@ export function UpvoteButton({
         className
       )}
     >
-      <svg
-        viewBox="0 0 24 24"
-        aria-hidden
+      <CaretUp
         className={cn(
-          "shrink-0 fill-current transition-transform duration-200",
-          size === "lg" ? "h-3.5 w-3.5" : "h-3 w-3",
+          "shrink-0 transition-transform duration-200",
+          size === "lg" ? "h-4 w-4" : "h-3.5 w-3.5",
           popped && "-translate-y-0.5"
         )}
-      >
-        <path d="M12 3.6 21 20H3l9-16.4Z" />
-      </svg>
+        weight="fill"
+        aria-hidden
+      />
       {count}
     </button>
   );

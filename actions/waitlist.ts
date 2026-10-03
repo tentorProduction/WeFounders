@@ -17,7 +17,7 @@ import type { WaitlistActionState } from "@/lib/action-state";
  * Waitlist lead capture (PRD §4.1 flow, TRD §5 anti-abuse).
  *
  * Validates input with zod, applies a best-effort per-IP throttle, then writes
- * through lib/waitlist/store into Supabase, and fires a Resend confirmation.
+ * through lib/waitlist/store into Neon, and fires a Resend confirmation.
  */
 
 const waitlistSchema = z.object({
@@ -25,7 +25,7 @@ const waitlistSchema = z.object({
   email: z.email(),
   phone: z.union([
     z.literal(""),
-    z.string().regex(/^(\+977)?[0-9]{7,10}$/),
+    z.string().regex(/^\+?[0-9\s\-()]{7,20}$/),
   ]),
   notes: z.string().max(280).optional(),
   referralSource: z.string().max(120).optional(),
@@ -49,7 +49,7 @@ export async function joinWaitlistAction(
   if (!parsed.success) {
     const issue = parsed.error.issues[0];
     const message = issue?.path[0] === "phone"
-      ? "Enter a valid Nepali number, e.g. 98XXXXXXXX"
+      ? "Enter a valid phone number (e.g. +1... or +44...)"
       : "Enter a valid email address";
     return { status: "error", message };
   }

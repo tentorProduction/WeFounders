@@ -110,6 +110,11 @@ export function WaitlistForm({
             placeholder="you@example.com"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
+            aria-invalid={state.status === "error" || undefined}
+            aria-describedby={
+              state.status === "error" ? `waitlist-error-${variant}` : undefined
+            }
+            className={state.status === "error" ? "border-destructive" : undefined}
           />
         </div>
 
@@ -126,7 +131,7 @@ export function WaitlistForm({
             type="tel"
             inputMode="tel"
             autoComplete="tel"
-            placeholder="98XXXXXXXX"
+            placeholder="+1 (555) 000-0000"
             value={phone}
             onChange={(event) => setPhone(event.target.value)}
           />
@@ -144,7 +149,11 @@ export function WaitlistForm({
       </div>
 
       {state.status === "error" && (
-        <p role="alert" className="text-caption font-medium text-destructive">
+        <p
+          role="alert"
+          id={`waitlist-error-${variant}`}
+          className="min-h-[1.25rem] text-caption font-medium text-destructive"
+        >
           {state.message}
         </p>
       )}

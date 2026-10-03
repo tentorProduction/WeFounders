@@ -1,24 +1,47 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+import { sql } from "@/lib/db/neon";
 import type { QuestWithStartup } from "@/types/database";
 import { AdminQuestsClient } from "./client";
 
 export default async function AdminQuestsPage() {
-  const supabase = createAdminClient();
-  const [questResult, startupResult, reportResult] = await Promise.all([
-    supabase.from("testing_quests").select("*, startup:startups(id, name, slug, logo_url)").order("created_at", { ascending: false }),
-    supabase.from("startups").select("id, name, slug").eq("status", "approved").order("name"),
-    supabase.from("quest_submissions").select("id, quest_id, tester_name, feedback_text, rating_ux, rating_speed, proof_screenshots, device_info, founder_feedback, status, created_at").order("created_at", { ascending: false }),
-  ]);
+  try {
+    const [quests, startups, reports] = await Promise.all([
+      sql`
+        select
+          q.*,
+          json_build_object(
+            'id', s.id, 'name', s.name, 'slug', s.slug, 'logo_url', s.logo_url
+          ) as startup
+        from testing_quests q
+        left join startups s on s.id = q.startup_id
+        order by q.created_at desc
+      `,
+      sql`
+        select id, name, slug from startups
+        where status = 'approved'
+        order by name asc
+      `,
+      sql`
+        select id, quest_id, tester_name, feedback_text, rating_ux,
+               rating_speed, proof_screenshots, device_info,
+               founder_feedback, status, created_at
+        from quest_submissions
+        order by created_at desc
+      `,
+    ]);
 
-  const error = questResult.error ?? startupResult.error ?? reportResult.error;
-  if (error) return <p role="alert" className="rounded-lg border border-rose-900 bg-rose-950/30 p-4 text-rose-200">Could not load quest management data: {error.message}</p>;
-
-  const quests = (questResult.data ?? []).flatMap((row) => {
-    const record = row as unknown as Record<string, unknown>;
-    const relation = Array.isArray(record.startup) ? record.startup[0] : record.startup;
-    if (!relation || typeof relation !== "object") return [];
-    return [{ ...record, startup: relation } as unknown as QuestWithStartup];
-  });
-
-  return <AdminQuestsClient quests={quests} startups={startupResult.data ?? []} reports={reportResult.data ?? []} />;
+    return (
+      <AdminQuestsClient
+        quests={quests as unknown as QuestWithStartup[]}
+        startups={startups as { id: string; name: string; slug: string }[]}
+        reports={reports as never[]}
+      />
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return (
+      <p role="alert" className="rounded-lg border border-rose-900 bg-rose-950/30 p-4 text-rose-200">
+        Could not load quest management data: {message}
+      </p>
+    );
+  }
 }

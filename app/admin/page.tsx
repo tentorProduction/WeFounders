@@ -1,29 +1,31 @@
 import { Clock, Rocket, ThumbsUp, Users } from "lucide-react";
 import { OverviewActions } from "@/components/admin/overview-actions";
 import { getSiteStats } from "@/lib/data/siteStats";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { sql } from "@/lib/db/neon";
 
-function nptDayRange() {
-  const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kathmandu", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
-  const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
-  const start = new Date(Date.UTC(Number(values.year), Number(values.month) - 1, Number(values.day), -5, -45));
+function utcDayRange() {
+  const now = new Date();
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0));
   return { start: start.toISOString(), end: new Date(start.valueOf() + 86_400_000).toISOString() };
 }
 
 export default async function AdminOverviewPage() {
-  const supabase = createAdminClient();
-  const [siteStats, pendingResult, todayResult] = await Promise.all([
+  const { start, end } = utcDayRange();
+
+  const [siteStats, pendingRows, todayRows] = await Promise.all([
     getSiteStats(),
-    supabase.from("startups").select("id", { count: "exact", head: true }).in("status", ["pending_approval", "draft"]),
-    (() => {
-      const { start, end } = nptDayRange();
-      return supabase.from("startups").select("id", { count: "exact", head: true }).eq("status", "approved").gte("launch_date", start).lt("launch_date", end);
-    })(),
+    sql`
+      select count(*)::int as total from startups
+      where status in ('pending_approval', 'draft')
+    `,
+    sql`
+      select count(*)::int as total from startups
+      where status = 'approved' and launch_date >= ${start} and launch_date < ${end}
+    `,
   ]);
-  if (pendingResult.error) throw new Error(`Could not load pending submissions: ${pendingResult.error.message}`);
-  if (todayResult.error) throw new Error(`Could not load today’s launches: ${todayResult.error.message}`);
-  const pendingCount = pendingResult.count ?? 0;
-  const todayCount = todayResult.count ?? 0;
+
+  const pendingCount = (pendingRows[0] as { total?: number } | undefined)?.total ?? 0;
+  const todayCount = (todayRows[0] as { total?: number } | undefined)?.total ?? 0;
 
   const metrics = [
     { label: "Pending Submissions", value: pendingCount, icon: Clock, iconClass: "text-[#FACC15]" },

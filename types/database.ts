@@ -1,6 +1,7 @@
 /**
- * Database types for LaunchPad Nepal.
- * Mirrors the Supabase PostgreSQL schema defined in TRD §2.
+ * Database types for WeFounders.
+ * Mirrors the PostgreSQL schema in db/schema.sql (originally specified in
+ * TRD §2).
  */
 
 /* ------------------------------------------------------------------ */
@@ -27,9 +28,9 @@ export type PaymentStatus = "pending" | "completed" | "failed" | "refunded";
 /* ------------------------------------------------------------------ */
 
 export interface Profile {
-  /** Plain uuid derived from the Firebase uid — Supabase Auth is not used. */
+  /** Plain uuid derived from the Clerk user id — no auth schema is referenced. */
   id: string;
-  firebase_uid: string;
+  clerk_user_id: string;
   email: string;
   full_name: string;
   username: string;

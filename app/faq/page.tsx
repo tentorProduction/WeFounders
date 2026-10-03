@@ -16,7 +16,7 @@ const questions = [
   { q: "How do I launch a startup on WeFounders?", a: <>Sign in with Google, complete the four-step submission form, and send it for review. We publish accepted startups after review. Start with <Link className="text-primary underline" href="/submit">Submit your startup</Link>.</> },
   { q: "Does it cost anything to submit?", a: "Standard startup submissions are free. Paid spotlight promotion is optional and uses the eSewa or Khalti checkout shown before payment." },
   { q: "How long does review take?", a: "Every submission is reviewed, but we do not promise a fixed review time. You can see your submission status from your profile." },
-  { q: "Can I submit a product for customers outside Nepal?", a: "Yes. Choose Made for Nepal, Built for World, or Hybrid Focus in the submission form." },
+  { q: "Can I submit a product for international users?", a: "Yes. WeFounders is a global launchpad. Choose Global Launch, Multi-Region / Hybrid, or Regional in the submission form." },
   { q: "How do I join a testing quest?", a: <>Open <Link className="text-primary underline" href="/quests">Testing Quests</Link>, choose an active task, follow its instructions, and file a report. Any listed reward is subject to the quest terms and founder review.</> },
   { q: "Who can see my waitlist details?", a: "A founder can access the contact details submitted to that startup’s waitlist. Those details are not displayed on the public startup page." },
   { q: "How can I request an update or removal of my information?", a: <>Email <a className="text-primary underline" href="mailto:hello@wefounders.dev">hello@wefounders.dev</a> from the account address and describe your request.</> },

@@ -32,7 +32,7 @@ function shell(title: string, bodyHtml: string): string {
             <tr>
               <td style="padding:16px 24px 24px;border-top:1px solid #F4F4F5;margin-top:16px;">
                 <p style="margin:0;font-size:12px;color:${MUTED};">
-                  You received this because of activity on WeFounders.dev — Nepal&apos;s
+                  You received this because of activity on WeFounders — Global
                   startup launch &amp; beta platform.
                 </p>
               </td>

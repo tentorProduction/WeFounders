@@ -15,7 +15,7 @@ import type { QuestSubmissionActionState } from "@/lib/action-state";
  * Quest proof submission (PRD §4.1, TRD §2 table 9, DESIGN.md §4.4).
  *
  * Screenshots are described by name only for now — binary upload lands with
- * Supabase Storage (TODO below). The action stays safe against oversized or
+ * an object store (TODO below). The action stays safe against oversized or
  * forged payloads via the zod schema.
  */
 
@@ -87,7 +87,7 @@ export async function submitQuestProofAction(
     return { status: "error", message: "This quest is already full." };
   }
 
-  // TODO(P1): upload screenshot binaries to Supabase Storage and store URLs.
+  // TODO(P1): upload screenshot binaries to object storage and store the URLs.
   await addQuestSubmission({
     questId: quest.id,
     testerId: viewer.userId,

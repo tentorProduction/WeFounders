@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, Search, X } from "lucide-react";
+import { CaretUp, List, MagnifyingGlass, X } from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 import { UserButton } from "@/components/auth/user-button";
@@ -214,7 +214,7 @@ export function SiteHeader() {
                     placeholder="Search launches..."
                     className="h-[40px] w-[220px] lg:w-[260px] rounded-[10px] border border-[#DADDE1] bg-[#F2F3F5] pl-9 pr-8 text-[14px] text-[#17181B] placeholder:text-[#666A73] focus:outline-none focus:ring-2 focus:ring-[#FF4B3E]"
                   />
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#666A73]" />
+                  <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#666A73]" weight="bold" />
                   <button
                     type="button"
                     onClick={() => {
@@ -223,7 +223,7 @@ export function SiteHeader() {
                     }}
                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#666A73] hover:text-[#17181B]"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-4 w-4" weight="bold" />
                   </button>
 
                   {/* Quick Live Preview Dropdown */}
@@ -240,7 +240,10 @@ export function SiteHeader() {
                             <p className="text-[14px] font-archivo font-bold text-[#17181B]">{st.name}</p>
                             <p className="text-[12px] text-[#666A73] truncate max-w-[180px]">{st.tagline}</p>
                           </div>
-                          <span className="text-[12px] font-mono text-[#FF4B3E]">▲ {st.upvotes}</span>
+                          <span className="inline-flex items-center gap-0.5 text-[12px] font-mono font-bold text-[#FF4B3E]">
+                            <CaretUp weight="fill" className="h-3 w-3" />
+                            {st.upvotes}
+                          </span>
                         </Link>
                       ))}
                     </div>
@@ -253,7 +256,7 @@ export function SiteHeader() {
                   aria-label="Open search"
                   className="flex h-[40px] w-[40px] items-center justify-center rounded-[10px] border border-[#DADDE1] bg-[#F2F3F5] text-[#666A73] transition-colors hover:text-[#17181B] hover:border-[#D4D4D8]"
                 >
-                  <Search className="h-4 w-4" />
+                  <MagnifyingGlass className="h-4 w-4" weight="bold" />
                 </button>
               )}
             </div>
@@ -281,7 +284,7 @@ export function SiteHeader() {
               aria-label="Toggle search input"
               className="flex h-[44px] w-[44px] items-center justify-center rounded-[8px] border border-[#DADDE1] bg-[#F2F3F5] text-[#17181B] active:scale-95 transition-transform"
             >
-              <Search className="h-5 w-5 text-[#17181B]" />
+              <MagnifyingGlass className="h-5 w-5 text-[#17181B]" weight="bold" />
             </button>
 
             <button
@@ -293,7 +296,7 @@ export function SiteHeader() {
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               className="flex h-[44px] w-[44px] items-center justify-center rounded-[8px] border border-[#DADDE1] bg-[#F2F3F5] text-[#17181B] active:scale-95 transition-transform"
             >
-              {mobileOpen ? <X className="h-5 w-5 text-[#17181B]" /> : <Menu className="h-5 w-5 text-[#17181B]" />}
+              {mobileOpen ? <X className="h-5 w-5 text-[#17181B]" weight="bold" /> : <List className="h-5 w-5 text-[#17181B]" weight="bold" />}
             </button>
           </div>
         </div>
@@ -311,13 +314,13 @@ export function SiteHeader() {
               className="h-[44px] w-full rounded-[10px] border border-[#DADDE1] bg-[#F2F3F5] pl-10 pr-10 text-[15px] text-[#17181B] placeholder:text-[#666A73] focus:outline-none focus:ring-2 focus:ring-[#FF4B3E]"
               autoFocus
             />
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#666A73]" />
+            <MagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#666A73]" weight="bold" />
             <button
               type="button"
               onClick={() => setMobileSearchOpen(false)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-[#666A73] hover:text-[#17181B]"
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4" weight="bold" />
             </button>
           </form>
 
@@ -334,7 +337,10 @@ export function SiteHeader() {
                     <p className="text-[14px] font-archivo font-bold text-[#17181B]">{st.name}</p>
                     <p className="text-[12px] text-[#666A73] truncate max-w-[240px]">{st.tagline}</p>
                   </div>
-                  <span className="text-[12px] font-mono text-[#FF4B3E]">▲ {st.upvotes}</span>
+                  <span className="inline-flex items-center gap-0.5 text-[12px] font-mono font-bold text-[#FF4B3E]">
+                    <CaretUp weight="fill" className="h-3 w-3" />
+                    {st.upvotes}
+                  </span>
                 </Link>
               ))}
             </div>
@@ -362,7 +368,7 @@ export function SiteHeader() {
                 placeholder="Search launches by name..."
                 className="h-[44px] w-full rounded-[10px] border border-[#DADDE1] bg-[#F2F3F5] pl-10 pr-4 text-[15px] text-[#17181B] placeholder:text-[#666A73] focus:outline-none focus:ring-2 focus:ring-[#FF4B3E]"
               />
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#666A73]" />
+              <MagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#666A73]" weight="bold" />
             </form>
 
             {/* Stacked 18px Links, 56px Row Height Each */}

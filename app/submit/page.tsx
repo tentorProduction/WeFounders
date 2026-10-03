@@ -2,11 +2,12 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, AlertTriangle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react";
+import { Check, Plus, RocketLaunch } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { SignInButton } from "@/components/auth/sign-in-button";
-import { useAuth } from "@/lib/firebase/auth-context";
+import { AuthCard } from "@/components/auth/auth-card";
+import { useUser } from "@clerk/nextjs";
 import { submitStartupAction } from "@/actions/startups";
 import { initialStartupSubmissionState } from "@/lib/action-state";
 
@@ -23,31 +24,32 @@ const CATEGORIES = [
   "Healthcare",
 ];
 
-
-
 const TARGET_MARKETS = [
-  { id: "nepal_domestic", label: "Made for Nepal 🇳🇵" },
-  { id: "global_export", label: "Built for World 🌍" },
-  { id: "hybrid", label: "Hybrid Focus 🌐" },
+  { id: "global_export", label: "Global Launch" },
+  { id: "hybrid", label: "Multi-Region / Hybrid" },
+  { id: "nepal_domestic", label: "Regional / Local" },
 ];
 
 const POPULAR_TAGS = [
   "Next.js",
   "React",
   "AI/ML",
-  "Flutter",
-  "Firebase",
-  "Supabase",
-  "eSewa",
-  "Khalti",
-  "Fonepay",
-  "Devanagari UI",
-  "Offline First",
+  "TypeScript",
   "Python",
+  "Flutter",
+  "PostgreSQL",
+  "Neon",
+  "Stripe",
+  "Clerk",
+  "TailwindCSS",
+  "OpenAI",
 ];
 
 export default function SubmitPage() {
-  const { user } = useAuth();
+  const { user, isLoaded } = useUser();
+  const userName =
+    [user?.firstName, user?.lastName].filter(Boolean).join(" ") || user?.username || "";
+  const userEmail = user?.primaryEmailAddress?.emailAddress ?? "";
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [created, setCreated] = useState<{ slug: string; name: string } | null>(null);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
@@ -55,14 +57,14 @@ export default function SubmitPage() {
     name: "",
     tagline: "",
     description: "",
-    category: "Fintech",
+    category: "AI / ML",
     stage: "public_beta",
-    market: "nepal_domestic",
+    market: "global_export",
     websiteUrl: "",
     demoVideoUrl: "",
-    selectedTags: ["Next.js", "eSewa"] as string[],
-    founderName: user?.displayName || "",
-    founderEmail: user?.email || "",
+    selectedTags: ["Next.js", "AI/ML"] as string[],
+    founderName: userName,
+    founderEmail: userEmail,
     founderSocial: "",
   });
 
@@ -147,33 +149,36 @@ export default function SubmitPage() {
         Back to Feed
       </Link>
 
-      {!user ? (
-        <div className="space-y-4 rounded-3xl border border-border bg-card p-8 text-center shadow-apple-md md:p-12">
-          <h1 className="text-display font-bold text-foreground">
-            Sign in to submit your startup
-          </h1>
-          <p className="mx-auto max-w-md text-body text-muted-foreground">
-            A submission is attached to your account so you can manage the launch,
-            export waitlist leads, and promote it later.
-          </p>
-          <div className="flex justify-center pt-2">
-            <SignInButton size="lg" />
-          </div>
+      {!isLoaded ? (
+        <div className="rounded-3xl border border-border bg-card p-8 md:p-12 text-center shadow-apple-md">
+          <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" aria-hidden />
+          <p className="mt-3 text-caption text-muted-foreground">Checking your session…</p>
         </div>
+      ) : !user ? (
+        <AuthCard
+          title="Launch your startup"
+          description="A submission is attached to your account so you can manage the launch, export waitlist leads, and promote it later."
+          benefits={[
+            "Get real beta users and early feedback",
+            "Collect structured feedback",
+            "Build verified traction you can point to",
+          ]}
+        />
       ) : submitted ? (
         <div className="rounded-3xl border border-border bg-card p-8 md:p-12 text-center shadow-apple-md space-y-4">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
             <CheckCircle2 className="h-10 w-10" />
           </div>
-          <Badge variant="outline" className="border-[rgba(220,38,38,0.18)] bg-[#F2F3F5] text-[#FF4B3E] font-mono font-bold text-caption px-4 py-1.5 rounded-full">
-            🚀 Submitted for review
+          <Badge variant="outline" className="border-[rgba(220,38,38,0.18)] bg-[#F2F3F5] text-[#FF4B3E] font-mono font-bold text-caption px-4 py-1.5 rounded-full inline-flex items-center gap-1.5">
+            <RocketLaunch className="h-4 w-4" weight="fill" />
+            <span>Submitted for review</span>
           </Badge>
           <h1 className="text-display font-bold text-foreground">
             {created?.name ?? formData.name} is in the review queue
           </h1>
           <p className="mx-auto max-w-md text-body text-muted-foreground">
             Your submission is saved and owned by{" "}
-            <strong className="text-foreground">{user?.email}</strong>. A moderator
+            <strong className="text-foreground">{userEmail}</strong>. A moderator
             reviews new launches against the curation standard before they appear
             in the public feed.
           </p>
@@ -200,14 +205,14 @@ export default function SubmitPage() {
                   name: "",
                   tagline: "",
                   description: "",
-                  category: "Fintech",
+                  category: "AI / ML",
                   stage: "public_beta",
-                  market: "nepal_domestic",
+                  market: "global_export",
                   websiteUrl: "",
                   demoVideoUrl: "",
-                  selectedTags: ["Next.js"],
-                  founderName: user?.displayName || "",
-                  founderEmail: user?.email || "",
+                  selectedTags: ["Next.js", "AI/ML"],
+                  founderName: userName,
+                  founderEmail: userEmail,
                   founderSocial: "",
                 });
               }}
@@ -227,7 +232,7 @@ export default function SubmitPage() {
               Submit Your Startup to WeFounders
             </h1>
             <p className="mt-1 text-body text-muted-foreground">
-              Get early beta users, feedback, and exposure from Nepal&apos;s early adopter community.
+              Get early beta users, feedback, and exposure from our global builder community.
             </p>
           </div>
 
@@ -299,7 +304,7 @@ export default function SubmitPage() {
                     id="startup-name"
                     type="text"
                     required
-                    placeholder="e.g. SajhaPay, Lekhani AI, Chhito"
+                    placeholder="e.g. HyperScale, PromptFlow, DevPulse"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full rounded-2xl border border-input bg-background px-4 py-3 text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
@@ -315,7 +320,7 @@ export default function SubmitPage() {
                     type="text"
                     required
                     maxLength={80}
-                    placeholder="e.g. Recurring billing for Nepali freelancers with eSewa & Khalti."
+                    placeholder="e.g. AI-powered analytics for modern SaaS founders and product teams."
                     value={formData.tagline}
                     onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
                     className="w-full rounded-2xl border border-input bg-background px-4 py-3 text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
@@ -441,7 +446,14 @@ export default function SubmitPage() {
                               : "bg-secondary text-muted-foreground hover:text-foreground"
                           }`}
                         >
-                          {isSelected ? `✓ ${tag}` : `+ ${tag}`}
+                          <span className="inline-flex items-center gap-1">
+                            {isSelected ? (
+                              <Check className="h-3 w-3" weight="bold" />
+                            ) : (
+                              <Plus className="h-3 w-3" weight="bold" />
+                            )}
+                            <span>{tag}</span>
+                          </span>
                         </button>
                       );
                     })}
@@ -560,7 +572,14 @@ export default function SubmitPage() {
                     disabled={isSubmitting}
                     className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold px-8 py-6 text-body rounded-2xl shadow-apple-sm"
                   >
-                    {isSubmitting ? "Submitting..." : "🚀 Submit for review"}
+                    {isSubmitting ? (
+                      "Submitting..."
+                    ) : (
+                      <span className="inline-flex items-center gap-2">
+                        <RocketLaunch className="h-5 w-5" weight="fill" />
+                        Submit for review
+                      </span>
+                    )}
                   </Button>
                 </div>
 

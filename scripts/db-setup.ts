@@ -1,72 +1,104 @@
 /**
- * Apply supabase/schema.sql to the linked Supabase project and verify it.
+ * Verify the Neon database is reachable and that db/schema.sql has been
+ * applied.
  *
- *   SUPABASE_ACCESS_TOKEN=sbp_... npm run db:setup
+ *   npm run db:setup
  *
- * Uses the Management API, so no database password or CLI login is needed.
- * The schema is idempotent for the parts that matter (buckets and the taxonomy
- * use ON CONFLICT DO NOTHING); a full re-apply against an existing database
- * will fail on the CREATE TYPE / CREATE TABLE statements, which is intentional
- * — this provisions a fresh project.
+ * The schema itself is NOT applied from here: Neon has no unauthenticated SQL
+ * endpoint, and pasting the file into the Console's SQL Editor is the
+ * supported path (Console → your project → SQL Editor → paste db/schema.sql).
+ * This script exists to answer "is it wired up yet?" with a yes/no and a list
+ * of whatever is still missing, instead of an empty feed and a stack trace.
  */
 
-import { readFile } from "node:fs/promises";
-import path from "node:path";
+import { neon } from "@neondatabase/serverless";
+import dotenv from "dotenv";
 
-const PROJECT_REF = process.env.SUPABASE_PROJECT_REF ?? "qxgrnbigvxwfrvllbagh";
-const ACCESS_TOKEN = process.env.SUPABASE_ACCESS_TOKEN;
-const API = `https://api.supabase.com/v1/projects/${PROJECT_REF}/database/query`;
+dotenv.config({ path: ".env.local" });
+dotenv.config();
 
-if (!ACCESS_TOKEN) {
-  console.error(
-    "✗ Set SUPABASE_ACCESS_TOKEN (a personal access token starting with sbp_).\n" +
-      "  Create one at https://supabase.com/dashboard/account/tokens"
-  );
-  process.exit(1);
-}
-
-async function runQuery(query: string): Promise<unknown> {
-  const response = await fetch(API, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${ACCESS_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ query }),
-  });
-
-  const text = await response.text();
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${text.slice(0, 800)}`);
-  }
-  return text ? JSON.parse(text) : null;
-}
+const EXPECTED_TABLES = [
+  "profiles",
+  "startups",
+  "tags",
+  "startup_tags",
+  "startup_media",
+  "upvotes",
+  "comments",
+  "waitlist_entries",
+  "testing_quests",
+  "quest_submissions",
+  "collab_posts",
+  "promotions",
+];
 
 async function main(): Promise<void> {
-  const schemaPath = path.join(process.cwd(), "supabase", "schema.sql");
-  const sql = await readFile(schemaPath, "utf8");
+  const url = process.env.DATABASE_URL?.trim();
+  if (!url) {
+    console.error(
+      "✗ DATABASE_URL is not set.\n" +
+        "  Add the pooled Neon connection string to .env.local " +
+        "(Console → Connection Details → Pooled connection)."
+    );
+    process.exit(1);
+  }
 
-  console.log(`Applying ${path.relative(process.cwd(), schemaPath)} …`);
-  await runQuery(sql);
-  console.log("  ✓ schema applied");
+  const sql = neon(url);
 
-  const tables = (await runQuery(
-    `select count(*)::int as n from information_schema.tables where table_schema = 'public'`
-  )) as Array<{ n: number }>;
-  const policies = (await runQuery(
-    `select count(*)::int as n from pg_policies where schemaname in ('public','storage')`
-  )) as Array<{ n: number }>;
-  const buckets = (await runQuery(
-    `select id from storage.buckets order by 1`
-  )) as Array<{ id: string }>;
-  const tags = (await runQuery(
-    `select count(*)::int as n from public.tags`
-  )) as Array<{ n: number }>;
+  let reachable: { version: string };
+  try {
+    const [row] = await sql`select version() as version`;
+    reachable = row as { version: string };
+  } catch (error) {
+    console.error(
+      "✗ Could not reach the database:",
+      error instanceof Error ? error.message : error
+    );
+    process.exit(1);
+  }
+  console.log(`✓ Connected — ${reachable.version.split(" on ")[0]}`);
 
-  console.log(`  ✓ ${tables[0]?.n ?? 0} tables`);
-  console.log(`  ✓ ${policies[0]?.n ?? 0} RLS policies`);
-  console.log(`  ✓ ${tags[0]?.n ?? 0} taxonomy tags`);
-  console.log(`  ✓ buckets: ${buckets.map((b) => b.id).join(", ") || "none"}`);
+  const tables = (await sql`
+    select table_name
+    from information_schema.tables
+    where table_schema = 'public'
+    order by table_name
+  `) as { table_name: string }[];
+
+  const present = new Set(tables.map((row) => row.table_name));
+  const missing = EXPECTED_TABLES.filter((name) => !present.has(name));
+
+  const enumTypes = (await sql`
+    select t.typname
+    from pg_type t
+    join pg_namespace n on n.oid = t.typnamespace
+    where n.nspname = 'public' and t.typtype = 'e'
+    order by t.typname
+  `) as { typname: string }[];
+
+  const triggers = (await sql`
+    select trigger_name
+    from information_schema.triggers
+    where event_object_schema = 'public'
+  `) as { trigger_name: string }[];
+
+  const tags = missing.length === 0
+    ? ((await sql`select count(*)::int as total from public.tags`) as { total: number }[])
+    : [];
+
+  console.log(`✓ ${tables.length} tables`);
+  console.log(`✓ ${enumTypes.length} enums: ${enumTypes.map((row) => row.typname).join(", ")}`);
+  console.log(`✓ ${triggers.length} triggers`);
+
+  if (missing.length > 0) {
+    console.error(
+      `\n✗ Missing tables: ${missing.join(", ")}\n` +
+        "  Apply db/schema.sql in the Neon SQL Editor, then re-run this script."
+    );
+    process.exit(1);
+  }
+
+  console.log(`✓ ${tags[0]?.total ?? 0} taxonomy tags`);
   console.log("\n✓ Database ready.");
 }
 

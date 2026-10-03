@@ -14,9 +14,11 @@ const nextConfig: NextConfig = {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
   images: {
-    // Supabase Storage + common CDNs used for startup logos/screenshots
+    // Startup logos/screenshots are stored as external URLs, so the optimiser
+    // is limited to the hosts actually used: Clerk's avatar CDN plus the CDNs
+    // founders commonly link from.
     remotePatterns: [
-      { protocol: "https", hostname: "**.supabase.co" },
+      { protocol: "https", hostname: "img.clerk.com" },
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "avatars.githubusercontent.com" },
       { protocol: "https", hostname: "lh3.googleusercontent.com" },

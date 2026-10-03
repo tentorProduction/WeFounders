@@ -8,10 +8,34 @@ import { Badge } from "@/components/ui/badge";
 
 const baseUrl = getSiteOrigin();
 
+/** The five criteria every submission is reviewed against. */
+const CURATION_CRITERIA = [
+  {
+    title: "Working Live URL or Demo",
+    body: "No placeholder URLs or dead domains (e.g. example.com). Must have an active website, app store link, or interactive pitch.",
+  },
+  {
+    title: "Clear One-Line Tagline",
+    body: "A concise description under 80 characters explaining what problem your product solves and who it is built for.",
+  },
+  {
+    title: "High-Resolution Logo & Screenshot",
+    body: "Crisp branding assets so launch cards render beautifully on desktop and mobile viewports.",
+  },
+  {
+    title: "Verified Founder Contact",
+    body: "Verified founder email and social profile (X or LinkedIn) for authentic community interactions.",
+  },
+  {
+    title: "Clear Target Market & Positioning",
+    body: "Explicit indication of Global vs Regional focus, target user personas, and active product onboarding rails.",
+  },
+];
+
 export const metadata: Metadata = {
   title: "About & Manifesto — WeFounders",
   description:
-    "Learn about WeFounders.dev, our curation acceptance bar, submission guidelines, and how we help Nepali founders reach early beta users.",
+    "Learn about WeFounders, our curation acceptance bar, submission guidelines, and how we help founders reach early beta users worldwide.",
   alternates: { canonical: new URL("/about", baseUrl) },
 };
 
@@ -24,10 +48,10 @@ export default function AboutPage() {
           About &amp; Manifesto
         </Badge>
         <h1 className="text-display font-black tracking-tight text-foreground">
-          Nepal&apos;s Launchpad for World-Class Startups
+          Global Launchpad for World-Class Startups
         </h1>
         <p className="text-body text-muted-foreground max-w-2xl leading-relaxed">
-          WeFounders is where founders in Nepal and globally launch their products, get their real beta users, collect feedback, and earn karma bounties.
+          WeFounders is where founders globally launch their products, get their real beta users, collect feedback, and build verified traction.
         </p>
       </div>
 
@@ -39,7 +63,7 @@ export default function AboutPage() {
           </div>
           <h3 className="text-subheading font-bold text-foreground">Fast &amp; Transparent Launch</h3>
           <p className="text-caption text-muted-foreground leading-relaxed">
-            Legacy directories charge \$39–\$129 and queue founders for weeks. WeFounders provides fast, transparent review and queue positioning so your product launches when you are ready.
+            Legacy directories charge $39–$129 and queue founders for weeks. WeFounders provides fast, transparent review and queue positioning so your product launches when you are ready.
           </p>
         </div>
 
@@ -54,76 +78,46 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* 21% Curation Bar Section */}
+      {/* Curation standard: the 5 review criteria, as reusable cards */}
       <div id="curation" className="rounded-3xl border border-border bg-card p-6 md:p-8 space-y-6 shadow-apple-md godly-bg-glow">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold">
               Quality Benchmark
             </Badge>
-            <span className="text-caption text-muted-foreground font-mono">Strict Curation Standard</span>
+            <span className="text-caption text-muted-foreground font-mono">Curation Standard</span>
           </div>
-          <h2 id="guidelines" className="text-display font-bold text-foreground">What Gets Featured on WeFounders</h2>
+          <h2 className="text-display font-bold text-foreground">What Gets Featured on WeFounders</h2>
           <p className="text-body text-muted-foreground">
             To protect our community of early adopters, every submission is reviewed against our 5 core quality criteria before appearing on today&apos;s feed:
           </p>
         </div>
 
-        <div className="space-y-4">
-          <div className="flex items-start gap-3">
-            <CheckCircle className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
-            <div>
-              <h4 className="text-caption font-bold text-foreground">1. Working Live URL or Demo</h4>
-              <p className="text-tiny text-muted-foreground">
-                No placeholder URLs or dead domains (e.g. example.com). Must have an active website, app store link, or interactive pitch.
-              </p>
+        <div id="guidelines" className="grid gap-3 sm:grid-cols-2">
+          {CURATION_CRITERIA.map((criterion, index) => (
+            <div
+              key={criterion.title}
+              className="flex items-start gap-3 rounded-[16px] border border-border/70 bg-background/60 p-4"
+            >
+              <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" aria-hidden />
+              <div className="space-y-1">
+                <h4 className="text-caption font-bold text-foreground">
+                  <span className="mr-1.5 font-mono text-muted-foreground">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  {criterion.title}
+                </h4>
+                <p className="text-tiny leading-relaxed text-muted-foreground">
+                  {criterion.body}
+                </p>
+              </div>
             </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <CheckCircle className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
-            <div>
-              <h4 className="text-caption font-bold text-foreground">2. Clear One-Line Tagline</h4>
-              <p className="text-tiny text-muted-foreground">
-                A concise description under 80 characters explaining what problem your product solves and who it is built for.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <CheckCircle className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
-            <div>
-              <h4 className="text-caption font-bold text-foreground">3. High-Resolution Logo &amp; Screenshot</h4>
-              <p className="text-tiny text-muted-foreground">
-                Crisp branding assets so launch cards render beautifully on desktop and mobile viewports.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <CheckCircle className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
-            <div>
-              <h4 className="text-caption font-bold text-foreground">4. Verified Founder Contact</h4>
-              <p className="text-tiny text-muted-foreground">
-                Verified founder email and social profile (X or LinkedIn) for authentic community interactions.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <CheckCircle className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
-            <div>
-              <h4 className="text-caption font-bold text-foreground">5. Clear Target Market &amp; Local Integration</h4>
-              <p className="text-tiny text-muted-foreground">
-                Explicit indication of Made for Nepal vs Built for World, along with any local payment rails (eSewa, Khalti, Fonepay).
-              </p>
-            </div>
-          </div>
+          ))}
         </div>
 
         <div className="pt-4 border-t border-border flex flex-wrap items-center justify-between gap-4">
           <p className="text-caption text-muted-foreground">
-            Ready to show your product to Nepal&apos;s builder community?
+            Ready to show your product to the global builder community?
           </p>
           <Button asChild className="bg-primary text-primary-foreground font-semibold">
             <Link href="/submit">

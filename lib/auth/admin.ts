@@ -1,21 +1,18 @@
 import { redirect } from "next/navigation";
 import { readSession } from "@/lib/auth/session";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { sql } from "@/lib/db/neon";
 import "server-only";
 
-/** Resolve the signed Firebase session and confirm the role in Supabase. */
+/** Resolve the signed session and confirm the role in the profiles table. */
 export async function verifyAdmin() {
   const session = await readSession();
   if (!session) redirect("/?error=unauthenticated");
 
-  const supabase = createAdminClient();
-  const { data: profile, error } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", session.userId)
-    .maybeSingle();
+  const rows = (await sql`
+    select role from profiles where id = ${session.userId}::uuid limit 1
+  `) as { role?: string }[];
 
-  if (error || profile?.role !== "admin") {
+  if (rows[0]?.role !== "admin") {
     redirect("/?error=unauthorized");
   }
 

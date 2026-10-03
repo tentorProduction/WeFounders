@@ -1,11 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Filter, Search, SlidersHorizontal, X } from "lucide-react";
+import { Funnel, MagnifyingGlass, SlidersHorizontal, X } from "@/components/icons";
 
 import { StartupCard } from "@/components/startups/startup-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { countOf } from "@/lib/pluralize";
 import { useOptimisticUpvotes } from "@/lib/hooks/use-optimistic-upvotes";
 import type { StartupWithTags } from "@/types/database";
 
@@ -23,22 +25,22 @@ const CATEGORIES = [
 
 const MARKETS = [
   { id: "all", label: "All Markets" },
-  { id: "nepal_domestic", label: "Nepal Domestic" },
-  { id: "global_export", label: "Global Export" },
+  { id: "global_export", label: "Global Launches" },
+  { id: "nepal_domestic", label: "Regional / Local" },
 ];
 
 const TECH_TAGS = [
   "Next.js",
   "AI/ML",
-  "Fintech",
+  "TypeScript",
+  "React",
+  "Python",
+  "PostgreSQL",
+  "Neon",
+  "Stripe",
+  "Clerk",
   "Flutter",
-  "Firebase",
-  "Supabase",
-  "eSewa",
-  "Khalti",
-  "Fonepay",
-  "Devanagari UI",
-  "Offline First",
+  "DevTools",
 ];
 
 export interface SearchExplorerProps {
@@ -54,7 +56,12 @@ export function SearchExplorer({ startups }: SearchExplorerProps) {
   const { getUpvote, toggleUpvote } = useOptimisticUpvotes();
 
   const filteredStartups = useMemo(() => {
-    return startups.filter((startup) => {
+    // One record renders one card, even if the feed query ever repeats a row.
+    const unique = startups.filter((startup, index) =>
+      startups.findIndex((other) => other.id === startup.id) === index
+    );
+
+    return unique.filter((startup) => {
       // Query filter (name, tagline, description)
       if (query.trim()) {
         const q = query.toLowerCase();
@@ -126,18 +133,17 @@ export function SearchExplorer({ startups }: SearchExplorerProps) {
             Search Startups &amp; Betas
           </h1>
           <p className="text-body text-muted-foreground mt-1">
-            Explore {startups.length}{" "}
-            {startups.length === 1 ? "product" : "products"} built in Nepal and for
-            the world by category, tech stack, or keyword.
+            Explore {countOf(startups.length, "product")} built for the world
+            by category, tech stack, or keyword.
           </p>
         </div>
 
         {/* Search Input */}
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+          <MagnifyingGlass className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" weight="bold" />
           <input
             type="text"
-            placeholder="Search by name, pitch, technology (e.g., eSewa, Next.js, AI)..."
+            placeholder="Search by name, pitch, technology (e.g., Next.js, AI, Stripe)..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="w-full rounded-2xl border border-input bg-card pl-12 pr-10 py-4 text-subheading text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring shadow-apple-sm transition-all"
@@ -149,7 +155,7 @@ export function SearchExplorer({ startups }: SearchExplorerProps) {
               aria-label="Clear search"
               className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
             >
-              <X className="h-5 w-5" />
+              <X className="h-5 w-5" weight="bold" />
             </button>
           )}
         </div>
@@ -159,7 +165,7 @@ export function SearchExplorer({ startups }: SearchExplorerProps) {
       <div className="rounded-2xl border border-border bg-card p-4 shadow-apple-sm space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-caption font-semibold text-foreground">
-            <SlidersHorizontal className="h-4 w-4 text-primary" />
+            <SlidersHorizontal className="h-4 w-4 text-primary" weight="bold" />
             <span>Filters</span>
           </div>
 
@@ -170,7 +176,7 @@ export function SearchExplorer({ startups }: SearchExplorerProps) {
               onClick={resetFilters}
               className="text-caption text-muted-foreground hover:text-foreground h-8 px-2"
             >
-              <X className="h-3.5 w-3.5 mr-1" /> Clear all filters
+              <X className="h-3.5 w-3.5 mr-1" weight="bold" /> Clear all filters
             </Button>
           )}
         </div>
@@ -242,31 +248,30 @@ export function SearchExplorer({ startups }: SearchExplorerProps) {
         <p className="text-caption text-muted-foreground font-medium">
           Showing{" "}
           <span className="font-bold text-foreground">{filteredStartups.length}</span>{" "}
-          results
-          {hasActiveFilters && " matching criteria"}
+          {countOf(filteredStartups.length, "result")}
+          {hasActiveFilters && " matching your filters"}
         </p>
       </div>
 
       {/* Startup List */}
       {filteredStartups.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-muted-foreground mb-3">
-            <Filter className="h-6 w-6" />
-          </div>
-          <h3 className="text-subheading font-bold text-foreground">
-            {startups.length === 0 ? "No launches yet" : "No startups found"}
-          </h3>
-          <p className="mt-1 text-body text-muted-foreground max-w-sm mx-auto">
-            {startups.length === 0
-              ? "Once the first founders are approved, their products show up here."
-              : "We couldn't find any startup matching your search filters. Try clearing your search query or changing filters."}
-          </p>
-          {startups.length > 0 && (
-            <Button onClick={resetFilters} className="mt-4" variant="outline">
-              Reset Filters
-            </Button>
-          )}
-        </div>
+        startups.length === 0 ? (
+          <EmptyState
+            icon={Funnel}
+            title="No launches yet"
+            description="Once the first founders are approved, their products show up here."
+            hint="WeFounders opens with a curated batch rather than an open firehose."
+            action={{ label: "Submit your startup", href: "/submit" }}
+          />
+        ) : (
+          <EmptyState
+            icon={Funnel}
+            title="No startups found"
+            description="We couldn't find any startup matching your search filters."
+            hint="Try a different keyword, or clear the filters to see everything."
+            action={{ label: "Clear all filters", onClick: resetFilters }}
+          />
+        )
       ) : (
         <div className="space-y-3">
           {filteredStartups.map((startup, index) => (

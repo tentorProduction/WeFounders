@@ -2,8 +2,10 @@ import { readSession } from "@/lib/auth/session";
 import type { Startup } from "@/types/database";
 
 /**
- * The current viewer, resolved from the signed session cookie that
- * /api/auth/session issues after a verified Firebase Google sign-in.
+ * The current viewer, resolved from the Clerk session.
+ *
+ * Clerk session: the browser holds Clerk's HttpOnly session cookie and the
+ * server resolves it to a `profiles` row (see lib/auth/session.ts).
  *
  * There is deliberately no demo/anonymous fallback: a request without a valid
  * session is anonymous, and founder-only surfaces stay closed. That is what

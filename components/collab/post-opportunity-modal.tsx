@@ -72,7 +72,7 @@ export function PostOpportunityModal({ className }: PostOpportunityModalProps) {
         <DialogHeader>
           <DialogTitle>Post an Opportunity</DialogTitle>
           <DialogDescription>
-            Reach Nepali builders looking for their next project.
+            Reach active builders looking for their next project.
           </DialogDescription>
         </DialogHeader>
 
@@ -168,7 +168,7 @@ export function PostOpportunityModal({ className }: PostOpportunityModalProps) {
                 maxLength={200}
                 value={contact}
                 onChange={(e) => setContact(e.target.value)}
-                placeholder="98XXXXXXXX · @telegram_handle · you@example.com"
+                placeholder="+15550000000 · @telegram_handle · you@example.com"
               />
               <p className="text-tiny text-muted-foreground">
                 A phone becomes a WhatsApp link, an @handle becomes Telegram, an

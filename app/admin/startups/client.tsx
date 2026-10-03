@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Archive, Pencil, RotateCcw, Star, Trash2, X } from "lucide-react";
+import { GlobeHemisphereWest, GlobeSimple, MapPin } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { deleteStartup, rejectStartup, resetUpvotes, toggleFeatured, updateStartupTags } from "../actions";
@@ -100,7 +101,26 @@ export function LiveStartupsClient({ startups, availableTags }: { startups: Admi
                       <p className="truncate text-[#D4D4D8]">{startup.profiles?.full_name || "Unknown"}</p>
                       <p className="truncate text-xs text-[#666A73]">{startup.profiles?.email}</p>
                     </td>
-                    <td className="px-4 py-3"><Badge variant="outline" className="whitespace-nowrap border-[#3F3F46] text-[#D4D4D8]">{startup.target_market === "nepal_domestic" ? "Nepal 🇳🇵" : startup.target_market === "global_export" ? "World 🌎" : "Nepal + World"}</Badge></td>
+                    <td className="px-4 py-3">
+                      <Badge variant="outline" className="whitespace-nowrap border-[#3F3F46] text-[#D4D4D8] inline-flex items-center gap-1.5">
+                        {startup.target_market === "nepal_domestic" ? (
+                          <>
+                            <MapPin className="h-3 w-3 text-[#FF4B3E]" weight="bold" />
+                            <span>Regional</span>
+                          </>
+                        ) : startup.target_market === "global_export" ? (
+                          <>
+                            <GlobeHemisphereWest className="h-3 w-3 text-[#FF4B3E]" weight="bold" />
+                            <span>Global</span>
+                          </>
+                        ) : (
+                          <>
+                            <GlobeSimple className="h-3 w-3 text-[#FF4B3E]" weight="bold" />
+                            <span>Hybrid</span>
+                          </>
+                        )}
+                      </Badge>
+                    </td>
                     <td className="px-4 py-3 text-right font-mono tabular-nums text-[#F4F4F5]">{startup.upvotes_count.toLocaleString()}</td>
                     <td className="px-4 py-3 text-right font-mono tabular-nums text-[#F4F4F5]">{startup.waitlist_count.toLocaleString()}</td>
                     <td className="px-4 py-3"><Badge variant="outline" className="border-emerald-500/30 bg-emerald-950/30 text-emerald-300">Live</Badge></td>

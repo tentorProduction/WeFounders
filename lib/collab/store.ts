@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+import { sql } from "@/lib/db/neon";
 import type { CollabType } from "@/types/database";
 import type { CollabPostWithAuthor } from "@/lib/data/collab";
 
@@ -7,7 +7,7 @@ export type { CollabPostWithAuthor } from "@/lib/data/collab";
 
 /**
  * Collab board writes (TRD §2 table 11). Reads live in lib/data/collab.ts;
- * Supabase is the only store.
+ * Neon is the only store.
  */
 
 export interface CollabPostInput {
@@ -74,27 +74,31 @@ export function normalizeContactChannel(raw: string): string | null {
 export async function addCollabPost(
   input: CollabPostInput
 ): Promise<CollabPostWithAuthor> {
-  const supabase = createAdminClient();
+  const rows = (await sql`
+    insert into collab_posts (
+      role_type, title, description, equity_or_compensation,
+      contact_channel, author_id, author_name, is_active
+    )
+    values (
+      ${input.roleType},
+      ${input.title},
+      ${input.description},
+      ${input.equityOrCompensation},
+      ${input.contactChannel},
+      ${input.authorId}::uuid,
+      ${input.authorName},
+      true
+    )
+    returning id, created_at
+  `) as unknown as { id: string; created_at: string }[];
 
-  const { data, error } = await supabase
-    .from("collab_posts")
-    .insert({
-      role_type: input.roleType,
-      title: input.title,
-      description: input.description,
-      equity_or_compensation: input.equityOrCompensation,
-      contact_channel: input.contactChannel,
-      author_id: input.authorId,
-      author_name: input.authorName,
-      is_active: true,
-    })
-    .select("id, created_at")
-    .single();
-
-  if (error) throw new Error(`Could not publish that listing: ${error.message}`);
+  const inserted = rows[0];
+  if (!inserted) {
+    throw new Error("Could not publish that listing.");
+  }
 
   return {
-    id: data.id,
+    id: inserted.id,
     startup_id: null,
     author_id: input.authorId,
     title: input.title,
@@ -103,7 +107,7 @@ export async function addCollabPost(
     equity_or_compensation: input.equityOrCompensation,
     contact_channel: input.contactChannel,
     is_active: true,
-    created_at: data.created_at,
+    created_at: inserted.created_at,
     author_name: input.authorName,
     author_username:
       input.authorName.toLowerCase().replace(/[^a-z0-9]+/g, "") || "builder",

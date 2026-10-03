@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 
 import { BRAND_MARK_PATH, BRAND_MARK_VIEWBOX } from "@/components/brand/mark-path";
 
-export const alt = "WeFounders — the launchpad for Nepal's startups";
+export const alt = "WeFounders — Global Startup Launch & Beta Platform";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -18,14 +18,14 @@ export default function OpenGraphImage() {
         <div style={{ display: "flex", alignItems: "center", gap: "18px", fontSize: 32, fontWeight: 700 }}>
           {/* eslint-disable-next-line @next/next/no-img-element -- satori has no next/image */}
           <img src={BRAND_MARK_URI} alt="" width={54} height={43} />
-          wefounders<span style={{ color: "#FF4B3E" }}>.dev</span>
+          wefounders<span style={{ color: "#FF4B3E" }}>.global</span>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          <div style={{ color: "#E83A30", fontSize: 20, fontWeight: 700, letterSpacing: 4 }}>NEPAL&apos;S STARTUP LAUNCH PLATFORM</div>
-          <div style={{ display: "flex", flexDirection: "column", maxWidth: 1000, fontSize: 68, lineHeight: 1.05, fontWeight: 700 }}><span>Built in Nepal.</span><span>Ready for the world.</span></div>
+          <div style={{ color: "#E83A30", fontSize: 20, fontWeight: 700, letterSpacing: 4 }}>GLOBAL STARTUP LAUNCH PLATFORM</div>
+          <div style={{ display: "flex", flexDirection: "column", maxWidth: 1000, fontSize: 68, lineHeight: 1.05, fontWeight: 700 }}><span>Built by Founders.</span><span>Ready for the world.</span></div>
           <div style={{ color: "#52525B", fontSize: 27 }}>Meet the founders. Try the products. Help them grow.</div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "#666A73", fontSize: 20 }}>Discover launches <span style={{ color: "#FF4B3E" }}>·</span> Join the builder community <span style={{ color: "#FF4B3E" }}>·</span> 🇳🇵</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "#666A73", fontSize: 20 }}>Discover launches <span style={{ color: "#FF4B3E" }}>·</span> Join the builder community <span style={{ color: "#FF4B3E" }}>·</span> Worldwide</div>
       </div>
     ),
     { ...size },

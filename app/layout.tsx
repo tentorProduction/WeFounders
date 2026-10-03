@@ -1,13 +1,14 @@
 import { getSiteOrigin } from "@/lib/site-url";
 import type { Metadata, Viewport } from "next";
 import { Archivo, Instrument_Serif, IBM_Plex_Mono } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
+import { shadcn } from "@clerk/ui/themes";
 
 import { SiteChrome } from "@/components/layout/site-chrome";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { CookieConsent } from "@/components/privacy/cookie-consent";
 import { ThemeProvider } from "@/components/theme-provider";
-import { AuthProvider } from "@/lib/firebase/auth-context";
 
 import "./globals.css";
 
@@ -34,30 +35,30 @@ const siteUrl = getSiteOrigin();
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "WeFounders — Nepal's Startup Launch & Beta Platform",
+    default: "WeFounders — Global Startup Launch & Beta Platform",
     template: "%s · WeFounders",
   },
   description:
-    "WeFounders is Nepal's launchpad for world-class startups. Discover new products, get early beta users, upvote, and track local founder bounties.",
+    "WeFounders is the global launchpad for world-class startups. Discover new products, get early beta users, upvote, and track founder bounties worldwide.",
   keywords: [
     "WeFounders",
-    "Nepal startups",
-    "Launchpad",
-    "BetaList Nepal",
-    "Nepali products",
+    "Startup launchpad",
+    "BetaList",
+    "Product Hunt",
+    "Global startups",
     "Tech startups",
-    "eSewa payments",
-    "Khalti billing",
-    "Katmandu builders",
+    "Early adopters",
+    "Beta testing",
+    "Founder community",
   ],
   authors: [{ name: "WeFounders Team", url: siteUrl }],
   creator: "WeFounders",
-  publisher: "WeFounders.dev",
+  publisher: "WeFounders",
   openGraph: {
     siteName: "WeFounders",
     locale: "en_US",
     type: "website",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "WeFounders — startup launches from Nepal" }],
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "WeFounders — Global Startup Launch Platform" }],
   },
   twitter: {
     card: "summary_large_image",
@@ -101,7 +102,7 @@ const jsonLd = {
       "@id": `${siteUrl}/#website`,
       url: siteUrl,
       name: "WeFounders",
-      description: "Nepal's Startup Launch & Beta Platform",
+      description: "Global Startup Launch & Beta Platform",
       publisher: { "@id": `${siteUrl}/#organization` },
       potentialAction: {
         "@type": "SearchAction",
@@ -128,12 +129,12 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans bg-background text-foreground min-h-screen">
-        <AuthProvider>
+        <ClerkProvider appearance={{ theme: shadcn }}>
           <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
             <SiteChrome header={<SiteHeader />} footer={<SiteFooter />}>{children}</SiteChrome>
             <CookieConsent measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
           </ThemeProvider>
-        </AuthProvider>
+        </ClerkProvider>
       </body>
     </html>
   );

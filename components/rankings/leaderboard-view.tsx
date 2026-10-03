@@ -2,11 +2,14 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, Flame, ShieldCheck, Trophy } from "lucide-react";
+import { ArrowUpRight, CaretUp, Flame, ShieldCheck, Trophy } from "@/components/icons";
 
+import { cn } from "@/lib/utils";
+import { countOf } from "@/lib/pluralize";
 import { StartupCard } from "@/components/startups/startup-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { useOptimisticUpvotes } from "@/lib/hooks/use-optimistic-upvotes";
 import type { StartupWithTags } from "@/types/database";
 
@@ -14,8 +17,16 @@ export interface LeaderboardViewProps {
   startups: StartupWithTags[];
 }
 
+const TIMEFRAMES = [
+  { id: "week", label: "This Week" },
+  { id: "month", label: "This Month" },
+  { id: "all", label: "All Time" },
+] as const;
+
+type Timeframe = (typeof TIMEFRAMES)[number]["id"];
+
 export function LeaderboardView({ startups }: LeaderboardViewProps) {
-  const [timeframe, setTimeframe] = useState<"week" | "month" | "all">("week");
+  const [timeframe, setTimeframe] = useState<Timeframe>("week");
   const { getUpvote, toggleUpvote } = useOptimisticUpvotes();
 
   const rankedStartups = useMemo(() => {
@@ -32,70 +43,70 @@ export function LeaderboardView({ startups }: LeaderboardViewProps) {
     );
   }, [startups, timeframe]);
 
+  const total = rankedStartups.length;
+  // A podium only makes sense once there is a field to podium. With one or two
+  // products a three-column trophy display would dwarf the actual ranking.
+  const showPodium = total >= 3;
+  const podium = showPodium ? rankedStartups.slice(0, 3) : [];
+  const fullList = showPodium ? rankedStartups.slice(3) : rankedStartups;
+
   return (
-    <div className="site-container py-8 space-y-8">
-      {/* Header */}
-      <div className="space-y-4 text-center md:text-left">
-        <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-tiny font-semibold text-amber-600 dark:text-amber-400">
-          <Trophy className="h-3.5 w-3.5 fill-current" />
-          <span>Verified Founder Leaderboard</span>
+    <div className="site-container space-y-8 py-8 sm:space-y-10">
+      <header className="space-y-3">
+        <Badge variant="outline" className="gap-1.5 font-mono text-tiny">
+          <Trophy className="h-3.5 w-3.5 text-primary" weight="fill" aria-hidden />
+          Verified Founder Leaderboard
+        </Badge>
+        <h1 className="text-display font-bold tracking-tight text-foreground">
+          Top Ranked Products
+        </h1>
+        <p className="max-w-2xl text-body text-muted-foreground">
+          Ranked by real platform engagement — verified upvotes, opt-in waitlist
+          conversions, and community testing reports.
+        </p>
+      </header>
+
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        {/* Timeframe tabs */}
+        <div
+          role="group"
+          aria-label="Ranking timeframe"
+          className="flex items-center gap-1 self-start rounded-full border border-border bg-card p-1 shadow-apple-xs"
+        >
+          {TIMEFRAMES.map((option) => {
+            const active = timeframe === option.id;
+            return (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => setTimeframe(option.id)}
+                aria-pressed={active}
+                className={cn(
+                  "rounded-full px-3.5 py-1.5 text-caption font-semibold transition-colors",
+                  active
+                    ? "bg-foreground text-background"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {option.label}
+              </button>
+            );
+          })}
         </div>
 
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <h1 className="text-display font-black tracking-tight text-foreground">
-              Top Ranked Nepali Products
-            </h1>
-            <p className="mt-1 text-body text-muted-foreground max-w-2xl">
-              Ranked by real platform engagement — verified upvotes, opt-in waitlist
-              conversions, and community testing reports.
-            </p>
-          </div>
-
-          {/* Timeframe Filter Tabs */}
-          <div className="flex items-center gap-1.5 rounded-2xl border border-border bg-card p-1.5 shadow-apple-xs shrink-0 self-center md:self-auto">
-            <button
-              onClick={() => setTimeframe("week")}
-              className={`rounded-xl px-3.5 py-1.5 text-caption font-bold transition-all ${
-                timeframe === "week"
-                  ? "bg-primary text-primary-foreground shadow-apple-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              🔥 This Week
-            </button>
-            <button
-              onClick={() => setTimeframe("month")}
-              className={`rounded-xl px-3.5 py-1.5 text-caption font-bold transition-all ${
-                timeframe === "month"
-                  ? "bg-primary text-primary-foreground shadow-apple-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              🚀 This Month
-            </button>
-            <button
-              onClick={() => setTimeframe("all")}
-              className={`rounded-xl px-3.5 py-1.5 text-caption font-bold transition-all ${
-                timeframe === "all"
-                  ? "bg-primary text-primary-foreground shadow-apple-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              🏆 All-Time
-            </button>
-          </div>
-        </div>
+        <p className="font-mono text-caption text-muted-foreground">
+          {countOf(total, "startup")} ranked
+        </p>
       </div>
 
-      {/* Public "How ranking works" Methodology Banner */}
-      <div className="rounded-[10px] border border-[#DADDE1] bg-[#FFFFFF] p-6 shadow-xs godly-bg-glow flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      {/* Public methodology */}
+      <div className="flex flex-col items-start justify-between gap-4 rounded-[16px] border border-[#DADDE1] bg-[#FFFFFF] p-5 md:flex-row md:items-center">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-subheading font-archivo font-bold text-[#17181B]">
-            <ShieldCheck className="h-5 w-5 text-[#FF4B3E]" />
-            <span>How Ranking Works — Public Verifiable Methodology</span>
+            <ShieldCheck className="h-5 w-5 shrink-0 text-[#FF4B3E]" weight="fill" aria-hidden />
+            <span>How Ranking Works</span>
           </div>
-          <p className="text-caption text-[#666A73] max-w-3xl leading-relaxed">
+          <p className="max-w-3xl text-caption leading-relaxed text-[#666A73]">
             Every ranking on WeFounders is calculated in real time using verified
             on-platform engagement metrics (community upvotes, double opt-in waitlist
             requests, and validated testing quest reports). Zero self-reported ARR
@@ -107,103 +118,96 @@ export function LeaderboardView({ startups }: LeaderboardViewProps) {
           asChild
           variant="outline"
           size="sm"
-          className="shrink-0 rounded-[10px] border-[#DADDE1] bg-[#F2F3F5] text-[#17181B]"
+          className="shrink-0 rounded-full"
         >
-          <Link href="/about#curation">Read 21% Curation Standard</Link>
+          <Link href="/about#curation">Read our curation standard</Link>
         </Button>
       </div>
 
-      {rankedStartups.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-border bg-card p-10 text-center text-body text-muted-foreground">
-          The leaderboard fills up as soon as the first launches are approved.
-        </p>
+      {total === 0 ? (
+        <EmptyState
+          icon={Trophy}
+          title="No launches ranked yet"
+          description="The leaderboard fills up as soon as the first launches are approved."
+          hint="Founders who publish here get ranked by verified engagement, not self-reported numbers."
+          action={{ label: "Submit your startup", href: "/submit" }}
+        />
       ) : (
         <>
-          {/* Podium Highlight (Top 3) */}
-          <div className="grid gap-4 sm:grid-cols-3">
-            {rankedStartups.slice(0, 3).map((startup, idx) => {
-              const rankColor =
-                idx === 0
-                  ? "from-amber-500/20 to-yellow-500/5 border-amber-500/40 text-amber-500"
-                  : idx === 1
-                    ? "from-slate-400/20 to-zinc-400/5 border-slate-400/40 text-slate-400"
-                    : "from-amber-700/20 to-amber-800/5 border-amber-700/40 text-amber-700";
-
-              const medal =
-                idx === 0
-                  ? "🥇 #1 Champion"
-                  : idx === 1
-                    ? "🥈 #2 Runner Up"
-                    : "🥉 #3 Spotlight";
-
-              return (
-                <div
+          {/* Top 3 — restrained, equal weight */}
+          {showPodium && (
+            <section aria-label="Top ranked products" className="grid gap-3 sm:grid-cols-3">
+              {podium.map((startup, index) => (
+                <Link
                   key={startup.id}
-                  className={`godly-card deck-card p-5 bg-gradient-to-b ${rankColor} border space-y-3 relative overflow-hidden`}
+                  href={`/startups/${startup.slug}`}
+                  className="godly-card deck-card group flex flex-col justify-between gap-4 p-5"
                 >
-                  <div className="flex items-center justify-between">
-                    <Badge
-                      variant="outline"
-                      className="font-bold text-tiny uppercase tracking-wider"
-                    >
-                      {medal}
-                    </Badge>
-                    <span className="font-mono font-bold text-caption text-foreground">
-                      ▲ {startup.upvotes_count} Upvotes
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="font-mono text-heading font-bold tabular-nums text-[#17181B]">
+                      #{index + 1}
+                    </span>
+                    <span className="inline-flex items-center gap-1 font-mono text-tiny text-muted-foreground">
+                      <CaretUp className="h-3.5 w-3.5 text-[#FF4B3E]" weight="fill" />
+                      {countOf(startup.upvotes_count, "upvote")}
                     </span>
                   </div>
 
-                  <div>
-                    <h3 className="text-subheading font-bold text-foreground line-clamp-1">
-                      <Link
-                        href={`/startups/${startup.slug}`}
-                        className="hover:underline"
-                      >
-                        {startup.name}
-                      </Link>
+                  <div className="space-y-1">
+                    <h3 className="truncate text-subheading font-bold text-foreground group-hover:text-primary">
+                      {startup.name}
                     </h3>
-                    <p className="text-caption text-muted-foreground line-clamp-2 mt-1">
+                    <p className="line-clamp-2 text-caption text-muted-foreground">
                       {startup.tagline}
                     </p>
                   </div>
 
-                  <div className="pt-2 border-t border-border/50 flex items-center justify-between text-tiny">
-                    <span className="text-muted-foreground font-mono">
-                      {startup.waitlist_count} Waitlist Users
+                  <div className="flex items-center justify-between border-t border-border/60 pt-3 text-tiny text-muted-foreground">
+                    <span className="font-mono">
+                      {countOf(startup.waitlist_count, "waitlist")}
                     </span>
-                    <Link
-                      href={`/startups/${startup.slug}`}
-                      className="font-bold text-primary hover:underline flex items-center gap-1"
-                    >
-                      View Details <ArrowUpRight className="h-3 w-3" />
-                    </Link>
+                    <span className="flex items-center gap-1 font-semibold text-primary">
+                      View <ArrowUpRight className="h-3 w-3" aria-hidden />
+                    </span>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                </Link>
+              ))}
+            </section>
+          )}
 
-          {/* Full Leaderboard List */}
-          <div className="space-y-3">
-            <h2 className="text-heading font-bold text-foreground flex items-center gap-2">
-              <Flame className="h-4 w-4 text-accent fill-accent" /> Full Ranking List
-              ({rankedStartups.length} Startups)
+          {/* Full ranking */}
+          <section
+              aria-label={showPodium ? "Full ranking" : "Current standings"}
+              className="space-y-4"
+            >
+            <h2 className="flex items-center gap-2 text-heading font-bold text-foreground">
+              <Flame className="h-4 w-4 shrink-0 text-primary" aria-hidden />
+              {showPodium ? "Full Ranking" : "Current Standings"}
+              <span className="font-mono text-caption font-normal text-muted-foreground">
+                ({countOf(fullList.length, "startup")})
+              </span>
             </h2>
 
-            <div className="space-y-3">
-              {rankedStartups.map((startup, index) => (
-                <StartupCard
-                  key={startup.id}
-                  startup={startup}
-                  rank={index + 1}
-                  upvote={{
-                    ...getUpvote(startup.id, startup.upvotes_count),
-                    onToggle: () => toggleUpvote(startup.id),
-                  }}
-                />
-              ))}
-            </div>
-          </div>
+            {fullList.length > 0 ? (
+              <div className="space-y-3">
+                {fullList.map((startup, index) => (
+                  <StartupCard
+                    key={startup.id}
+                    startup={startup}
+                    rank={index + (showPodium ? 4 : 1)}
+                    upvote={{
+                      ...getUpvote(startup.id, startup.upvotes_count),
+                      onToggle: () => toggleUpvote(startup.id),
+                    }}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="rounded-[16px] border border-dashed border-border bg-card p-8 text-center text-caption text-muted-foreground">
+                The top three are shown above. More founders are joining soon.
+              </p>
+            )}
+          </section>
         </>
       )}
     </div>
