@@ -22,6 +22,16 @@ This roadmap outlines active and upcoming milestones managed under the GSD proto
 
 ## Active & Upcoming Milestones 🚀
 
+## Connected platform specification (2026-10-03)
+
+Execution order, using existing Neon / Clerk application:
+
+1. Secure foundation: additive schema, suspension enforcement, database rate limits, private launch reads, audit and reputation ledgers. Verify lint, types, build; commit.
+2. Connected workflows: follows, bookmarks, public profiles, onboarding, updates, notifications, drafts, quests and reviews, founder/tester dashboards, reports, search and activity. Verify; commit.
+3. Administration and presentation: users, moderation, payments, analytics, settings, homepage, mobile navigation, SEO, curated launch import. Verify security journeys and responsive routes; commit.
+
+Provider-dependent work must expose unavailable states. No fabricated activity, rewards, prices or identity. Preserve existing payment verification and launch components.
+
 - [ ] **M4: Global Startup Directory & Curation**
   - Enhance discovery filters (e.g. by business model, tech stack, funding stage).
   - Add search autocompletion and rich tag filtering.

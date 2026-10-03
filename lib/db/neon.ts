@@ -85,3 +85,15 @@ export async function sql(
 export function isDatabaseConfigured(): boolean {
   return Boolean(process.env.DATABASE_URL?.trim());
 }
+
+/** The actor is scoped to the same transaction as the audited mutation. */
+export function auditedSql(actorId: string) {
+  return async (strings: TemplateStringsArray, ...params: unknown[]): Promise<DbRow[]> => {
+    const { text, values } = build(strings, params);
+    const results = await client().transaction([
+      client().query("select set_config('wf.actor', $1, true)", [actorId]),
+      client().query(text, values),
+    ]);
+    return results[1] as DbRow[];
+  };
+}

@@ -29,6 +29,7 @@ interface ProfileRow {
   email: string;
   full_name: string | null;
   avatar_url: string | null;
+  suspended_at: string | null;
 }
 
 /** Stable UUID derived from the Clerk user id, so a repeat sign-in lands on the same row. */
@@ -91,7 +92,7 @@ async function insertProfile(
 
 async function ensureProfile(clerkUserId: string): Promise<ProfileRow | null> {
   const existing = (await sql`
-    select id, email, full_name, avatar_url from profiles where clerk_user_id = ${clerkUserId} limit 1
+    select id, email, full_name, avatar_url, suspended_at from profiles where clerk_user_id = ${clerkUserId} limit 1
   `) as unknown as ProfileRow[];
   if (existing[0]) return existing[0];
 
@@ -106,7 +107,7 @@ async function ensureProfile(clerkUserId: string): Promise<ProfileRow | null> {
   await insertProfile(clerkUserId, `${baseHandle}_${clerkUserId.slice(0, 6)}`.slice(0, 30), user);
 
   const created = (await sql`
-    select id, email, full_name, avatar_url from profiles where clerk_user_id = ${clerkUserId} limit 1
+    select id, email, full_name, avatar_url, suspended_at from profiles where clerk_user_id = ${clerkUserId} limit 1
   `) as unknown as ProfileRow[];
   return created[0] ?? null;
 }
@@ -121,11 +122,7 @@ export async function readSession(): Promise<SessionUser | null> {
   const { userId: clerkUserId } = await auth();
   if (!clerkUserId) return null;
 
-  try {
-    const profile = await ensureProfile(clerkUserId);
-    return profile ? toSession(profile) : null;
-  } catch (error) {
-    console.error("[auth] could not resolve the signed-in profile:", error);
-    return null;
-  }
+  const profile = await ensureProfile(clerkUserId);
+  if (profile?.suspended_at) throw new Error("This account is suspended. Contact support to appeal.");
+  return profile ? toSession(profile) : null;
 }

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { verifyAdmin } from "@/lib/auth/admin";
-import { sql } from "@/lib/db/neon";
+import { auditedSql } from "@/lib/db/neon";
 import type { StartupStage, TargetMarket } from "@/types/database";
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -25,7 +25,8 @@ function refreshAdminData() {
 }
 
 export async function setCollabPostActive(postId: string, isActive: boolean) {
-  await verifyAdmin();
+  const admin = await verifyAdmin();
+  const sql = auditedSql(admin.userId);
   assertId(postId);
   const rows = await sql`
     update collab_posts set is_active = ${isActive} where id = ${postId}::uuid returning id
@@ -35,7 +36,8 @@ export async function setCollabPostActive(postId: string, isActive: boolean) {
 }
 
 export async function approveStartup(startupId: string, launchDate?: string) {
-  await verifyAdmin();
+  const admin = await verifyAdmin();
+  const sql = auditedSql(admin.userId);
   assertId(startupId);
   const parsedDate = launchDate ? new Date(launchDate) : new Date(getBatchDate());
   if (Number.isNaN(parsedDate.valueOf())) throw new Error("Invalid launch date.");
@@ -55,7 +57,8 @@ export async function scheduleStartupTomorrow(startupId: string) {
 }
 
 export async function rejectStartup(startupId: string, reason: string) {
-  await verifyAdmin();
+  const admin = await verifyAdmin();
+  const sql = auditedSql(admin.userId);
   assertId(startupId);
   const safeReason = reason.trim();
   if (safeReason.length < 3 || safeReason.length > 1000) {
@@ -72,7 +75,8 @@ export async function rejectStartup(startupId: string, reason: string) {
 }
 
 export async function toggleFeatured(startupId: string, isFeatured: boolean) {
-  await verifyAdmin();
+  const admin = await verifyAdmin();
+  const sql = auditedSql(admin.userId);
   assertId(startupId);
   const rows = await sql`
     update startups set is_featured = ${isFeatured} where id = ${startupId}::uuid returning id
@@ -82,21 +86,23 @@ export async function toggleFeatured(startupId: string, isFeatured: boolean) {
 }
 
 export async function deleteStartup(startupId: string) {
-  await verifyAdmin();
+  const admin = await verifyAdmin();
+  const sql = auditedSql(admin.userId);
   assertId(startupId);
   const rows = await sql`
-    delete from startups where id = ${startupId}::uuid returning id
+    update startups set archived_at=now(), status='rejected' where id = ${startupId}::uuid returning id
   `;
   if (rows.length === 0) throw new Error("Startup was not found.");
   refreshAdminData();
 }
 
 export async function approveAllPending() {
-  await verifyAdmin();
+  const admin = await verifyAdmin();
+  const sql = auditedSql(admin.userId);
   await sql`
     update startups
     set status = 'approved', launch_date = ${getBatchDate()}, rejection_reason = null
-    where status in ('pending_approval', 'draft')
+    where status = 'pending_approval'
   `;
   refreshAdminData();
 }
@@ -112,7 +118,8 @@ export interface ManualStartupInput {
 }
 
 export async function createManualStartup(input: ManualStartupInput) {
-  await verifyAdmin();
+  const admin = await verifyAdmin();
+  const sql = auditedSql(admin.userId);
   const name = input.name.trim();
   const tagline = input.tagline.trim();
   const description = input.description.trim();
@@ -163,14 +170,16 @@ export async function createManualStartup(input: ManualStartupInput) {
 }
 
 export async function resetUpvotes(startupId: string) {
-  await verifyAdmin();
+  const admin = await verifyAdmin();
+  const sql = auditedSql(admin.userId);
   assertId(startupId);
   await sql`delete from upvotes where startup_id = ${startupId}::uuid`;
   refreshAdminData();
 }
 
 export async function updateStartupTags(startupId: string, tagIds: string[]) {
-  await verifyAdmin();
+  const admin = await verifyAdmin();
+  const sql = auditedSql(admin.userId);
   assertId(startupId);
   const ids = [...new Set(tagIds)];
   if (ids.some((id) => !UUID_PATTERN.test(id))) throw new Error("Invalid tag selection.");
@@ -198,3 +207,5 @@ export async function updateStartupTags(startupId: string, tagIds: string[]) {
   }
   refreshAdminData();
 }
+
+

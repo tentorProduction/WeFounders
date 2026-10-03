@@ -1,6 +1,8 @@
 # Current State — WeFounders
 
 **Last Updated:** 2026-10-03  
+
+Active work: connected platform specification from the user attachment. Repository inspection confirms Neon / Clerk migration. Baseline is clean. Existing lint command is incompatible with Next 15; read helpers hide outages; middleware permits authentication failures; quest rewards and member connections are not yet persisted. New verification results will replace historical claims below after execution.
 **Active Branch:** `main`  
 **Latest Deployment Status:** Live at `https://wefounders.dev` (`HTTP 200 OK`)
 

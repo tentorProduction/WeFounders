@@ -35,6 +35,7 @@ export async function listCollabPosts(): Promise<CollabPostWithAuthor[]> {
   try {
     const rows = (await sql`
       ${raw(COLLAB_WITH_STARTUP)}
+      where p.is_active=true and p.approval_status='approved'
       order by p.is_active desc, p.created_at desc
     `) as unknown as CollabPostWithAuthor[];
 

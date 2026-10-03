@@ -1,3 +1,4 @@
+import { readSession } from "@/lib/auth/session";
 import type { StartupWithTags, Tag } from "@/types/database";
 import { raw, sql } from "@/lib/db/neon";
 import { reportReadFailure } from "@/lib/data/read-failure";
@@ -64,7 +65,7 @@ export async function getStartupFeed(options: FeedOptions = {}): Promise<Startup
 
     const rows = await sql`
       ${raw(STARTUP_WITH_TAGS)}
-      where s.status = 'approved'
+      where s.status = 'approved' and s.archived_at is null and s.launch_date <= now()
       ${raw(order)}
       limit ${limit}
     `;
@@ -80,7 +81,7 @@ export async function getFeaturedStartup(): Promise<StartupWithTags | null> {
   try {
     const rows = (await sql`
       ${raw(STARTUP_WITH_TAGS)}
-      where s.status = 'approved' and s.is_featured = true
+      where s.status = 'approved' and s.archived_at is null and s.launch_date <= now() and s.is_featured = true
       limit 1
     `) as unknown as StartupWithTags[];
 
@@ -108,25 +109,16 @@ export async function getStartupBySlug(slug: string): Promise<StartupWithTags | 
   if (!needle) return null;
 
   try {
-    // A lone `%` or `_` would act as a wildcard in ILIKE and match everything.
-    const pattern = `%${needle.replace(/[\\%_]/g, (ch) => `\\${ch}`)}%`;
-
+    const viewer = await readSession();
     const rows = (await sql`
       ${raw(STARTUP_WITH_TAGS)}
-      where lower(s.slug) like lower(${pattern})
-      limit 1
+      where lower(s.slug) = lower(${needle}) and (
+        (s.status='approved' and s.archived_at is null and s.launch_date<=now())
+        or s.founder_id=${viewer?.userId ?? null}::uuid
+        or exists(select 1 from profiles where id=${viewer?.userId ?? null}::uuid and role='admin')
+      ) limit 1
     `) as unknown as StartupWithTags[];
-
-    if (rows[0]) return rows[0];
-
-    const byName = (await sql`
-      ${raw(STARTUP_WITH_TAGS)}
-      where lower(s.name) like lower(${pattern})
-      limit 1
-    `) as unknown as StartupWithTags[];
-
-    return byName[0] ?? null;
-  } catch (error) {
+    return rows[0] ?? null;  } catch (error) {
     logReadFailure("getStartupBySlug", error);
     return null;
   }
@@ -163,7 +155,7 @@ export async function searchStartups(term: string, limit = 24): Promise<StartupW
 
     const rows = (await sql`
       ${raw(STARTUP_WITH_TAGS)}
-      where s.status = 'approved'
+      where s.status = 'approved' and s.archived_at is null and s.launch_date <= now()
         and (
           s.name ilike ${pattern}
           or s.tagline ilike ${pattern}

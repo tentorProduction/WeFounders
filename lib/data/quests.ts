@@ -29,7 +29,7 @@ export async function getQuestBoard(): Promise<QuestWithStartup[]> {
   try {
     const rows = (await sql`
       ${raw(QUEST_WITH_STARTUP)}
-      order by q.created_at desc
+      where q.approval_status='approved' and s.status='approved' and s.archived_at is null and s.launch_date<=now() order by q.created_at desc
     `) as unknown as QuestWithStartup[];
 
     return rows;
@@ -45,7 +45,7 @@ export async function getQuestById(questId: string): Promise<QuestWithStartup | 
   try {
     const rows = (await sql`
       ${raw(QUEST_WITH_STARTUP)}
-      where q.id = ${questId}::uuid
+      where q.id = ${questId}::uuid and q.approval_status='approved' and s.status='approved' and s.archived_at is null
       limit 1
     `) as unknown as QuestWithStartup[];
 

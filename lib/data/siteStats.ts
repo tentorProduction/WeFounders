@@ -1,4 +1,5 @@
 import { sql } from "@/lib/db/neon";
+import { reportReadFailure } from "@/lib/data/read-failure";
 
 /**
  * Single source of truth for public-facing metrics.
@@ -15,7 +16,7 @@ export async function getSiteStats() {
         coalesce(sum(waitlist_count), 0)::int          as waitlisted_testers,
         coalesce(sum(upvotes_count), 0)::int          as total_upvotes
       from startups
-      where status = 'approved'
+      where status = 'approved' and archived_at is null and launch_date<=now()
     `) as {
       verified_launches: number;
       waitlisted_testers: number;
@@ -30,6 +31,7 @@ export async function getSiteStats() {
     };
   } catch (error) {
     console.error("[siteStats] read failed:", error);
+    reportReadFailure("siteStats", error);
     return { verifiedLaunches: 0, waitlistedTesters: 0, totalUpvotes: 0 };
   }
 }

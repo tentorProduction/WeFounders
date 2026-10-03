@@ -8,7 +8,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint . --max-warnings=0",
+    "db:migrate": "tsx scripts/db-migrate.ts",
     "seed:batch": "tsx scripts/seed-batch.ts"
   },
   "dependencies": {

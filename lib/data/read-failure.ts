@@ -37,13 +37,5 @@ export function reportReadFailure(scope: string, error: unknown): void {
 
   console.error(`[data/${scope}] read failed:`, error);
 
-  // In development a missing table or a bad column is the usual cause and the
-  // message alone is easy to miss in the dev overlay.
-  if (process.env.NODE_ENV === "development") {
-    const message = error instanceof Error ? error.message : String(error);
-    console.warn(
-      `[data/${scope}] continuing with an empty result. ` +
-        `Has db/schema.sql been applied to Neon? (${message})`
-    );
-  }
+  throw new Error("Platform data is temporarily unavailable. Please retry.", { cause: error });
 }

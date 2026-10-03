@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { verifyAdmin } from "@/lib/auth/admin";
-import { sql } from "@/lib/db/neon";
+import { auditedSql } from "@/lib/db/neon";
 import type { QuestStatus } from "@/types/database";
 
 const idSchema = z.string().uuid();
@@ -24,7 +24,8 @@ function refreshQuests() {
 export type AdminQuestInput = z.infer<typeof questSchema>;
 
 export async function saveAdminQuest(input: AdminQuestInput, questId?: string) {
-  await verifyAdmin();
+  const admin = await verifyAdmin();
+  const sql = auditedSql(admin.userId);
   const parsed = questSchema.safeParse(input);
   if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? "Check the quest details.");
   if (questId && !idSchema.safeParse(questId).success) throw new Error("Invalid quest id.");
@@ -74,7 +75,8 @@ export async function saveAdminQuest(input: AdminQuestInput, questId?: string) {
 }
 
 export async function setAdminQuestStatus(questId: string, status: QuestStatus) {
-  await verifyAdmin();
+  const admin = await verifyAdmin();
+  const sql = auditedSql(admin.userId);
   if (!idSchema.safeParse(questId).success) throw new Error("Invalid quest id.");
   if (!new Set<QuestStatus>(["active", "paused", "completed"]).has(status)) throw new Error("Invalid quest status.");
   await sql`
@@ -84,14 +86,16 @@ export async function setAdminQuestStatus(questId: string, status: QuestStatus) 
 }
 
 export async function deleteAdminQuest(questId: string) {
-  await verifyAdmin();
+  const admin = await verifyAdmin();
+  const sql = auditedSql(admin.userId);
   if (!idSchema.safeParse(questId).success) throw new Error("Invalid quest id.");
   await sql`delete from testing_quests where id = ${questId}::uuid`;
   refreshQuests();
 }
 
 export async function reviewQuestSubmission(submissionId: string, status: "accepted" | "rejected", founderFeedback: string) {
-  await verifyAdmin();
+  const admin = await verifyAdmin();
+  const sql = auditedSql(admin.userId);
   if (!idSchema.safeParse(submissionId).success) throw new Error("Invalid submission id.");
   if (status !== "accepted" && status !== "rejected") throw new Error("Invalid report decision.");
   const feedback = founderFeedback.trim();
@@ -103,3 +107,4 @@ export async function reviewQuestSubmission(submissionId: string, status: "accep
   `;
   refreshQuests();
 }
+

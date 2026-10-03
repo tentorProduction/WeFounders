@@ -10,6 +10,7 @@ const isClerkConfigured = Boolean(
 
 export default async function middleware(request: NextRequest, event: NextFetchEvent) {
   if (!isClerkConfigured) {
+    if (isAdminRoute(request)) return NextResponse.redirect(new URL("/?error=authentication_unavailable", request.url));
     return NextResponse.next();
   }
 
@@ -28,7 +29,7 @@ export default async function middleware(request: NextRequest, event: NextFetchE
     })(request, event);
   } catch (error) {
     console.error("[middleware] Clerk invocation failed:", error);
-    return NextResponse.next();
+    return new NextResponse("Authentication is temporarily unavailable. Please retry.", { status: 503 });
   }
 }
 
