@@ -54,3 +54,13 @@ npm run build        # Must produce clean static & dynamic routes
 - Check `.planning/STATE.md` for current health, active milestone, and recent commits.
 - Check `.planning/ROADMAP.md` for prioritized tasks and open goals.
 - Check `.planning/PROJECT.md` for architectural design and data schemas.
+
+---
+
+## 5. Caveman Mode Directives (JuliusBrussee/caveman)
+
+- **Answer First:** State payload, reason, next step immediately.
+- **Zero Fluff:** No conversational filler, pleasantries, or hedging ("Sure!", "Let me", "Hope this helps").
+- **Exact Payload:** Code blocks, file paths, commands, and error messages must remain 100% exact and verbatim.
+- **Atomic & Direct:** Drop redundant articles where clear. Every word earns its place.
+
