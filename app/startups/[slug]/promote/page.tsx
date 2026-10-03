@@ -14,6 +14,7 @@ import {
   isSandboxPayments,
 } from "@/lib/payments/config";
 import { PromoteCheckout } from "@/components/startups/promote-checkout";
+import { getViewer, isFounderViewer } from "@/lib/auth/viewer";
 import { StartupLogo } from "@/components/startups/startup-logo";
 import { cn } from "@/lib/utils";
 
@@ -81,8 +82,12 @@ export default async function PromoteStartupPage({
   const startup = await getStartupBySlug(slug);
   if (!startup) notFound();
 
+  // A promotion reference identifies one founder's checkout attempt, so it is
+  // only ever loaded for the account that owns it.
+  const isOwner = isFounderViewer(await getViewer(), startup);
+
   const [latest, activeFeatured] = await Promise.all([
-    getLatestPromotion(startup.id),
+    isOwner ? getLatestPromotion(startup.id) : Promise.resolve(null),
     getActiveFeatured(),
   ]);
   const isActive = activeFeatured?.promotion.startup_id === startup.id;

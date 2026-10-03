@@ -2,6 +2,7 @@ import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import "server-only";
 
 /**
  * Session cookies for a Firebase-authenticated user.

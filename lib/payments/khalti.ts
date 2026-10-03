@@ -9,6 +9,8 @@
  *     before marking the promotion paid (never trust the redirect alone).
  */
 
+import { allowsTestCredentials } from "@/lib/payments/config";
+
 export const KHALTI_BASE_URL = process.env.PAYMENTS_MODE === "live"
   ? "https://khalti.com/api/v2"
   : "https://dev.khalti.com/api/v2";
@@ -16,7 +18,9 @@ export const KHALTI_BASE_URL = process.env.PAYMENTS_MODE === "live"
 const KHALTI_SECRET_KEY = process.env.KHALTI_SECRET_KEY ?? "";
 
 export function isKhaltiConfigured(): boolean {
-  return Boolean(KHALTI_SECRET_KEY);
+  if (!KHALTI_SECRET_KEY) return false;
+  // Khalti sandbox keys are prefixed `test_`; production must not accept them.
+  return allowsTestCredentials() || !KHALTI_SECRET_KEY.startsWith("test_");
 }
 
 export interface KhaltiInitiateParams {

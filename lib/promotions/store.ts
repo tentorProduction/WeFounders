@@ -39,6 +39,14 @@ export interface CreatePromotionInput {
 export async function createPendingPromotion(
   input: CreatePromotionInput
 ): Promise<Promotion> {
+  // The ledger price comes from the tier, never from the caller: both gateway
+  // callbacks compare the verified amount against this row, so a caller-supplied
+  // amount would let a founder buy a 7-day placement for less.
+  const plan = getPlan(input.planTier);
+  if (!plan || plan.priceNpr !== input.amountNpr) {
+    throw new Error("Promotion amount does not match its plan tier.");
+  }
+
   const slug = (await getStartupById(input.startupId))?.slug ?? "startup";
   const supabase = createAdminClient();
 
@@ -47,7 +55,7 @@ export async function createPendingPromotion(
     .insert({
       startup_id: input.startupId,
       founder_id: input.founderId,
-      amount_npr: input.amountNpr,
+      amount_npr: plan.priceNpr,
       provider: input.provider,
       reference_id: makeReference(slug),
       plan_tier: input.planTier,
@@ -114,9 +122,14 @@ export async function completePromotion(
 
   const supabase = createAdminClient();
   const plan = getPlan(promotion.plan_tier);
+  if (!plan) {
+    // Never grant a guessed duration for a tier we do not recognise.
+    console.error(`[promotions] unknown plan tier "${promotion.plan_tier}" for ${referenceId}`);
+    return null;
+  }
   const verifiedAt = new Date().toISOString();
   const until = new Date(
-    Date.now() + (plan?.durationHours ?? 48) * 3_600_000
+    Date.now() + plan.durationHours * 3_600_000
   ).toISOString();
 
   const { data, error } = await supabase

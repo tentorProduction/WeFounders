@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { getViewer, isFounderViewer } from "@/lib/auth/viewer";
 import { getStartupBySlug } from "@/lib/data/startups";
+import { isRateLimited } from "@/lib/security/rate-limit";
 import { listWaitlist } from "@/lib/waitlist/store";
 
 /**
@@ -43,8 +44,16 @@ export async function GET(
     );
   }
 
-  const rows = await listWaitlist(startup.id);
+  // Subscriber emails are the most sensitive data on the site: cap how often a
+  // single account can dump them, even its own owner.
+  if (await isRateLimited("waitlist-export", viewer.userId!, 10, 60_000)) {
+    return NextResponse.json(
+      { error: "Too many exports. Try again in a minute." },
+      { status: 429 }
+    );
+  }
 
+  const rows = await listWaitlist(startup.id);
   const header = [
     "email",
     "phone",

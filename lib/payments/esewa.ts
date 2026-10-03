@@ -12,6 +12,8 @@
 
 import { createHmac, timingSafeEqual } from "crypto";
 
+import { allowsTestCredentials } from "@/lib/payments/config";
+
 export const ESEWA_BASE_URL =
   process.env.PAYMENTS_MODE === "live"
     ? "https://epay.esewa.com.np"
@@ -21,20 +23,25 @@ export const ESEWA_BASE_URL =
 export const ESEWA_MERCHANT_CODE =
   process.env.ESEWA_MERCHANT_CODE ?? (process.env.PAYMENTS_MODE === "live" ? "" : "EPAYTEST");
 
+/** eSewa publishes this sandbox key in its own docs; it is not a secret. */
+const ESEWA_PUBLIC_TEST_SECRET = "8gBm/:&EnhH.1/q";
+
 const ESEWA_SECRET_KEY = process.env.ESEWA_SECRET_KEY ?? "";
+
+const testCredentialsAllowed = allowsTestCredentials();
 
 export function isEsewaConfigured(): boolean {
   return Boolean(
     ESEWA_SECRET_KEY &&
     ESEWA_MERCHANT_CODE &&
-    !(process.env.PAYMENTS_MODE === "live" && ESEWA_MERCHANT_CODE === "EPAYTEST") &&
-    !(process.env.PAYMENTS_MODE === "live" && ESEWA_SECRET_KEY === "8gBm/:&EnhH.1/q")
+    (testCredentialsAllowed || ESEWA_MERCHANT_CODE !== "EPAYTEST") &&
+    (testCredentialsAllowed || ESEWA_SECRET_KEY !== ESEWA_PUBLIC_TEST_SECRET)
   );
 }
 
 function requireEsewaSecret(secretKey?: string): string {
   const secret = secretKey ?? ESEWA_SECRET_KEY;
-  if (!secret || (process.env.PAYMENTS_MODE === "live" && secret === "8gBm/:&EnhH.1/q")) {
+  if (!secret || (!testCredentialsAllowed && secret === ESEWA_PUBLIC_TEST_SECRET)) {
     throw new Error("A valid ESEWA_SECRET_KEY is required for this payment mode.");
   }
   return secret;
@@ -211,7 +218,9 @@ export async function verifyEsewaTransaction(
 ): Promise<{ ok: boolean; status: string | null }> {
   const url = new URL(`${ESEWA_BASE_URL}/api/epay/transaction/status/`);
   url.searchParams.set("product_code", productCode);
-  url.searchParams.set("total_amount", params.amount.toFixed(2));
+  // PostgREST hands numeric columns back as strings, so never call toFixed
+  // on the stored amount directly.
+  url.searchParams.set("total_amount", Number(params.amount).toFixed(2));
   url.searchParams.set("transaction_uuid", params.transactionUuid);
 
   try {

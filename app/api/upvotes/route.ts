@@ -6,6 +6,7 @@ import { z } from "zod";
 import { getStartupById } from "@/lib/data/startups";
 import { clientAddress, isRateLimited } from "@/lib/security/rate-limit";
 import { readBoundedBody } from "@/lib/security/request-body";
+import { hasTrustedOrigin } from "@/lib/security/request-origin";
 
 /**
  * Persist an upvote for the signed-in viewer.
@@ -21,6 +22,8 @@ import { readBoundedBody } from "@/lib/security/request-body";
  */
 
 export async function POST(request: Request) {
+  if (!hasTrustedOrigin(request)) return NextResponse.json({ error: "Untrusted request origin." }, { status: 403 });
+
   let startupId = "";
   let voted = true;
 

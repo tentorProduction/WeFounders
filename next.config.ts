@@ -22,16 +22,6 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
     ],
   },
-  // The /docs/[doc] route reads these markdown files from the repo root at
-  // request time — make sure they're bundled in serverless deployments.
-  outputFileTracingIncludes: {
-    "/docs/[doc]": [
-      "./PRD.md",
-      "./TRD.md",
-      "./DESIGN.md",
-      "./FREE_DEPLOYMENT_GUIDE.md.txt",
-    ],
-  },
 };
 
 export default nextConfig;

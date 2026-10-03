@@ -14,7 +14,11 @@ async function main() {
     console.warn("No SUPABASE_ACCESS_TOKEN, skipping remote SQL execution.");
     return;
   }
-  const sql = await readFile(path.join(process.cwd(), "scripts", "admin-setup.sql"), "utf8");
+  const sqlPath = process.argv[2]
+    ? path.resolve(process.cwd(), process.argv[2])
+    : path.join(process.cwd(), "scripts", "admin-setup.sql");
+  console.log(`Executing ${path.relative(process.cwd(), sqlPath)} …`);
+  const sql = await readFile(sqlPath, "utf8");
   const response = await fetch(API, {
     method: "POST",
     headers: {

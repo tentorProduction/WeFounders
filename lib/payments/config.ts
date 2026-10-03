@@ -8,12 +8,27 @@
  *
  * Set PAYMENTS_MODE=live (plus real merchant credentials) to switch both
  * gateways to production.
+ *
+ * A production build never runs on test credentials — see allowsTestCredentials.
  */
 
 export type PaymentsMode = "sandbox" | "live";
 
 export function getPaymentsMode(): PaymentsMode {
   return process.env.PAYMENTS_MODE === "live" ? "live" : "sandbox";
+}
+
+/**
+ * Test credentials may only be used by a local development server.
+ *
+ * PAYMENTS_MODE defaults to sandbox, so a production deploy that simply forgets
+ * the variable would otherwise accept eSewa's *publicly documented* EPAYTEST
+ * key — and because callback authenticity rests on an HMAC made with that key,
+ * a sandbox-mode signature proves nothing to an attacker. Providers must treat
+ * false here as "not configured" and refuse checkout.
+ */
+export function allowsTestCredentials(): boolean {
+  return process.env.NODE_ENV !== "production";
 }
 
 export function isSandboxPayments(): boolean {

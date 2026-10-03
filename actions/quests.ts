@@ -36,8 +36,14 @@ export async function submitQuestProofAction(
   _prevState: QuestSubmissionActionState,
   formData: FormData
 ): Promise<QuestSubmissionActionState> {
+  // A reward is credited for this report, so it must be tied to a real account.
+  const viewer = await getViewer();
+  if (!viewer.userId) {
+    return { status: "error", message: "Sign in with Google to submit quest proof." };
+  }
+
   const requestHeaders = await headers();
-  if (await isRateLimited("quest-report", clientAddress(requestHeaders), 5, 60 * 60_000)) {
+  if (await isRateLimited("quest-report", `${viewer.userId}:${clientAddress(requestHeaders)}`, 5, 60 * 60_000)) {
     return { status: "error", message: "Too many reports from this network. Try again later." };
   }
 
@@ -80,8 +86,6 @@ export async function submitQuestProofAction(
   if (quest.submissions_count >= quest.max_submissions) {
     return { status: "error", message: "This quest is already full." };
   }
-
-  const viewer = await getViewer();
 
   // TODO(P1): upload screenshot binaries to Supabase Storage and store URLs.
   await addQuestSubmission({

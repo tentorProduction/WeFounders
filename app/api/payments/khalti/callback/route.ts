@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { getStartupById } from "@/lib/data/startups";
+import { getViewer } from "@/lib/auth/viewer";
 import { getSiteOrigin } from "@/lib/site-url";
 import { isKhaltiSimulated } from "@/lib/payments/config";
 import { lookupKhaltiPayment } from "@/lib/payments/khalti";
@@ -35,10 +36,16 @@ export async function GET(request: Request) {
   if (!promotion || promotion.provider !== "khalti" || promotion.status !== "pending") return back(null, "failed");
   const startup = await getStartupById(promotion.startup_id);
 
+  // The simulated gateway has no signature to verify, so the only thing tying a
+  // completion to a real checkout is the founder's own session.
+  const simulatedViewer = isKhaltiSimulated() ? await getViewer() : null;
+  const simulatedId = simulatedViewer?.userId;
+  const simulatedOwner = Boolean(simulatedId) && simulatedId === promotion.founder_id;
+
   let status = "FAILED";
   let transactionId: string | null = null;
 
-  if (isKhaltiSimulated() && pidx.startsWith("sim_")) {
+  if (simulatedOwner && pidx.startsWith("sim_")) {
     status = url.searchParams.get("status") === "success" ? "COMPLETED" : "USER_CANCELED";
     transactionId = pidx;
   } else if (pidx && promotion.payment_intent_id === pidx) {

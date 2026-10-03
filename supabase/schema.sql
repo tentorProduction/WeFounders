@@ -400,6 +400,18 @@ grant select on
   public.collab_posts
   to anon, authenticated;
 
+-- Strip the write privileges Supabase's template grants by default. All writes
+-- go through the service role behind a server-side owner check. See
+-- migrations/202610030001_revoke_anon_writes.sql for existing databases.
+revoke insert, update, delete, truncate, references, trigger
+  on all tables in schema public
+  from anon, authenticated;
+
+alter default privileges in schema public
+  revoke insert, update, delete, truncate, references, trigger
+  on tables
+  from anon, authenticated;
+
 /* -------------------------------------------------------------------------- */
 /* Storage buckets                                                             */
 /*                                                                             */

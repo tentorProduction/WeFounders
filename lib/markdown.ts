@@ -23,9 +23,11 @@ function escapeHtml(input: string): string {
 
 function safeHref(raw: string): string | null {
   const href = raw.trim();
-  if (/^https?:\/\//i.test(href) || /^mailto:/i.test(href) || href.startsWith("/")) {
-    return href;
-  }
+  if (/^https?:\/\//i.test(href) || /^mailto:/i.test(href)) return href;
+  // Exactly one leading slash: `//evil.com` is protocol-relative and browsers
+  // normalise `/\evil.com` the same way, so both would leave the site while
+  // looking like an internal link.
+  if (/^\/(?![/\\])/.test(href)) return href;
   return null;
 }
 
