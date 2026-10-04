@@ -19,6 +19,9 @@ alter table startups add column if not exists verified_at timestamptz;
 alter table startups add column if not exists archived_at timestamptz;
 alter table startups add column if not exists review_state text not null default 'submitted';
 alter table startups add column if not exists moderation_notes text not null default '';
+alter table promotions add column if not exists duration_hours integer not null default 48 check(duration_hours between 1 and 720);
+alter table promotions add column if not exists refund_requested_at timestamptz;
+alter table promotions add column if not exists refund_note text;
 alter table testing_quests add column if not exists approval_status text not null default 'approved' check(approval_status in ('pending','approved','rejected'));
 alter table testing_quests add column if not exists karma_reward integer not null default 0 check(karma_reward between 0 and 500);
 alter table testing_quests add column if not exists estimated_minutes integer not null default 15 check(estimated_minutes between 1 and 600);
@@ -124,6 +127,77 @@ create table if not exists rate_limits (
  key text primary key, window_start timestamptz not null, count integer not null
 );
 
+create table if not exists email_outbox (
+ id uuid primary key default gen_random_uuid(), notification_id uuid not null unique references notifications(id),
+ attempts integer not null default 0, delivered_at timestamptz, last_error text, locked_until timestamptz,
+ created_at timestamptz not null default now()
+);
+
+create or replace function queue_notification_email() returns trigger language plpgsql set search_path=pg_catalog,public as $$
+begin
+ insert into email_outbox(notification_id) select new.id from profiles where id=new.user_id and email_notifications and suspended_at is null;
+ return new;
+end $$;
+drop trigger if exists notification_email_queue on notifications;
+create trigger notification_email_queue after insert on notifications for each row execute function queue_notification_email();
+
+create or replace function notify_platform_event() returns trigger language plpgsql set search_path=pg_catalog,public as $$
+declare owner_id uuid; slug_value text; title_value text; recipient uuid;
+begin
+ if tg_table_name='follows' then
+  if new.profile_id is not null then recipient:=new.profile_id; else select founder_id,slug into recipient,slug_value from startups where id=new.startup_id; end if;
+  if recipient<>new.user_id then insert into notifications(user_id,kind,title,href) values(recipient,'follower','You have a new follower','/following'); end if;
+ elsif tg_table_name='startup_updates' then
+  select slug into slug_value from startups where id=new.startup_id;
+  insert into notifications(user_id,kind,title,href) select user_id,'update',new.title,'/startups/'||slug_value from follows where startup_id=new.startup_id and user_id<>new.author_id;
+ elsif tg_table_name='comments' then
+  select founder_id,slug into owner_id,slug_value from startups where id=new.startup_id;
+  if new.parent_id is not null then select user_id into recipient from comments where id=new.parent_id; end if;
+  insert into notifications(user_id,kind,title,href) select id,'comment','New discussion on your launch','/startups/'||slug_value from profiles where id in(owner_id,recipient) and id<>new.user_id;
+ elsif tg_table_name='quest_submissions' then
+  select s.founder_id,s.slug,q.title into owner_id,slug_value,title_value from testing_quests q join startups s on s.id=q.startup_id where q.id=new.quest_id;
+  if tg_op='INSERT' then insert into notifications(user_id,kind,title,href) values(owner_id,'submission','A tester submitted feedback','/dashboard/founder');
+  elsif new.status is distinct from old.status or new.review_state is distinct from old.review_state then insert into notifications(user_id,kind,title,href) values(new.tester_id,'review','Your report for '||title_value||' was reviewed','/dashboard/tester'); end if;
+ elsif tg_table_name='startups' then
+  if new.status is distinct from old.status or new.review_state is distinct from old.review_state then
+   insert into notifications(user_id,kind,title,href) values(new.founder_id,'moderation','Your startup review: '||new.status,'/dashboard/founder');
+  end if;
+ elsif tg_table_name='testing_quests' then
+  if new.approval_status='approved' and old.approval_status<>'approved' then
+   insert into notifications(user_id,kind,title,href) select user_id,'quest',new.title,'/quests/'||new.id from follows where startup_id=new.startup_id;
+  end if;
+ elsif tg_table_name='collab_applications' then
+  if tg_op='INSERT' then select author_id into recipient from collab_posts where id=new.collab_id; insert into notifications(user_id,kind,title,href) values(recipient,'application','New collaboration application','/dashboard/founder');
+  elsif old.status<>new.status then insert into notifications(user_id,kind,title,href) values(new.user_id,'application','Your application was reviewed','/dashboard'); end if;
+ elsif tg_table_name='promotions' then
+  if new.status is distinct from old.status then insert into notifications(user_id,kind,title,href) values(new.founder_id,'payment','Payment status: '||new.status,'/dashboard/founder'); end if;
+ end if;
+ return new;
+end $$;
+do $$ declare t text; begin
+ foreach t in array array['follows','startup_updates','comments','quest_submissions','collab_applications'] loop
+  execute format('drop trigger if exists platform_notify on %I',t);
+  execute format('create trigger platform_notify after insert or update on %I for each row execute function notify_platform_event()',t);
+ end loop;
+ foreach t in array array['startups','testing_quests','promotions'] loop
+  execute format('drop trigger if exists platform_notify on %I',t);
+  execute format('create trigger platform_notify after update on %I for each row execute function notify_platform_event()',t);
+ end loop;
+end $$;
+
+-- Retest eligibility requires actual participation; referral rewards await real activation.
+create or replace function activate_referral_on_quest() returns trigger language plpgsql set search_path=pg_catalog,public as $$
+declare referred uuid; referrer uuid;
+begin
+ if new.status='accepted' and old.status<>'accepted' then
+  update referrals set activated_at=now() where referred_id=new.tester_id and activated_at is null returning referred_id,referrer_id into referred,referrer;
+  if referrer is not null then insert into karma_transactions(user_id,amount,reason,source_type,source_id) values(referrer,5,'Referral completed a verified quest','referral',referred) on conflict do nothing; end if;
+ end if;
+ return new;
+end $$;
+drop trigger if exists referral_activate on quest_submissions;
+create trigger referral_activate after update on quest_submissions for each row execute function activate_referral_on_quest();
+
 -- Constraint-level protections apply to all write paths, including legacy actions.
 create or replace function guard_upvote() returns trigger language plpgsql set search_path=pg_catalog,public as $$
 begin
@@ -195,3 +269,31 @@ do $$ declare t text; begin
  end loop;
 end $$;
 
+-- Joining reserves a slot under the same quest lock used for report submission.
+create or replace function guard_quest_member() returns trigger language plpgsql set search_path=pg_catalog,public as $$
+declare q testing_quests; owner_id uuid;
+begin
+ select * into q from testing_quests where id=new.quest_id for update;
+ if exists(select 1 from quest_members where quest_id=new.quest_id and tester_id=new.tester_id) then return new; end if;
+ select founder_id into owner_id from startups where id=q.startup_id and status='approved' and archived_at is null and launch_date<=now();
+ if q.id is null or q.status<>'active' or q.approval_status<>'approved' or owner_id is null or owner_id=new.tester_id or (q.deadline is not null and q.deadline<=now()) then raise exception 'Quest unavailable'; end if;
+ if (select count(*) from quest_members where quest_id=q.id)>=q.max_submissions then raise exception 'Quest is full'; end if;
+ return new;
+end $$;
+drop trigger if exists quest_member_guard on quest_members;
+create trigger quest_member_guard before insert on quest_members for each row execute function guard_quest_member();
+alter table startups add column if not exists beta_notes text not null default '';
+alter table collab_posts add column if not exists company_name text not null default '';
+-- Reputation corrections use compensating transactions, never rewritten credits.
+create or replace function guard_karma_history() returns trigger language plpgsql set search_path=pg_catalog,public as $$
+begin raise exception 'Karma history is append-only'; end $$;
+drop trigger if exists karma_history_guard on karma_transactions;
+create trigger karma_history_guard before update or delete on karma_transactions for each row execute function guard_karma_history();
+
+create or replace function welcome_member() returns trigger language plpgsql set search_path=pg_catalog,public as $$
+begin insert into notifications(user_id,kind,title,href) values(new.id,'system','Welcome to WeFounders. Complete your builder profile.','/onboarding'); return new; end $$;
+drop trigger if exists member_welcome on profiles;
+create trigger member_welcome after insert on profiles for each row execute function welcome_member();
+create table if not exists weekly_digest_receipts (
+ user_id uuid not null references profiles(id) on delete cascade, week date not null, primary key(user_id,week)
+);

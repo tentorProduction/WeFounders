@@ -22,7 +22,7 @@ export interface StartupCardUpvote {
 
 export interface StartupCardProps {
   startup: StartupWithTags;
-  upvote: StartupCardUpvote;
+  upvote?: StartupCardUpvote;
   onSelectTag?: (tag: TagPillTag) => void;
   activeTagSlug?: string | null;
   rank?: number;
@@ -77,7 +77,7 @@ export function StartupCard({
     <article
       className={cn(
         "godly-card deck-card group relative transition-all duration-200",
-        "rounded-[22px] border border-white/80 bg-white/82 p-4 backdrop-blur-sm sm:p-5",
+        "rounded-xl border border-border bg-card p-4 sm:p-5",
         className
       )}
     >
@@ -170,10 +170,10 @@ export function StartupCard({
         {/* 7-8. Community metrics + action */}
         <div className="col-span-2 flex items-center justify-between gap-3 border-t border-[#DADDE1]/60 pt-3 sm:col-span-1 sm:flex-col sm:items-end sm:border-0 sm:pt-0">
           <UpvoteButton
-            count={upvote.count}
-            voted={upvote.voted}
-            pending={upvote.pending}
-            onToggle={upvote.onToggle}
+            count={upvote?.count ?? startup.upvotes_count}
+            voted={upvote?.voted ?? false}
+            pending={upvote?.pending ?? false}
+            onToggle={upvote?.onToggle ?? (() => {})}
           />
 
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-tiny text-[#666A73] sm:justify-end">

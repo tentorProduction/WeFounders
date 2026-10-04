@@ -1,23 +1,11 @@
-import { getSiteOrigin } from "@/lib/site-url";
-import type { Metadata } from "next";
-
-import { getStartupFeed } from "@/lib/data/startups";
-import { LeaderboardView } from "@/components/rankings/leaderboard-view";
-
-const baseUrl = getSiteOrigin();
-
-export const metadata: Metadata = {
-  title: "Founder Leaderboard",
-  description:
-    "Top ranked products by verified on-platform engagement — upvotes, opt-in waitlists and accepted testing reports.",
-  alternates: { canonical: new URL("/leaderboard", baseUrl) },
-};
-
-export const dynamic = "force-dynamic";
-
-/** Public leaderboard. Rankings are computed client-side from live rows. */
-export default async function LeaderboardPage() {
-  const startups = await getStartupFeed();
-
-  return <LeaderboardView startups={startups} />;
+import { sql } from "@/lib/db/neon";
+import { PlatformPage,Panel,ItemList } from "@/components/platform/ui";
+import type { ListItem } from "@/lib/platform";
+export const dynamic="force-dynamic";
+export const metadata={title:"Community leaderboard",description:"Rankings from real upvotes and accepted testing contributions.",alternates:{canonical:'/leaderboard'}};
+export default async function Leaderboard({searchParams}:{searchParams:Promise<{period?:string;kind?:string;market?:string;category?:string}>}){
+ const query=await searchParams;const period=['week','month','all'].includes(query.period??'')?query.period!:'week';const kind=['products','founders','testers','builders'].includes(query.kind??'')?query.kind!:'products';const start=period==='all'?'1970-01-01T00:00:00.000Z':new Date(Date.now()-(period==='week'?7:30)*86400000).toISOString();const market=query.market??'';const category=(query.category??'').slice(0,80);
+ const items=kind==='products'?await sql`select s.id,s.name as title,s.tagline as description,'/startups/'||s.slug as href,((select count(*) from upvotes where startup_id=s.id and created_at>=${start}::timestamptz)+3*(select count(*) from quest_submissions r join testing_quests q on q.id=r.quest_id where q.startup_id=s.id and r.status='accepted' and r.reviewed_at>=${start}::timestamptz))::int as value from startups s where s.status='approved' and s.archived_at is null and s.launch_date<=now() and (${market}='' or s.target_market::text=${market}) and (${category}='' or exists(select 1 from startup_tags st join tags t on t.id=st.tag_id where st.startup_id=s.id and t.slug=${category})) order by value desc,s.launch_date desc limit 100` as unknown as ListItem[]:kind==='founders'?await sql`select p.id,p.full_name as title,'Founder' as description,'/profile/'||p.username as href,count(u.id)::int as value from profiles p join startups s on s.founder_id=p.id and s.status='approved' and s.archived_at is null and not s.is_curated left join upvotes u on u.startup_id=s.id and u.created_at>=${start}::timestamptz where p.suspended_at is null group by p.id order by value desc limit 100` as unknown as ListItem[]:kind==='testers'?await sql`select p.id,p.full_name as title,'Accepted reports' as description,'/profile/'||p.username as href,count(r.id)::int as value from profiles p join quest_submissions r on r.tester_id=p.id and r.status='accepted' and r.reviewed_at>=${start}::timestamptz where p.suspended_at is null group by p.id order by value desc limit 100` as unknown as ListItem[]:await sql`select p.id,p.full_name as title,'Karma earned' as description,'/profile/'||p.username as href,sum(k.amount)::int as value from profiles p join karma_transactions k on k.user_id=p.id and k.created_at>=${start}::timestamptz and k.amount>0 where p.suspended_at is null group by p.id order by value desc limit 100` as unknown as ListItem[];
+ return <PlatformPage title="Work worth recognizing." description="Real activity, ranked transparently. No fabricated engagement."><form className="flex flex-wrap items-end gap-4"><label className="text-sm">Timeframe<select name="period" defaultValue={period} className="ml-2 rounded-lg border bg-card p-3"><option value="week">This week</option><option value="month">This month</option><option value="all">All time</option></select></label><label className="text-sm">Rankings<select name="kind" defaultValue={kind} className="ml-2 rounded-lg border bg-card p-3">{['products','founders','testers','builders'].map(k=><option key={k}>{k}</option>)}</select></label><label className="text-sm">Market<select name="market" defaultValue={market} className="ml-2 rounded-lg border bg-card p-3"><option value="">All markets</option><option value="global_export">Global</option><option value="nepal_domestic">Nepal / regional</option></select></label><label className="text-sm">Category slug<input name="category" defaultValue={category} className="ml-2 max-w-[150px] rounded-lg border bg-card p-3"/></label><button className="ink-button px-5 py-3">Apply</button></form><p className="text-sm text-muted-foreground">Product score: 1 point per upvote and 3 per accepted report in the selected period. Founders rank by votes on their products; testers by accepted reports; builders by ledger Karma earned. Self-votes and duplicate reports are blocked.</p><Panel><ItemList items={items.map((item,index)=>({...item,title:`${index+1}. ${item.title}`}))} empty="No qualifying activity in this period. Complete a quest or help a product get discovered."/></Panel></PlatformPage>;
 }
+

@@ -2,16 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Compass, Search, Swords, User, Users, Rocket } from "lucide-react";
+import { Compass, Search, Swords, User, Users, Rocket } from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Feed", icon: Compass },
+  { href: "/discover", label: "Discover", icon: Compass },
   { href: "/quests", label: "Quests", icon: Swords },
   { href: "/collab", label: "Collab", icon: Users },
   { href: "/search", label: "Search", icon: Search },
-  { href: "/profile", label: "Profile", icon: User },
+  { href: "/dashboard", label: "You", icon: User },
 ] as const;
 
 /**
@@ -41,7 +41,7 @@ export function MobileNav() {
         </li>
 
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-          const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
+          const active = pathname.startsWith(href);
 
           return (
             <li key={href} className="min-w-0 flex-1">
@@ -72,3 +72,5 @@ export function MobileNav() {
     </nav>
   );
 }
+
+

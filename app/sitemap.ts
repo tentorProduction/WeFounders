@@ -1,10 +1,9 @@
 import { getSiteOrigin } from "@/lib/site-url";
 import type { MetadataRoute } from "next";
 
-import { getStartupFeed } from "@/lib/data/startups";
+import { sql } from "@/lib/db/neon";
 
-/** Rebuilt hourly so newly approved launches appear without a redeploy. */
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = getSiteOrigin();
@@ -18,7 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1.0,
     },
     {
-      url: `${baseUrl}/submit`,
+      url: `${baseUrl}/discover`,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
@@ -48,12 +47,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/promote`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
-    {
       url: `${baseUrl}/about`,
       lastModified: now,
       changeFrequency: "monthly",
@@ -64,14 +57,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
   ];
 
-  // Approved launches straight from the database — no static list to maintain.
-  const startups = await getStartupFeed({ orderBy: "newest" });
-  const startupRoutes: MetadataRoute.Sitemap = startups.map((startup) => ({
-    url: `${baseUrl}/startups/${startup.slug}`,
-    lastModified: new Date(startup.updated_at || startup.created_at || now),
+  // ponytail: one sitemap; split when public URLs approach the 50,000 URL limit.
+  const publicPages = await sql`
+    select 'startups' as route, slug as key, updated_at from startups
+    where status='approved' and archived_at is null and launch_date<=now()
+    union all select 'profile',username,updated_at from profiles
+    where suspended_at is null and username<>''
+    union all select 'quests',q.id::text,q.updated_at from testing_quests q
+    join startups s on s.id=q.startup_id
+    where q.approval_status='approved' and s.status='approved'
+      and s.archived_at is null and s.launch_date<=now()
+    union all select 'collab',id::text,created_at from collab_posts
+    where is_active and approval_status='approved'
+  ` as { route: string; key: string; updated_at: string }[];
+  const publicRoutes: MetadataRoute.Sitemap = publicPages.map((page) => ({
+    url: `${baseUrl}/${page.route}/${encodeURIComponent(page.key)}`,
+    lastModified: new Date(page.updated_at),
     changeFrequency: "weekly",
-    priority: 0.8,
+    priority: page.route === "startups" ? 0.8 : 0.6,
   }));
 
-  return [...staticRoutes, ...startupRoutes];
+  return [...staticRoutes, ...publicRoutes];
 }

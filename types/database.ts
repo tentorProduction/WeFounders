@@ -43,6 +43,15 @@ export interface Profile {
   is_phone_verified: boolean;
   karma_score: number;
   role: UserRole;
+  onboarding_completed?: boolean;
+  roles?: string[];
+  skills?: string[];
+  interests?: string[];
+  location?: string | null;
+  availability?: string | null;
+  portfolio_url?: string | null;
+  followers_count?: number;
+  following_count?: number;
   created_at: string;
   updated_at: string;
 }
@@ -66,6 +75,9 @@ export interface Startup {
   upvotes_count: number;
   comments_count: number;
   waitlist_count: number;
+  followers_count?: number;
+  views_count?: number;
+  verified?: boolean;
   is_featured: boolean;
   featured_until: string | null;
   created_at: string;
@@ -154,6 +166,7 @@ export interface QuestSubmission {
 }
 
 export interface CollabPost {
+  category:string;company_name:string;skills:string[];location:string;experience:string;is_remote:boolean;
   id: string;
   startup_id: string | null;
   author_id: string | null;
@@ -167,6 +180,7 @@ export interface CollabPost {
 }
 
 export interface Promotion {
+  duration_hours: number;
   id: string;
   startup_id: string;
   founder_id: string;
@@ -211,3 +225,73 @@ export interface CommentWithAuthor extends Omit<Comment, "user_id"> {
   user_id: string;
   author: CommentAuthor;
 }
+
+export interface Follow {
+  id: string;
+  follower_id: string;
+  target_type: "startup" | "user";
+  target_id: string;
+  created_at: string;
+}
+
+export interface SavedItem {
+  id: string;
+  user_id: string;
+  item_type: "startup" | "quest" | "collab";
+  item_id: string;
+  created_at: string;
+}
+
+export interface ProjectUpdate {
+  id: string;
+  startup_id: string;
+  author_id: string;
+  version: string;
+  title: string;
+  content: string;
+  media_urls: string[];
+  created_at: string;
+}
+
+export interface KarmaTransaction {
+  id: string;
+  user_id: string;
+  amount: number;
+  reason: string;
+  source_type: string;
+  source_id?: string | null;
+  created_at: string;
+}
+
+export interface NotificationItem {
+  id: string;
+  user_id: string;
+  type: "launch" | "comment" | "quest" | "collab" | "follower" | "system" | "karma";
+  title: string;
+  message: string;
+  link?: string | null;
+  is_read: boolean;
+  created_at: string;
+}
+
+export interface ReportItem {
+  id: string;
+  reporter_id: string;
+  target_type: "startup" | "comment" | "user" | "quest" | "collab";
+  target_id: string;
+  reason: string;
+  details?: string | null;
+  status: "pending" | "reviewed" | "dismissed" | "actioned";
+  created_at: string;
+}
+
+export interface AuditLogItem {
+  id: string;
+  admin_id: string;
+  action: string;
+  target_type: string;
+  target_id: string;
+  metadata?: Record<string, unknown>;
+  created_at: string;
+}
+

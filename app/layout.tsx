@@ -5,6 +5,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { shadcn } from "@clerk/ui/themes";
 
 import { SiteChrome } from "@/components/layout/site-chrome";
+import { FeedbackToast } from "@/components/platform/feedback-toast";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { CookieConsent } from "@/components/privacy/cookie-consent";
@@ -133,6 +134,7 @@ export default function RootLayout({
           <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
             <SiteChrome header={<SiteHeader />} footer={<SiteFooter />}>{children}</SiteChrome>
             <CookieConsent measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+            <FeedbackToast/>
           </ThemeProvider>
         </ClerkProvider>
       </body>

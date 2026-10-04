@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState, useTransition } from "react";
-import { CheckCircle2, Plus, X } from "lucide-react";
+import { CheckCircle2, Plus, X } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { approveAllPending, createManualStartup, type ManualStartupInput } from "@/app/admin/actions";
 import type { StartupStage, TargetMarket } from "@/types/database";
@@ -111,3 +111,4 @@ export function OverviewActions({ pendingCount }: { pendingCount: number }) {
     </>
   );
 }
+

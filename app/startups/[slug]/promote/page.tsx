@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CheckCircle2, PartyPopper, XCircle } from "lucide-react";
+import { CheckCircle2, PartyPopper, XCircle } from "@/components/icons";
 
 import { getStartupBySlug } from "@/lib/data/startups";
-import { PROMOTION_PLANS } from "@/lib/promotions/plans";
+import { getPlans } from "@/lib/promotions/catalog";
 import {
   getActiveFeatured,
   getLatestPromotion,
@@ -94,7 +94,7 @@ export default async function PromoteStartupPage({
 
   const status = paymentStatusOf(query.payment);
   const reference = typeof query.ref === "string" ? query.ref : null;
-  const banner = status ? STATUS_BANNERS[status] : null;
+  const banner = status && (status !== "success" || (isOwner && latest?.status === "completed" && latest.reference_id === reference)) ? STATUS_BANNERS[status] : null;
 
   const untilLabel = isActive
     ? new Intl.DateTimeFormat("en-GB", {
@@ -185,7 +185,7 @@ export default async function PromoteStartupPage({
       <div className="mt-5">
         <PromoteCheckout
           startupSlug={startup.slug}
-          plans={PROMOTION_PLANS}
+          plans={await getPlans()}
           sandbox={isSandboxPayments()}
           khaltiSimulated={isKhaltiSimulated()}
         />
@@ -208,3 +208,6 @@ export default async function PromoteStartupPage({
     </div>
   );
 }
+
+
+

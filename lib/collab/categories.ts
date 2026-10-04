@@ -1,0 +1,2 @@
+export const collabCategories=['cofounder','frontend','backend','full_stack','mobile','ai','ui_ux','devops','marketing','sales','content','product','beta_tester','advisor','internship'] as const;
+export const categoryLabel=(value:string)=>({cofounder:'Co-founder',full_stack:'Full-stack',ui_ux:'UI/UX',ai:'AI',devops:'DevOps',beta_tester:'Beta tester'}[value]??value.replace(/_/g,' ').replace(/^./,c=>c.toUpperCase()));

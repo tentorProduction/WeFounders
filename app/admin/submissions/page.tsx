@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { raw, sql } from "@/lib/db/neon";
 import { SubmissionsClient } from "./client";
 import type { AdminStartup } from "../types";
@@ -43,6 +44,7 @@ export default async function SubmissionsPage() {
         </div>
 
         <SubmissionsClient submissions={startups} />
+        <div className="flex flex-wrap gap-3">{startups.map(s=><Link key={s.id} href={`/admin/startups/${s.id}`} className="rounded-lg border border-[#27272A] px-3 py-2 text-sm">Edit / moderate {s.name}</Link>)}</div>
       </div>
     );
   } catch (error) {

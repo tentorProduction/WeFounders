@@ -185,7 +185,7 @@ export function DiscoveryFeed({
 
   return (
     <div className="space-y-10 sm:space-y-14">
-      <section className="agency-hero relative min-h-[620px] px-5 pb-8 pt-24 sm:min-h-[680px] sm:px-12 sm:pb-12 sm:pt-28 lg:px-20 lg:pt-32">
+      <section className="agency-hero relative px-0 pb-8 pt-6 sm:pb-10 sm:pt-8">
         <div className="relative z-10 max-w-[820px] space-y-6 text-left">
           {/* Eyebrow */}
           <div className="glass-pill inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-bold uppercase tracking-[0.16em] text-[#E83A30]">
@@ -193,8 +193,8 @@ export function DiscoveryFeed({
             <span>GLOBAL STARTUP LAUNCH PLATFORM</span>
           </div>
 
-          <h1 className="max-w-[780px] font-archivo text-[clamp(3.35rem,8.2vw,7.25rem)] font-medium leading-[0.86] tracking-[-0.07em] text-[#17181B]">
-            The startup launchpad, <span className="text-[#E83A30]">built to move.</span>
+          <h1 className="max-w-[780px] font-archivo text-[clamp(2.5rem,6vw,4.5rem)] font-medium leading-[0.86] tracking-[-0.07em] text-[#17181B]">
+            Discover new launches.
           </h1>
 
           {/* Subhead */}
@@ -228,7 +228,7 @@ export function DiscoveryFeed({
 
             <div className="glass-pill flex items-center gap-1.5 rounded-full px-3 py-2">
               <RocketLaunch className="h-3.5 w-3.5 text-[#FF4B3E]" weight="bold" />
-              <span>{countOf(verifiedLaunches, "Verified Launch")}</span>
+              <span>{countOf(verifiedLaunches, "Live Launch")}</span>
             </div>
 
             <div className="glass-pill flex items-center gap-1.5 rounded-full px-3 py-2">
@@ -387,3 +387,4 @@ export function DiscoveryFeed({
     </div>
   );
 }
+

@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { ShieldAlert } from "lucide-react";
+import { ShieldAlert } from "@/components/icons";
 
 import { getStartupById } from "@/lib/data/startups";
-import { formatPlanPrice, getPlan } from "@/lib/promotions/plans";
+import { getPlan } from "@/lib/promotions/catalog";
+import { formatPlanPrice } from "@/lib/promotions/plans";
 import { getPromotionByReference } from "@/lib/promotions/store";
 import { isSandboxPayments } from "@/lib/payments/config";
 import { Button } from "@/components/ui/button";
@@ -132,3 +133,6 @@ export default async function SandboxCheckoutPage({ searchParams }: PageProps) {
     </div>
   );
 }
+
+
+

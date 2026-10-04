@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { getStartupBySlug } from "@/lib/data/startups";
-import { getPlan } from "@/lib/promotions/plans";
+import { getPlan } from "@/lib/promotions/catalog";
 import { createPendingPromotion } from "@/lib/promotions/store";
 import {
   createEsewaPayment,
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
   const tier = params.get("plan_tier") ?? "";
 
   const startup = await getStartupBySlug(slug);
-  const plan = getPlan(tier);
+  const plan = await getPlan(tier);
   if (!startup || !plan) {
     return NextResponse.json(
       { error: "Unknown startup or plan." },
@@ -118,3 +118,4 @@ function renderAutoSubmitForm(form: EsewaSignedForm): string {
   </body>
 </html>`;
 }
+

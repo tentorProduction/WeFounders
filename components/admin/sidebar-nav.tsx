@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Handshake, Inbox, LayoutDashboard, Rocket, Settings, Target } from "lucide-react";
+import { Handshake, Inbox, LayoutDashboard, Rocket, Settings, Target } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +12,7 @@ const items = [
   { href: "/admin/startups", label: "Live Startups", icon: Rocket },
   { href: "/admin/quests", label: "Quests & Bounties", icon: Target },
   { href: "/admin/collab", label: "Collab & Gigs", icon: Handshake },
+  ...["users","reports","payments","analytics","audit-log"].map(section=>({href:`/admin/${section}`,label:section.replace("-"," "),icon:Settings})),
   { href: "/admin/settings", label: "Platform Settings", icon: Settings },
 ];
 
@@ -46,3 +47,5 @@ export function AdminSidebarNav({ pendingCount, collapsed }: { pendingCount: num
     </nav>
   );
 }
+
+

@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2 } from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 import {
@@ -230,3 +230,4 @@ export function QuestSubmissionModal({
     </Dialog>
   );
 }
+

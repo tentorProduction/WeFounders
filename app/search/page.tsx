@@ -1,27 +1,17 @@
-import { getSiteOrigin } from "@/lib/site-url";
-import type { Metadata } from "next";
-
-import { getStartupFeed } from "@/lib/data/startups";
-import { SearchExplorer } from "@/components/search/search-explorer";
-
-const baseUrl = getSiteOrigin();
-
-export const metadata: Metadata = {
-  title: "Search Startups & Betas",
-  description:
-    "Explore products and betas by category, tech stack, ecosystem, or keyword.",
-  alternates: { canonical: new URL("/search", baseUrl) },
-};
-
-export const dynamic = "force-dynamic";
-
-/**
- * Search route. Data is fetched on the server so the full startup list never
- * ships to the browser; filtering itself stays client-side for instant
- * feedback.
- */
-export default async function SearchPage() {
-  const startups = await getStartupFeed({ orderBy: "newest" });
-
-  return <SearchExplorer startups={startups} />;
+import { PlatformPage,Panel,ItemList } from "@/components/platform/ui";
+import { LaunchList } from "@/components/startups/launch-list";
+import { getStartupFeed,getAllTags } from "@/lib/data/startups";
+import { sql } from "@/lib/db/neon";
+import type { ListItem } from "@/lib/platform";
+export const dynamic="force-dynamic";
+export const metadata={title:"Search the community",description:"Find startups, founders, quests, and collaboration opportunities.",alternates:{canonical:'/search'}};
+export default async function Search({searchParams}:{searchParams:Promise<{q?:string;category?:string;stage?:string;market?:string;technology?:string;location?:string;sort?:string}>}){
+ const query=await searchParams;const term=(query.q??'').trim().slice(0,100);const pattern='%'+term.replace(/[\\%_]/g,c=>'\\'+c)+'%';
+ const [startups,tags]=await Promise.all([getStartupFeed({limit:200}),getAllTags()]);
+ const location=(query.location??'').slice(0,100);const founderLocations=location?await sql`select id from profiles where location ilike ${'%'+location+'%'}`:[];const ids=new Set(founderLocations.map(p=>String(p.id)));
+ const list=startups.filter(s=>(!term||[s.name,s.tagline,s.description,...s.tags.map(t=>t.name)].join(' ').toLowerCase().includes(term.toLowerCase()))&&(!query.category||s.tags.some(t=>t.slug===query.category))&&(!query.technology||s.tags.some(t=>t.slug===query.technology))&&(!query.stage||s.stage===query.stage)&&(!query.market||s.target_market===query.market)&&(!location||ids.has(s.founder_id))).sort((a,b)=>query.sort==='newest'?new Date(b.launch_date??b.created_at).getTime()-new Date(a.launch_date??a.created_at).getTime():b.upvotes_count-a.upvotes_count);
+ const people=term?await sql`select id,full_name as title,bio as description,'/profile/'||username as href from profiles where suspended_at is null and (full_name ilike ${pattern} or username ilike ${pattern} or ${term}=any(skills)) limit 20` as unknown as ListItem[]:[];
+ const quests=term?await sql`select q.id,q.title,s.name as description,'/quests/'||q.id as href from testing_quests q join startups s on s.id=q.startup_id where q.approval_status='approved' and s.status='approved' and s.archived_at is null and (q.title ilike ${pattern} or q.task_instructions ilike ${pattern}) limit 20` as unknown as ListItem[]:[];
+ const collab=term?await sql`select id,title,category as description,'/collab/'||id as href from collab_posts where is_active and approval_status='approved' and (title ilike ${pattern} or description ilike ${pattern}) limit 20` as unknown as ListItem[]:[];
+ return <PlatformPage title="Find your next connection." description="Products, people, testing quests, and opportunities."><form className="space-y-4 rounded-xl border bg-card p-4 sm:p-6"><label className="block text-sm">Search the community<input type="search" name="q" defaultValue={term} placeholder="Product, founder, skill or topic" className="mt-2 w-full rounded-lg border bg-background p-3"/></label><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{[['category','Category',tags.filter(t=>t.category==='industry')],['technology','Technology',tags.filter(t=>t.category==='stack')]].map(([key,label,choices])=><label key={String(key)} className="text-sm">{String(label)}<select name={String(key)} defaultValue={query[key as 'category'|'technology']??''} className="mt-2 w-full rounded-lg border bg-background p-3"><option value="">All</option>{(choices as typeof tags).map(t=><option key={t.id} value={t.slug}>{t.name}</option>)}</select></label>)}<label className="text-sm">Stage<select name="stage" defaultValue={query.stage??''} className="mt-2 w-full rounded-lg border bg-background p-3"><option value="">All stages</option>{['concept','closed_alpha','public_beta','launched'].map(s=><option key={s}>{s}</option>)}</select></label><label className="text-sm">Market<select name="market" defaultValue={query.market??''} className="mt-2 w-full rounded-lg border bg-background p-3"><option value="">All markets</option><option value="global_export">Global</option><option value="nepal_domestic">Local / regional</option><option value="hybrid">Multiple regions</option></select></label><label className="text-sm">Founder location<input name="location" defaultValue={location} className="mt-2 w-full rounded-lg border bg-background p-3"/></label><label className="text-sm">Order<select name="sort" defaultValue={query.sort??'popular'} className="mt-2 w-full rounded-lg border bg-background p-3"><option value="popular">Most upvoted</option><option value="newest">Newest</option></select></label></div><button className="ink-button px-6 py-3">Search</button></form><section><h2 className="mb-5 text-2xl">Startups · {list.length}</h2>{list.length?<LaunchList startups={list}/>:<Panel><p>No matching startups. Try fewer filters or a different term.</p></Panel>}</section>{term&&<div className="grid gap-6 lg:grid-cols-3"><Panel title="People"><ItemList items={people} empty="No matching members."/></Panel><Panel title="Quests"><ItemList items={quests} empty="No matching quests." cta="Browse quests" href="/quests"/></Panel><Panel title="Opportunities"><ItemList items={collab} empty="No matching opportunities." cta="Browse collaborations" href="/collab"/></Panel></div>}</PlatformPage>;
 }

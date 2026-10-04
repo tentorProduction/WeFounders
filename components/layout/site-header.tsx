@@ -8,11 +8,13 @@ import { CaretUp, List, MagnifyingGlass, X } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { UserButton } from "@/components/auth/user-button";
 import { BrandLogo } from "@/components/brand/brand-logo";
+import { NotificationBell } from "@/components/layout/notification-bell";
 
 const NAV_LINKS = [
-  { href: "/", label: "Launches" },
+  { href: "/discover", label: "Discover" },
   { href: "/leaderboard", label: "Leaderboard" },
-  { href: "/about", label: "About" },
+  { href: "/quests", label: "Quests" },
+  { href: "/collab", label: "Collab" },
 ] as const;
 
 /** Shape returned by /api/search — only what the dropdown renders. */
@@ -158,7 +160,7 @@ export function SiteHeader() {
           scrolled && ""
         )}
       >
-        <div className="glass-pill site-container h-[56px] md:h-[62px] flex items-center justify-between gap-2 overflow-x-hidden rounded-full px-2.5 md:px-3">
+        <div className="glass-pill site-container h-[56px] md:h-[62px] flex items-center justify-between gap-2 overflow-x-hidden rounded-xl px-3 md:px-4">
           {/* LEFT: Logo ONLY on mobile, Logo + Wordmark on desktop */}
           <div className="flex items-center shrink-0">
             <Link
@@ -175,12 +177,10 @@ export function SiteHeader() {
           </div>
 
           {/* CENTER LINKS (Desktop ONLY >= 768px) */}
-          <nav aria-label="Primary navigation" className="hidden md:flex items-center gap-6 lg:gap-8">
+          <nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-4 xl:gap-6">
             {NAV_LINKS.map((link) => {
               const isActive =
-                link.href === "/"
-                  ? pathname === "/"
-                  : pathname.startsWith(link.href);
+                pathname.startsWith(link.href);
 
               return (
                 <Link
@@ -201,7 +201,7 @@ export function SiteHeader() {
           </nav>
 
           {/* RIGHT (Desktop >= 768px): Search, User Button, Launch CTA */}
-          <div className="hidden md:flex items-center gap-3 lg:gap-4">
+          <div className="hidden lg:flex items-center gap-3 lg:gap-4">
             {/* Expandable Live Search */}
             <div className="relative">
               {searchExpanded ? (
@@ -261,6 +261,9 @@ export function SiteHeader() {
               )}
             </div>
 
+            {/* Notification Bell */}
+            <NotificationBell className="h-[40px] w-[40px]" />
+
             {/* User Control / Sign In */}
             <UserButton />
 
@@ -273,8 +276,8 @@ export function SiteHeader() {
             </Link>
           </div>
 
-          {/* MOBILE RIGHT (< 768px): Search Icon Button (44px) + Hamburger Icon Button (44px) with 8px gap */}
-          <div className="flex items-center gap-2 md:hidden shrink-0">
+          {/* MOBILE RIGHT (< 768px): Search Icon Button (44px) + Bell (44px) + Hamburger Icon Button (44px) with 8px gap */}
+          <div className="flex items-center gap-2 lg:hidden shrink-0">
             <button
               type="button"
               onClick={() => {
@@ -286,6 +289,8 @@ export function SiteHeader() {
             >
               <MagnifyingGlass className="h-5 w-5 text-[#17181B]" weight="bold" />
             </button>
+
+            <NotificationBell className="h-[44px] w-[44px] rounded-[8px]" />
 
             <button
               type="button"
@@ -304,7 +309,7 @@ export function SiteHeader() {
 
       {/* QUICK MOBILE SEARCH INPUT INLINE DROP DOWN */}
       {mobileSearchOpen && (
-        <div className="fixed top-[72px] inset-x-3 z-40 rounded-[22px] border border-white/80 bg-white/92 p-3 shadow-xl backdrop-blur-xl md:hidden animate-fade-in-up">
+        <div className="fixed top-[72px] inset-x-3 z-40 rounded-[22px] border border-white/80 bg-white/92 p-3 shadow-xl backdrop-blur-xl lg:hidden animate-fade-in-up">
           <form onSubmit={handleSearchSubmit} className="relative flex items-center">
             <input
               type="text"
@@ -351,7 +356,7 @@ export function SiteHeader() {
       {/* MOBILE SLIDE-DOWN HAMBURGER PANEL */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs md:hidden"
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs lg:hidden"
           onClick={() => setMobileOpen(false)}
         >
           <div
@@ -375,9 +380,7 @@ export function SiteHeader() {
             <nav className="flex flex-col divide-y divide-[#DADDE1]">
               {NAV_LINKS.map((link) => {
                 const isActive =
-                  link.href === "/"
-                    ? pathname === "/"
-                    : pathname.startsWith(link.href);
+                  pathname.startsWith(link.href);
 
                 return (
                   <Link
@@ -416,3 +419,5 @@ export function SiteHeader() {
     </>
   );
 }
+
+

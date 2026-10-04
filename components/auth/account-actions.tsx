@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useClerk } from "@clerk/nextjs";
-import { Loader2, LogOut, Plus } from "lucide-react";
+import { Loader2, LogOut, Plus } from "@/components/icons";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";

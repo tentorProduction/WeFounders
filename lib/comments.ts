@@ -1,3 +1,4 @@
+import { reportReadFailure } from "@/lib/data/read-failure";
 import { raw, sql } from "@/lib/db/neon";
 import type { CommentWithAuthor } from "@/types/database";
 
@@ -42,7 +43,7 @@ export async function getCommentThread(startupId: string): Promise<CommentWithAu
 
     return rows;
   } catch (error) {
-    console.error("[comments] read failed:", error);
+    reportReadFailure("comments read failed:", error);
     return [];
   }
 }

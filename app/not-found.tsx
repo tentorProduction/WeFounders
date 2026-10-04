@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Compass, Search } from "lucide-react";
+import { Compass, Search } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
@@ -15,3 +15,4 @@ export default function NotFound() {
     </section>
   );
 }
+

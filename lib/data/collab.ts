@@ -22,12 +22,13 @@ export type CollabPostWithAuthor = CollabPost & {
 const COLLAB_WITH_STARTUP = `
   select
     p.id, p.startup_id, p.author_id, p.role_type, p.title, p.description,
-    p.equity_or_compensation, p.contact_channel, p.is_active, p.created_at,
-    coalesce(p.author_name, 'WeFounders builder') as author_name,
+    p.equity_or_compensation, p.contact_channel, p.is_active, p.created_at,p.category,p.company_name,p.skills,p.location,p.experience,p.is_remote,
+    coalesce(a.full_name,p.author_name) as author_name,a.username as author_username,
     s.name as startup_name,
     s.slug as startup_slug
   from collab_posts p
   left join startups s on s.id = p.startup_id
+  left join profiles a on a.id=p.author_id
 `;
 
 /** Board listings — active first, then newest. */
@@ -45,7 +46,7 @@ export async function listCollabPosts(): Promise<CollabPostWithAuthor[]> {
         ...row,
         author_name: authorName,
         author_username:
-          authorName.toLowerCase().replace(/[^a-z0-9]+/g, "") || "builder",
+          row.author_username || "",
       };
     });
   } catch (error) {

@@ -1,6 +1,6 @@
 import { getSiteOrigin } from "@/lib/site-url";
 import type { Metadata } from "next";
-import { Users } from "lucide-react";
+import { Users } from "@/components/icons";
 
 import { listCollabPosts } from "@/lib/collab/store";
 import { countOf } from "@/lib/pluralize";
@@ -46,3 +46,4 @@ export default async function CollabPage() {
     </div>
   );
 }
+

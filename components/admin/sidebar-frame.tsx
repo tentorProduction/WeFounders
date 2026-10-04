@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { PanelLeftClose, PanelLeftOpen, Rocket } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, Rocket } from "@/components/icons";
 import { AdminSidebarNav } from "@/components/admin/sidebar-nav";
 
 export function AdminSidebarFrame({ pendingCount }: { pendingCount: number }) {
@@ -25,3 +25,4 @@ export function AdminSidebarFrame({ pendingCount }: { pendingCount: number }) {
     </aside>
   );
 }
+

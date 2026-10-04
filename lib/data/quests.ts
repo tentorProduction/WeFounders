@@ -55,3 +55,18 @@ export async function getQuestById(questId: string): Promise<QuestWithStartup | 
     return null;
   }
 }
+
+export async function getQuestsByStartupId(startupId: string): Promise<QuestWithStartup[]> {
+  try {
+    const rows = (await sql`
+      ${raw(QUEST_WITH_STARTUP)}
+      where q.startup_id = ${startupId}::uuid and q.status = 'active'
+      order by q.created_at desc
+    `) as unknown as QuestWithStartup[];
+    return rows;
+  } catch (error) {
+    reportReadFailure("getQuestsByStartupId", error);
+    return [];
+  }
+}
+

@@ -1,3 +1,4 @@
+import { reportReadFailure } from "@/lib/data/read-failure";
 import { sql } from "@/lib/db/neon";
 
 /**
@@ -90,7 +91,7 @@ export async function listQuestSubmissions(
 
     return rows;
   } catch (error) {
-    console.error("[quests] submission read failed:", error);
+    reportReadFailure("quests submission read failed:", error);
     return [];
   }
 }

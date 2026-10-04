@@ -1,0 +1,9 @@
+import { notFound } from "next/navigation";
+import { z } from "zod";
+import { verifyAdmin } from "@/lib/auth/admin";
+import { sql } from "@/lib/db/neon";
+import { editStartup,moderate } from "@/app/admin/platform-actions";
+import { ActionForm } from "@/components/platform/action-form";
+import { Panel,Field } from "@/components/platform/ui";
+export const dynamic="force-dynamic";
+export default async function StartupEditor({params}:{params:Promise<{id:string}>}){await verifyAdmin();const {id}=await params;if(!z.uuid().safeParse(id).success)notFound();const row=(await sql`select * from startups where id=${id}::uuid`)[0];if(!row)notFound();return <div className="admin-platform space-y-6"><h1 className="text-2xl">Edit {String(row.name)}</h1><Panel title="Product details"><ActionForm action={editStartup} label="Save changes"><input type="hidden" name="id" value={id}/>{[['name','Name'],['tagline','Tagline'],['website','Website']].map(([key,label])=><Field key={key} name={key} label={label} value={String(row[key==='website'?'website_url':key]??'')} required/>)}{[['description','Product story'],['problem','Problem'],['solution','Solution'],['audience','Audience'],['notes','Moderation notes']].map(([key,label])=><Field key={key} name={key} label={label} type="textarea" maxLength={10000} value={String(row[key==='notes'?'moderation_notes':key]??'')}/>)}</ActionForm></Panel><Panel title="Moderation"><ActionForm action={moderate} label="Apply action" confirm="Apply this moderation decision?"><input type="hidden" name="id" value={id}/><input type="hidden" name="kind" value="startup"/><select name="operation" aria-label="Startup moderation action" className="rounded-lg border bg-background p-3">{['approve','reject','changes','archive','verify','unverify','feature','unfeature'].map(op=><option key={op}>{op}</option>)}</select><Field name="reason" label="Reason / notes"/></ActionForm></Panel></div>;}

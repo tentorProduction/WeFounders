@@ -20,6 +20,7 @@ export interface SendEmailInput {
   html: string;
   text: string;
   replyTo?: string | string[];
+  idempotencyKey?: string;
 }
 
 export interface SendEmailResult {
@@ -45,6 +46,7 @@ export async function sendEmail(input: SendEmailInput): Promise<SendEmailResult>
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
+        ...(input.idempotencyKey ? {"Idempotency-Key":input.idempotencyKey} : {}),
       },
       body: JSON.stringify({
         from: FROM_SENDER,

@@ -89,7 +89,7 @@ export async function deleteAdminQuest(questId: string) {
   const admin = await verifyAdmin();
   const sql = auditedSql(admin.userId);
   if (!idSchema.safeParse(questId).success) throw new Error("Invalid quest id.");
-  await sql`delete from testing_quests where id = ${questId}::uuid`;
+  await sql`update testing_quests set status='completed',approval_status='rejected' where id = ${questId}::uuid`;
   refreshQuests();
 }
 
@@ -100,11 +100,12 @@ export async function reviewQuestSubmission(submissionId: string, status: "accep
   if (status !== "accepted" && status !== "rejected") throw new Error("Invalid report decision.");
   const feedback = founderFeedback.trim();
   if (feedback.length > 1000) throw new Error("Feedback must be under 1000 characters.");
-  await sql`
+  const rows=await sql`
     update quest_submissions
-    set status = ${status}::submission_status, founder_feedback = ${feedback || null}
-    where id = ${submissionId}::uuid
+    set status = ${status}::submission_status, review_state=${status==='accepted'?'approved':'rejected'},founder_feedback = ${feedback || null},reviewed_by=${admin.userId}::uuid,reviewed_at=now()
+    where id = ${submissionId}::uuid and tester_id<>${admin.userId}::uuid and status<>'accepted' returning id
   `;
+  if(!rows.length)throw new Error('Report already accepted, unavailable, or owned by this administrator.');
   refreshQuests();
 }
 

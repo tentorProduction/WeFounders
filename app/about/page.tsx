@@ -2,7 +2,7 @@ import { getSiteOrigin } from "@/lib/site-url";
 import React from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ShieldCheck, Rocket, CheckCircle, ArrowRight } from "lucide-react";
+import { ShieldCheck, Rocket, CheckCircle, ArrowRight } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -129,3 +129,4 @@ export default function AboutPage() {
     </div>
   );
 }
+

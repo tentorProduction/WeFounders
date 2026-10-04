@@ -1,7 +1,7 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse, type NextRequest, type NextFetchEvent } from "next/server";
 
-const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
+const isAdminRoute = (request: NextRequest) => request.nextUrl.pathname==='/admin'||request.nextUrl.pathname.startsWith('/admin/');
 
 const isClerkConfigured = Boolean(
   (process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || process.env.CLERK_PUBLISHABLE_KEY) &&
@@ -25,6 +25,12 @@ export default async function middleware(request: NextRequest, event: NextFetchE
         );
         signInUrl.searchParams.set("redirect_url", req.url);
         return NextResponse.redirect(signInUrl);
+      }
+      const code=req.nextUrl.searchParams.get('ref');
+      if(req.nextUrl.pathname.startsWith('/sign-up')&&code&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(code)) {
+        const response=NextResponse.next();
+        response.cookies.set('wf_referral',code,{httpOnly:true,sameSite:'lax',secure:process.env.NODE_ENV==='production',maxAge:604800,path:'/'});
+        return response;
       }
     })(request, event);
   } catch (error) {

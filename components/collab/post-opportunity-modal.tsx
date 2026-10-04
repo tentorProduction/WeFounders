@@ -1,8 +1,9 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2 } from "@/components/icons";
 
+import { collabCategories,categoryLabel } from "@/lib/collab/categories";
 import { cn } from "@/lib/utils";
 import { initialCollabPostState } from "@/lib/action-state";
 import { postOpportunityAction } from "@/actions/collab";
@@ -157,7 +158,7 @@ export function PostOpportunityModal({ className }: PostOpportunityModalProps) {
               />
             </div>
 
-            <div className="space-y-1.5">
+            <label className="block text-sm">Category<select name="category" className="mt-2 w-full rounded-lg border bg-card p-3">{collabCategories.map(c=><option key={c} value={c}>{categoryLabel(c)}</option>)}</select></label>{[['company','Company / startup'],['skills','Skills, comma separated'],['location','Location'],['experience','Experience required']].map(([key,label])=><label key={key} className="block text-sm">{label}<Input name={key} className="mt-2" maxLength={key==='skills'?500:120}/></label>)}<label className="flex items-center gap-3 text-sm"><input type="checkbox" name="remote" defaultChecked/>Remote opportunity</label><div className="space-y-1.5">
               <label htmlFor="opp-contact" className="text-caption font-medium">
                 Contact channel
               </label>
@@ -203,3 +204,4 @@ export function PostOpportunityModal({ className }: PostOpportunityModalProps) {
     </Dialog>
   );
 }
+

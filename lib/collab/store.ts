@@ -1,3 +1,4 @@
+import { platformSetting } from "@/lib/platform";
 import { sql } from "@/lib/db/neon";
 import type { CollabType } from "@/types/database";
 import type { CollabPostWithAuthor } from "@/lib/data/collab";
@@ -11,6 +12,7 @@ export type { CollabPostWithAuthor } from "@/lib/data/collab";
  */
 
 export interface CollabPostInput {
+  category:string;company:string;skills:string[];location:string;experience:string;remote:boolean;
   roleType: CollabType;
   title: string;
   description: string;
@@ -77,7 +79,7 @@ export async function addCollabPost(
   const rows = (await sql`
     insert into collab_posts (
       role_type, title, description, equity_or_compensation,
-      contact_channel, author_id, author_name, is_active
+      contact_channel, author_id, author_name, is_active, approval_status,category,company_name,skills,location,experience,is_remote
     )
     values (
       ${input.roleType},
@@ -87,7 +89,7 @@ export async function addCollabPost(
       ${input.contactChannel},
       ${input.authorId}::uuid,
       ${input.authorName},
-      true
+      true, ${(await platformSetting('moderation_rules')).require_collab_approval===false?'approved':'pending'},${input.category},${input.company},${input.skills}::text[],${input.location},${input.experience},${input.remote}
     )
     returning id, created_at
   `) as unknown as { id: string; created_at: string }[];
@@ -98,6 +100,7 @@ export async function addCollabPost(
   }
 
   return {
+    category:input.category,company_name:input.company,skills:input.skills,location:input.location,experience:input.experience,is_remote:input.remote,
     id: inserted.id,
     startup_id: null,
     author_id: input.authorId,

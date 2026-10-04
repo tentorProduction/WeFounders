@@ -1,3 +1,4 @@
+import { reportReadFailure } from "@/lib/data/read-failure";
 import { sql } from "@/lib/db/neon";
 
 /**
@@ -73,7 +74,7 @@ export async function addWaitlistEntry(input: WaitlistInput): Promise<AddWaitlis
     return { ok: true, record: rows[0] };
   } catch (error) {
     if (sqlState(error) === UNIQUE_VIOLATION) return { ok: false, reason: "duplicate" };
-    console.error("[waitlist] insert failed:", error);
+    reportReadFailure("waitlist insert failed:", error);
     return { ok: false, reason: "failed" };
   }
 }
@@ -93,7 +94,7 @@ export async function listWaitlist(startupId: string): Promise<WaitlistRecord[]>
 
     return rows;
   } catch (error) {
-    console.error("[waitlist] read failed:", error);
+    reportReadFailure("waitlist read failed:", error);
     return [];
   }
 }
@@ -110,7 +111,7 @@ export async function countWaitlist(startupId: string): Promise<number> {
 
     return rows[0]?.total ?? 0;
   } catch (error) {
-    console.error("[waitlist] count failed:", error);
+    reportReadFailure("waitlist count failed:", error);
     return 0;
   }
 }

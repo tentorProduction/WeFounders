@@ -1,7 +1,7 @@
 import { getSiteOrigin } from "@/lib/site-url";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 
 const baseUrl = getSiteOrigin();
@@ -40,3 +40,4 @@ export default function FAQPage() {
     </div>
   );
 }
+

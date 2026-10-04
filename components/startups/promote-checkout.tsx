@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Sparkles } from "lucide-react";
+import { Check, Sparkles } from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 import { formatPlanPrice } from "@/lib/promotions/plans";
@@ -53,7 +53,7 @@ export function PromoteCheckout({
 
   const selectedPlan = plans.find((plan) => plan.tier === tier) ?? plans[0];
 
-  if (!selectedPlan) return null;
+  if (!selectedPlan) return <div className="rounded-xl border border-border bg-card p-6"><h2 className="font-semibold">Promotion plans are not available yet.</h2><p className="mt-3 text-sm text-muted-foreground">The team is finalizing placement terms and pricing. Your launch remains available without a promotion.</p></div>;
 
   return (
     <form
@@ -196,3 +196,4 @@ export function PromoteCheckout({
     </form>
   );
 }
+

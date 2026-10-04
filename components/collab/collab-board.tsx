@@ -1,33 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { Users } from "lucide-react";
+import { Users } from "@/components/icons";
 
+import { collabCategories,categoryLabel } from "@/lib/collab/categories";
 import { cn } from "@/lib/utils";
 import { countOf } from "@/lib/pluralize";
-import type { CollabType } from "@/types/database";
 import { CollabCard } from "@/components/collab/collab-card";
 import type { CollabPostWithAuthor } from "@/lib/data/collab";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PostOpportunityModal } from "@/components/collab/post-opportunity-modal";
 
-const ROLE_FILTERS: { value: CollabType | "all"; label: string }[] = [
-  { value: "all", label: "All listings" },
-  { value: "cofounder", label: "Looking for Co-founder" },
-  { value: "founding_engineer", label: "Founding Engineer" },
-  { value: "designer", label: "UI/UX Designer" },
-  { value: "beta_tester", label: "Beta Testers" },
-  { value: "intern", label: "Internship" },
-];
+const ROLE_FILTERS=[{value:'all',label:'All listings'},...collabCategories.map(value=>({value,label:categoryLabel(value)}))];
 
 /** Role-filtered collab board (DESIGN.md §4.5). */
 export function CollabBoard({ posts }: { posts: CollabPostWithAuthor[] }) {
-  const [filter, setFilter] = useState<CollabType | "all">("all");
+  const [location,setLocation]=useState('');const [remote,setRemote]=useState(false);
+  const [filter, setFilter] = useState<string>("all");
 
-  const visible =
-    filter === "all"
-      ? posts
-      : posts.filter((post) => post.role_type === filter);
+  const visible=posts.filter(post=>(filter==='all'||post.category===filter)&&(!remote||post.is_remote)&&(!location||post.location.toLowerCase().includes(location.toLowerCase())));
 
   // With nothing posted, six filter chips and a "0 listings" grid read as a
   // broken board — lead with the empty state instead.
@@ -67,7 +58,7 @@ export function CollabBoard({ posts }: { posts: CollabPostWithAuthor[] }) {
         </span>
       </div>
 
-      <p className="font-mono text-caption text-muted-foreground">
+      <div className="flex flex-wrap gap-4"><label className="text-sm">Location<input value={location} onChange={e=>setLocation(e.target.value)} className="ml-3 rounded-lg border bg-card p-3"/></label><label className="flex items-center gap-3 text-sm"><input type="checkbox" checked={remote} onChange={e=>setRemote(e.target.checked)}/>Remote only</label></div><p className="font-mono text-caption text-muted-foreground">
         Showing {countOf(visible.length, "listing")}
       </p>
 

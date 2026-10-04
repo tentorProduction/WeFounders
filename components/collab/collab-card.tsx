@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Mail, MessageCircle, Send } from "lucide-react";
+import { Mail, MessageCircle, Send } from "@/components/icons";
 import { Suitcase } from "@/components/icons";
 
+import { categoryLabel } from "@/lib/collab/categories";
 import { cn } from "@/lib/utils";
-import type { CollabPost, CollabType } from "@/types/database";
+import type { CollabPost } from "@/types/database";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -19,14 +20,6 @@ export interface CollabCardProps {
   };
   className?: string;
 }
-
-const ROLE_LABELS: Record<CollabType, string> = {
-  cofounder: "Looking for Co-founder",
-  founding_engineer: "Founding Engineer",
-  designer: "UI/UX Reviewer",
-  beta_tester: "First Beta Users",
-  intern: "Internship",
-};
 
 type ChannelKind = "whatsapp" | "telegram" | "email";
 
@@ -63,7 +56,7 @@ export function CollabCard({ post, className }: CollabCardProps) {
       )}
     >
       <div className="flex flex-wrap items-center gap-1.5">
-        <Badge variant="regional">{ROLE_LABELS[post.role_type]}</Badge>
+        <Badge variant="regional">{categoryLabel(post.category)}</Badge>
         {post.is_active ? (
           <Badge variant="verified">Active</Badge>
         ) : (
@@ -99,6 +92,7 @@ export function CollabCard({ post, className }: CollabCardProps) {
         </p>
       )}
 
+      <Link href={`/collab/${post.id}`} className="mt-4 inline-block text-sm font-semibold underline">View opportunity and apply</Link>
       <div className="mt-3 flex items-center gap-2">
         {revealed ? (
           <Button asChild size="sm" variant="outline">
@@ -125,3 +119,5 @@ export function CollabCard({ post, className }: CollabCardProps) {
     </article>
   );
 }
+
+

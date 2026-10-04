@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Megaphone, Rocket, Shield, TrendingUp, Users } from "lucide-react";
+import { Megaphone, Rocket, Shield, TrendingUp, Users } from "@/components/icons";
 
 import { getViewer } from "@/lib/auth/viewer";
 import { getStartupsByFounder } from "@/lib/data/profiles";
@@ -205,3 +205,4 @@ export default async function ProfilePage() {
     </div>
   );
 }
+

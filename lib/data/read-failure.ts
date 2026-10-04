@@ -1,13 +1,4 @@
-/**
- * Read-failure reporting for the data layer.
- *
- * The data helpers degrade to an empty result rather than throwing, so a
- * transient backend blip cannot 500 a page. The one exception is Next.js's own
- * control-flow signals (`DYNAMIC_SERVER_USAGE`, `NEXT_NOT_FOUND`,
- * `NEXT_REDIRECT`): those are not failures, and swallowing them would stop Next
- * from correctly marking a route dynamic or rendering a 404. They must always
- * propagate.
- */
+/** Database failures reach the application error boundary; Next control flow propagates unchanged. */
 
 const CONTROL_FLOW_DIGESTS = [
   "DYNAMIC_SERVER_USAGE",
@@ -31,7 +22,7 @@ export function isNextControlFlowError(error: unknown): boolean {
   );
 }
 
-/** Log a genuine read failure; rethrow if it was Next control flow. */
+/** Log failures without presenting an outage as an empty result. */
 export function reportReadFailure(scope: string, error: unknown): void {
   if (isNextControlFlowError(error)) throw error;
 

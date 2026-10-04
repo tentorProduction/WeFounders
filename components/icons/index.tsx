@@ -1,4 +1,4 @@
-"use client";
+
 
 export {
   Globe,
@@ -58,4 +58,19 @@ export {
   List,
   Gift,
   DeviceMobile,
-} from "@phosphor-icons/react";
+  Bell,
+} from "@phosphor-icons/react/dist/ssr";
+
+export {
+ ArrowLeft, CaretLeft as ChevronLeft, CaretRight as ChevronRight,
+ Warning as AlertTriangle, Archive, ArrowCounterClockwise as RotateCcw,
+ SealCheck as BadgeCheck, CheckCircle as CheckCircle2, DownloadSimple as Download,
+ Compass, Tray as Inbox, SquaresFour as LayoutDashboard, CircleNotch as Loader2,
+ SignOut as LogOut, EnvelopeSimple as Mail, Megaphone, ChatCircle as MessageCircle,
+ ChatCircleText as MessageSquare, Monitor, Moon, SidebarSimple as PanelLeftClose,
+ SidebarSimple as PanelLeftOpen, Confetti as PartyPopper, Pause, PencilSimple as Pencil,
+ Play, MagnifyingGlass as Search, PaperPlaneTilt as Send, Gear as Settings,
+ Shield, ShieldWarning as ShieldAlert, Sparkle as Sparkles, Sun, Sword as Swords,
+ Target, ThumbsUp, Trash as Trash2, TrendUp as TrendingUp,
+} from "@phosphor-icons/react/dist/ssr";
+export type { Icon as LucideIcon } from "@phosphor-icons/react";

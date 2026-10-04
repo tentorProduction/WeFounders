@@ -1,3 +1,4 @@
+import { AdminPlatformTools } from "@/components/admin/platform-tools";
 import { sql } from "@/lib/db/neon";
 import type { QuestWithStartup } from "@/types/database";
 import { AdminQuestsClient } from "./client";
@@ -32,11 +33,11 @@ export default async function AdminQuestsPage() {
     ]);
 
     return (
-      <AdminQuestsClient
+      <><AdminPlatformTools section="quest-review"/><AdminQuestsClient
         quests={quests as unknown as QuestWithStartup[]}
         startups={startups as { id: string; name: string; slug: string }[]}
         reports={reports as never[]}
-      />
+      /></>
     );
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";

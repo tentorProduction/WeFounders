@@ -1,0 +1,6 @@
+export interface DailyMetric { day:string; views:number; votes:number; waitlist:number; tests:number; }
+export function Analytics({rows}: {rows:DailyMetric[]}) {
+ if(!rows.length)return <p className="text-muted-foreground">Analytics will appear as people view, vote, join, and test your launch.</p>;
+ const metrics=[['views','Unique daily visitors'],['votes','Upvotes'],['waitlist','Waitlist signups'],['tests','Testing reports']] as const;
+ return <div className="grid gap-6 sm:grid-cols-2">{metrics.map(([key,label])=>{const max=Math.max(1,...rows.map(r=>r[key]));return <div key={key}><h3 className="mb-4 font-semibold">{label}</h3><div className="flex h-28 items-end gap-1" role="img" aria-label={`${label} over the last ${rows.length} days`}>{rows.map(row=><div key={row.day} className="min-w-0 flex-1" title={`${row.day}: ${row[key]}`}><div className="rounded-t-sm bg-primary" style={{height:`${Math.max(1,row[key]/max*96)}px`,opacity:row[key]?1:.15}}/></div>)}</div><p className="mt-2 text-xs text-muted-foreground">{rows[0].day} to {rows.at(-1)?.day}</p><details className="mt-3 text-sm"><summary className="cursor-pointer">View exact values</summary><ul>{rows.map(row=><li key={row.day}>{row.day}: {row[key]}</li>)}</ul></details></div>;})}</div>;
+}

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { raw, sql } from "@/lib/db/neon";
 import { LiveStartupsClient } from "./client";
 import type { Tag } from "@/types/database";
@@ -61,6 +62,7 @@ export default async function AdminStartupsPage() {
         </div>
 
         <LiveStartupsClient startups={startups} availableTags={availableTags} />
+        <div className="flex flex-wrap gap-3">{startups.map(s=><Link key={s.id} href={`/admin/startups/${s.id}`} className="rounded-lg border border-[#27272A] px-3 py-2 text-sm">Edit / moderate {s.name}</Link>)}</div>
       </div>
     );
   } catch (error) {

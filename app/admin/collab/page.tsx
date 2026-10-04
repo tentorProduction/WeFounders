@@ -1,3 +1,4 @@
+import { AdminPlatformTools } from "@/components/admin/platform-tools";
 import { raw, sql } from "@/lib/db/neon";
 import { CollabModeration, type CollabAdminPost } from "./client";
 
@@ -20,9 +21,11 @@ export default async function AdminCollabPage() {
       ${raw(COLLAB_ADMIN_SELECT)}
       order by p.created_at desc
     `;
-    return <CollabModeration posts={rows as unknown as CollabAdminPost[]} />;
+    return <><AdminPlatformTools section="collab-review"/><CollabModeration posts={rows as unknown as CollabAdminPost[]} /></>;
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     return <p role="alert" className="rounded-lg border border-rose-900/70 bg-rose-950/20 p-4 text-rose-200">Could not load collab listings: {message}</p>;
   }
 }
+
+

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Plus, Pencil, Pause, Play, Trash2 } from "lucide-react";
+import { Plus, Pencil, Pause, Play, Trash2 } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { deleteAdminQuest, reviewQuestSubmission, saveAdminQuest, setAdminQuestStatus, type AdminQuestInput } from "./actions";
@@ -157,3 +157,4 @@ export function AdminQuestsClient({
     </div>
   );
 }
+

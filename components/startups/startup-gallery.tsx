@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play } from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 import { parseVideoEmbed } from "@/lib/video";
@@ -176,3 +176,4 @@ export function StartupGallery({
     </section>
   );
 }
+

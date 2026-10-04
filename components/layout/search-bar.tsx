@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search } from "lucide-react";
+import { Search } from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 
@@ -77,3 +77,4 @@ export function SearchBar({
     </form>
   );
 }
+

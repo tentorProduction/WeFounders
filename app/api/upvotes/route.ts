@@ -7,6 +7,8 @@ import { getStartupById } from "@/lib/data/startups";
 import { clientAddress, isRateLimited } from "@/lib/security/rate-limit";
 import { readBoundedBody } from "@/lib/security/request-body";
 import { hasTrustedOrigin } from "@/lib/security/request-origin";
+export const dynamic="force-dynamic";
+export async function GET(){const viewer=await getViewer();if(!viewer.userId)return NextResponse.json({votes:[]},{status:401});const rows=await sql`select startup_id from upvotes where user_id=${viewer.userId}::uuid limit 2000`;return NextResponse.json({votes:rows.map(r=>r.startup_id)},{headers:{'Cache-Control':'private, no-store'}});}
 
 /**
  * Persist an upvote for the signed-in viewer.
@@ -57,6 +59,7 @@ export async function POST(request: Request) {
   if (!startup || startup.status !== "approved") {
     return NextResponse.json({ error: "That startup is not available for voting." }, { status: 404 });
   }
+  if(startup.founder_id===viewer.userId) return NextResponse.json({error:"You cannot upvote your own startup."},{status:403});
 
   try {
     if (voted) {

@@ -59,6 +59,15 @@ create table public.profiles (
   is_phone_verified boolean not null default false,
   karma_score       integer not null default 0,
   role              public.user_role not null default 'user',
+  onboarding_completed boolean not null default false,
+  roles             text[] not null default '{"user"}',
+  skills            text[] not null default '{}',
+  interests         text[] not null default '{}',
+  location          text,
+  availability      text,
+  portfolio_url     text,
+  followers_count   integer not null default 0,
+  following_count   integer not null default 0,
   created_at        timestamptz not null default now(),
   updated_at        timestamptz not null default now()
 );
@@ -83,6 +92,9 @@ create table public.startups (
   upvotes_count    integer not null default 0,
   comments_count   integer not null default 0,
   waitlist_count   integer not null default 0,
+  followers_count  integer not null default 0,
+  views_count      integer not null default 0,
+  verified         boolean not null default false,
   is_featured      boolean not null default false,
   featured_until   timestamptz,
   search_vector    tsvector generated always as (
@@ -217,6 +229,91 @@ create table public.promotions (
   created_at     timestamptz not null default now()
 );
 
+-- 13. Follows (user follows a startup or another user)
+create table public.follows (
+  id          uuid primary key default gen_random_uuid(),
+  follower_id uuid not null references public.profiles (id) on delete cascade,
+  target_type text not null check (target_type in ('startup', 'user')),
+  target_id   uuid not null,
+  created_at  timestamptz not null default now(),
+  unique (follower_id, target_type, target_id)
+);
+
+-- 14. Saved items (bookmarks for startups, quests, collab)
+create table public.saved_items (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null references public.profiles (id) on delete cascade,
+  item_type  text not null check (item_type in ('startup', 'quest', 'collab')),
+  item_id    uuid not null,
+  created_at timestamptz not null default now(),
+  unique (user_id, item_type, item_id)
+);
+
+-- 15. Project updates (changelogs and release notes)
+create table public.project_updates (
+  id          uuid primary key default gen_random_uuid(),
+  startup_id  uuid not null references public.startups (id) on delete cascade,
+  author_id   uuid not null references public.profiles (id) on delete cascade,
+  version     text not null default 'v1.0',
+  title       text not null,
+  content     text not null,
+  media_urls  text[] not null default '{}',
+  created_at  timestamptz not null default now()
+);
+
+-- 16. Karma ledger (reputation tracking)
+create table public.karma_ledger (
+  id          uuid primary key default gen_random_uuid(),
+  user_id     uuid not null references public.profiles (id) on delete cascade,
+  amount      integer not null,
+  reason      text not null,
+  source_type text not null,
+  source_id   uuid,
+  created_at  timestamptz not null default now()
+);
+
+-- 17. Notifications
+create table public.notifications (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null references public.profiles (id) on delete cascade,
+  type       text not null,
+  title      text not null,
+  message    text not null,
+  link       text,
+  is_read    boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+-- 18. Reports (community moderation)
+create table public.reports (
+  id          uuid primary key default gen_random_uuid(),
+  reporter_id uuid not null references public.profiles (id) on delete cascade,
+  target_type text not null check (target_type in ('startup', 'comment', 'user', 'quest', 'collab')),
+  target_id   uuid not null,
+  reason      text not null,
+  details     text,
+  status      text not null default 'pending' check (status in ('pending', 'reviewed', 'dismissed', 'actioned')),
+  created_at  timestamptz not null default now()
+);
+
+-- 19. Audit logs (admin actions tracking)
+create table public.audit_logs (
+  id          uuid primary key default gen_random_uuid(),
+  admin_id    uuid not null references public.profiles (id) on delete cascade,
+  action      text not null,
+  target_type text not null,
+  target_id   text not null,
+  metadata    jsonb default '{}'::jsonb,
+  created_at  timestamptz not null default now()
+);
+
+-- 20. Platform settings (configurable parameters)
+create table public.platform_settings (
+  key        text primary key,
+  value      jsonb not null,
+  updated_at timestamptz not null default now()
+);
+
 /* -------------------------------------------------------------------------- */
 /* Indexes                                                                     */
 /* -------------------------------------------------------------------------- */
@@ -234,6 +331,14 @@ create index submissions_quest_idx      on public.quest_submissions (quest_id, c
 create index collab_active_idx          on public.collab_posts (is_active, created_at desc);
 create index promotions_startup_idx     on public.promotions (startup_id, created_at desc);
 create index promotions_status_idx      on public.promotions (status, verified_at desc);
+create index follows_target_idx         on public.follows (target_type, target_id);
+create index follows_follower_idx       on public.follows (follower_id);
+create index saved_items_user_idx       on public.saved_items (user_id, item_type);
+create index project_updates_startup_idx on public.project_updates (startup_id, created_at desc);
+create index karma_ledger_user_idx      on public.karma_ledger (user_id, created_at desc);
+create index notifications_user_idx     on public.notifications (user_id, is_read, created_at desc);
+create index reports_status_idx         on public.reports (status, created_at desc);
+create index audit_logs_created_idx     on public.audit_logs (created_at desc);
 
 /* -------------------------------------------------------------------------- */
 /* Triggers                                                                    */

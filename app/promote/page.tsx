@@ -1,6 +1,6 @@
 import { getSiteOrigin } from "@/lib/site-url";
 import Link from "next/link";
-import { Megaphone } from "lucide-react";
+import { Megaphone } from "@/components/icons";
 
 import { getStartupFeed } from "@/lib/data/startups";
 import { StartupLogo } from "@/components/startups/startup-logo";
@@ -71,3 +71,4 @@ export default async function PromoteIndexPage() {
     </div>
   );
 }
+

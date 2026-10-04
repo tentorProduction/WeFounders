@@ -1,5 +1,6 @@
 "use server";
 
+import { requireFeature } from "@/lib/platform";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -9,6 +10,7 @@ import { getViewer } from "@/lib/auth/viewer";
 import type { CollabPostActionState } from "@/lib/action-state";
 import { headers } from "next/headers";
 import { clientAddress, isRateLimited } from "@/lib/security/rate-limit";
+import { collabCategories } from "@/lib/collab/categories";
 
 /**
  * Post a collab/co-founder opportunity (PRD §4.1, TRD §2 table 11,
@@ -17,6 +19,8 @@ import { clientAddress, isRateLimited } from "@/lib/security/rate-limit";
  */
 
 const collabSchema = z.object({
+  category:z.enum(collabCategories),
+  company:z.string().trim().max(120),skills:z.string().trim().max(500),location:z.string().trim().max(120),experience:z.string().trim().max(200),remote:z.boolean(),
   roleType: z.enum([
     "cofounder",
     "founding_engineer",
@@ -34,7 +38,9 @@ export async function postOpportunityAction(
   _prevState: CollabPostActionState,
   formData: FormData
 ): Promise<CollabPostActionState> {
+  await requireFeature('collab_enabled');
   const parsed = collabSchema.safeParse({
+    category:formData.get('category'),company:String(formData.get('company')??''),skills:String(formData.get('skills')??''),location:String(formData.get('location')??''),experience:String(formData.get('experience')??''),remote:formData.get('remote')==='on',
     roleType: String(formData.get("roleType") ?? ""),
     title: String(formData.get("title") ?? ""),
     description: String(formData.get("description") ?? ""),
@@ -80,6 +86,7 @@ export async function postOpportunityAction(
 
   try {
     await addCollabPost({
+      category:parsed.data.category,company:parsed.data.company,skills:parsed.data.skills.split(',').map(v=>v.trim()).filter(Boolean).slice(0,20),location:parsed.data.location,experience:parsed.data.experience,remote:parsed.data.remote,
       roleType: parsed.data.roleType,
       title: parsed.data.title,
       description: parsed.data.description,
@@ -97,6 +104,6 @@ export async function postOpportunityAction(
 
   return {
     status: "success",
-    message: "Listing posted — it's live on the board.",
+    message: "Listing submitted for administrator review.",
   };
 }

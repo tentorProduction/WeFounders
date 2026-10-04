@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect,useState } from "react";
 import { useClerk, useUser } from "@clerk/nextjs";
-import { LogOut, User as UserIcon } from "lucide-react";
+import { LogOut, User as UserIcon } from "@/components/icons";
 
 import { Button } from "@/components/ui/button";
 import { SignInButton } from "@/components/auth/sign-in-button";
@@ -23,6 +24,8 @@ import {
 export function UserButton() {
   const { isLoaded, isSignedIn, user } = useUser();
   const { signOut } = useClerk();
+  const [account,setAccount]=useState<{admin:boolean;profile:string}|null>(null);
+  useEffect(()=>{setAccount(null);if(!user)return;const controller=new AbortController();void fetch('/api/account',{signal:controller.signal}).then(r=>r.ok?r.json():null).then(setAccount).catch(()=>{});return()=>controller.abort();},[user]);
 
   if (!isLoaded) {
     return <div className="h-9 w-24 animate-pulse rounded-full bg-secondary" />;
@@ -86,11 +89,13 @@ export function UserButton() {
         <DropdownMenuSeparator className="bg-border" />
 
         <DropdownMenuItem asChild className="cursor-pointer">
-          <Link href="/profile" className="flex items-center gap-2">
+          <Link href={account?.profile??"/dashboard"} className="flex items-center gap-2">
             <UserIcon className="h-4 w-4 text-muted-foreground" />
             My Profile
           </Link>
         </DropdownMenuItem>
+
+        {[['/dashboard','Dashboard'],['/notifications','Notifications'],['/saved','Saved'],['/following','Following'],['/karma','Karma'],['/settings','Settings'],...(account?.admin?[['/admin','Administration']]:[])].map(([href,label])=><DropdownMenuItem key={href} asChild><Link href={href}>{label}</Link></DropdownMenuItem>)}
 
         <DropdownMenuSeparator className="bg-border" />
 

@@ -8,9 +8,7 @@ import { reportReadFailure } from "@/lib/data/read-failure";
  *
  * There is no fixture fallback: when the table is empty the feed renders a
  * real empty state, which is the honest thing to show on a platform that has
- * no approved launches yet. Read failures are logged and degrade to an empty
- * result so a transient backend blip can never take the whole site down with a
- * 500; the write paths in the lib stores surface errors instead.
+ * no approved launches yet. Read failures propagate to the application error boundary.
  */
 
 /**
@@ -128,9 +126,14 @@ export async function getStartupById(id: string): Promise<StartupWithTags | null
   if (!id) return null;
 
   try {
+    const viewer = await readSession();
     const rows = (await sql`
       ${raw(STARTUP_WITH_TAGS)}
-      where s.id = ${id}::uuid
+      where s.id = ${id}::uuid and (
+        (s.status='approved' and s.archived_at is null and s.launch_date<=now())
+        or s.founder_id=${viewer?.userId ?? null}::uuid
+        or exists(select 1 from profiles where id=${viewer?.userId ?? null}::uuid and role='admin')
+      )
       limit 1
     `) as unknown as StartupWithTags[];
 

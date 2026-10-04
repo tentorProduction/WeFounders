@@ -55,7 +55,7 @@ export async function joinWaitlistAction(
   }
 
   const startup = await getStartupBySlug(parsed.data.slug);
-  if (!startup) {
+  if (!startup || startup.status!=='approved' || !startup.launch_date || new Date(startup.launch_date)>new Date()) {
     return { status: "error", message: "That startup no longer exists." };
   }
 
@@ -89,7 +89,7 @@ export async function joinWaitlistAction(
     };
   }
 
-  const position = (await countWaitlist(startup.id)) + (startup.waitlist_count ?? 0);
+  const position = await countWaitlist(startup.id);
 
   // Fire-and-forget confirmation email (deployment guide §2 — Resend free
   // tier). A failed send is logged, never surfaced to the user: the lead is
@@ -104,7 +104,7 @@ export async function joinWaitlistAction(
       },
       position,
     });
-    void sendEmail({ to: parsed.data.email, ...mail }).then((sent) => {
+    await sendEmail({ to: parsed.data.email, ...mail }).then((sent) => {
       if (!sent.ok) {
         console.warn(`[waitlist] confirmation email not sent: ${sent.error}`);
       }
@@ -115,7 +115,7 @@ export async function joinWaitlistAction(
 
   return {
     status: "success",
-    message: `You're in! We'll email ${parsed.data.email} the moment the beta opens.`,
+    message: `You’re on the waitlist. The founder can contact ${parsed.data.email} about beta access.`,
     position,
     email: parsed.data.email,
   };

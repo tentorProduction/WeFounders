@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Archive, Pencil, RotateCcw, Star, Trash2, X } from "lucide-react";
+import { Archive, Pencil, RotateCcw, Star, Trash2, X } from "@/components/icons";
 import { GlobeHemisphereWest, GlobeSimple, MapPin } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -170,3 +170,4 @@ export function LiveStartupsClient({ startups, availableTags }: { startups: Admi
     </>
   );
 }
+

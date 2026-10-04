@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "@/components/icons";
 import { verifyAdmin } from "@/lib/auth/admin";
 import { KathmanduClock } from "@/components/admin/kathmandu-clock";
 
@@ -39,3 +39,4 @@ export async function AdminHeader() {
     </header>
   );
 }
+

@@ -10,27 +10,37 @@ import {
   MessageSquare,
   TrendingUp,
   Users,
-} from "lucide-react";
+} from "@/components/icons";
 
-import { cn, timeAgo } from "@/lib/utils";
+import { timeAgo } from "@/lib/utils";
 import { countOf } from "@/lib/pluralize";
 import { renderMarkdown } from "@/lib/markdown";
 import { getViewer, isFounderViewer } from "@/lib/auth/viewer";
-import { getCommentThread } from "@/lib/comments";
 import { getStartupBySlug } from "@/lib/data/startups";
 import { getStartupMedia, getStartupVideoUrl } from "@/lib/data/media";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CommentThread } from "@/components/discussion/comment-thread";
+import { StartupCommunity } from "@/components/platform/startup-community";
 import { MARKET_LABELS, STAGE_LABELS } from "@/components/startups/startup-card";
 import { ShowcaseUpvote } from "@/components/startups/showcase-upvote";
 import { StartupGallery } from "@/components/startups/startup-gallery";
 import { StartupLogo } from "@/components/startups/startup-logo";
 import { TagPill } from "@/components/startups/tag-pill";
 import { WaitlistForm } from "@/components/startups/waitlist";
+import { FollowButton } from "@/components/platform/follow-button";
+import { SaveButton } from "@/components/platform/save-button";
+import { ShareButton } from "@/components/platform/share-button";
+import { ReportButton } from "@/components/platform/report-modal";
+import { FounderCard } from "@/components/platform/founder-card";
+import { StartupUpdatesList } from "@/components/platform/startup-updates";
+import { isFollowing } from "@/lib/data/follows";
+import { isItemSaved } from "@/lib/data/saved";
+import { getQuestsByStartupId } from "@/lib/data/quests";
+import { Flask, ArrowUpRight as ArrowUpRightIcon } from "@phosphor-icons/react/dist/ssr";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{sort?:string;page?:string}>;
 }
 
 // Reads the viewer's session to decide whether founder tools are shown.
@@ -59,24 +69,31 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 /** Startup showcase page (PRD Flow 1 & 2 / DESIGN.md §4.2). */
-export default async function StartupShowcasePage({ params }: PageProps) {
+export default async function StartupShowcasePage({ params, searchParams }: PageProps) {
   const { slug } = await params;
   const startup = await getStartupBySlug(slug);
 
   if (!startup) notFound();
 
-  const [media, videoUrl, comments, viewer] = await Promise.all([
+  const [media, videoUrl, viewer, quests] = await Promise.all([
     getStartupMedia(startup.id),
     getStartupVideoUrl(startup.id),
-    getCommentThread(startup.id),
     getViewer(),
+    getQuestsByStartupId(startup.id),
   ]);
+
+  const [followed, saved] = viewer.userId
+    ? await Promise.all([
+        isFollowing(viewer.userId, "startup", startup.id),
+        isItemSaved(viewer.userId, "startup", startup.id),
+      ])
+    : [false, false];
 
   // The founder's own markdown is the "About the Product" copy.
   const pitch = startup.description;
   const canManage = isFounderViewer(viewer, startup);
   const totalWaitlist = startup.waitlist_count;
-  const founderReplies = comments.filter((comment) => comment.is_founder_reply).length;
+  const query = await searchParams;
   const primaryTag =
     startup.tags.find((tag) => tag.category === "industry") ?? startup.tags[0];
 
@@ -153,7 +170,7 @@ export default async function StartupShowcasePage({ params }: PageProps) {
                 <MessageSquare className="h-4 w-4" aria-hidden />
                 <dt className="sr-only">Comments</dt>
                 <dd className="tabular-nums">
-                  {countOf(comments.length, "comment")}
+                  {countOf(startup.comments_count, "comment")}
                 </dd>
               </div>
               <p className="italic">
@@ -170,26 +187,33 @@ export default async function StartupShowcasePage({ params }: PageProps) {
           />
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          {/* One canonical waitlist action: the hero CTA scrolls to the form
-              below rather than opening a second, identical copy of it. */}
-          <Button asChild>
-            <a href="#waitlist">Join the beta waitlist</a>
-          </Button>
-          <Button asChild variant="outline">
-            <a href={startup.website_url} target="_blank" rel="noreferrer">
-              <Globe className="h-4 w-4" aria-hidden />
-              Visit Website / Demo
-              <ArrowUpRight className="h-4 w-4" aria-hidden />
-            </a>
-          </Button>
-          {startup.demo_video_url && (
-            <Button asChild variant="ghost">
-              <a href={startup.demo_video_url} target="_blank" rel="noreferrer">
-                Watch demo video
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#F0F2F5]">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button asChild>
+              <a href="#waitlist">Join the beta waitlist</a>
+            </Button>
+            <Button asChild variant="outline">
+              <a href={startup.website_url} target="_blank" rel="noreferrer">
+                <Globe className="h-4 w-4" aria-hidden />
+                Visit Website / Demo
+                <ArrowUpRight className="h-4 w-4" aria-hidden />
               </a>
             </Button>
-          )}
+            {startup.demo_video_url && (
+              <Button asChild variant="ghost">
+                <a href={startup.demo_video_url} target="_blank" rel="noreferrer">
+                  Watch demo video
+                </a>
+              </Button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <FollowButton targetType="startup" targetId={startup.id} initialFollowing={followed} />
+            <SaveButton itemType="startup" itemId={startup.id} initialSaved={saved} showLabel />
+            <ShareButton title={startup.name} />
+            <ReportButton targetType="startup" targetId={startup.id} />
+          </div>
         </div>
       </header>
 
@@ -222,35 +246,6 @@ export default async function StartupShowcasePage({ params }: PageProps) {
             </Button>
           </div>
         )}
-      </section>
-
-      {/* Verified Founder Card */}
-      <section aria-label="Founder profile" className="rounded-lg border border-border bg-card p-5 sm:p-6 space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-tiny font-mono uppercase tracking-wider text-muted-foreground">
-            Verified Founder &amp; Maker
-          </span>
-          <Badge variant="verified" className="font-mono text-tiny">
-            OP Verified
-          </Badge>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#FF4B3E] text-[#FFFFFF] font-bold text-h2 font-mono shrink-0">
-            {startup.name[0].toUpperCase()}
-          </div>
-          <div className="min-w-0 flex-1 space-y-1">
-            <h3 className="text-subheading font-bold text-foreground flex items-center gap-2">
-              <span>{startup.name} Founding Team</span>
-              <Badge variant="outline" className="text-[10px] font-mono border-[#FF4B3E]/40 text-[#991B1B]">
-                OP
-              </Badge>
-            </h3>
-            <p className="text-caption text-muted-foreground">
-              Building for {MARKET_LABELS[startup.target_market]} · Global Community
-            </p>
-          </div>
-        </div>
       </section>
 
       {/* Waitlist capture + founder tools */}
@@ -290,14 +285,54 @@ export default async function StartupShowcasePage({ params }: PageProps) {
 
       </section>
 
-      {/* Discussion */}
-      <CommentThread
-        slug={startup.slug}
-        startupName={startup.name}
-        comments={comments}
-        isFounderView={canManage}
-        className={cn(founderReplies > 0 && "lg:max-w-none")}
-      />
+      {/* Testing Quests Section */}
+      {quests.length > 0 && (
+        <section aria-label="Testing Quests" className="rounded-2xl border border-[#DADDE1] bg-white p-5 sm:p-6 space-y-4 shadow-xs">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Flask size={20} weight="fill" className="text-[#FF4B3E]" />
+              <h2 className="font-archivo text-lg font-bold text-[#17181B]">Active Testing Challenges</h2>
+            </div>
+            <span className="text-xs text-[#059669] font-bold bg-[#ECFDF5] px-2.5 py-1 rounded-full">
+              Earn Karma
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {quests.map((q) => (
+              <div key={q.id} className="p-4 rounded-[18px] border border-[#DADDE1] bg-[#F8F9FA] space-y-2.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-[#059669]">{q.reward_description}</span>
+                  <span className="text-[#A0A4AB]">{q.submissions_count}/{q.max_submissions} tested</span>
+                </div>
+                <h3 className="font-archivo text-sm font-bold text-[#17181B]">{q.title}</h3>
+                <p className="text-xs text-[#666A73] line-clamp-2">{q.task_instructions}</p>
+                <div className="pt-2 flex items-center justify-between border-t border-[#E4E7EB]">
+                  <span className="text-[11px] text-[#666A73]">{q.target_devices || "All devices"}</span>
+                  <Link
+                    href={`/quests/${q.id}`}
+                    className="ink-button inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-full"
+                  >
+                    <span>Take Quest</span>
+                    <ArrowUpRightIcon size={12} weight="bold" />
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Product Changelog & Updates */}
+      <StartupUpdatesList startupId={startup.id} />
+
+      {/* Maker / Founder Card */}
+      <FounderCard founderId={startup.founder_id} />
+
+      <StartupCommunity startup={startup} sort={query.sort} page={Math.min(100,Math.max(1,Number(query.page)||1))} />
     </div>
   );
 }
+
+
+

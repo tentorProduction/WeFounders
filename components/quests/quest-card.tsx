@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { DeviceMobile, Gift, Users } from "@/components/icons";
 
@@ -8,7 +7,6 @@ import { cn } from "@/lib/utils";
 import type { QuestWithStartup } from "@/types/database";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { QuestSubmissionModal } from "@/components/quests/quest-submission-modal";
 import { StartupLogo } from "@/components/startups/startup-logo";
 
 export interface QuestCardProps {
@@ -18,7 +16,6 @@ export interface QuestCardProps {
 
 /** Active testing-quest card for the /quests board (DESIGN.md §4.4). */
 export function QuestCard({ quest, className }: QuestCardProps) {
-  const [modalOpen, setModalOpen] = useState(false);
   const isFull = quest.submissions_count >= quest.max_submissions;
   const isPaused = quest.status !== "active";
 
@@ -83,23 +80,7 @@ export function QuestCard({ quest, className }: QuestCardProps) {
         </p>
       )}
 
-      <Button
-        className="mt-4 self-start"
-        size="sm"
-        disabled={isFull || isPaused}
-        onClick={() => setModalOpen(true)}
-      >
-        {isFull ? "Quest Full" : isPaused ? "Paused" : "Accept Quest"}
-      </Button>
-
-      <QuestSubmissionModal
-        questId={quest.id}
-        questTitle={quest.title}
-        reward={quest.reward_description}
-        testerNameHint={quest.startup.name}
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-      />
+      <Button asChild className="mt-4 self-start" size="sm" variant="outline"><Link href={`/quests/${quest.id}`}>View quest</Link></Button>
     </article>
   );
 }

@@ -1,10 +1,11 @@
 "use server";
 
+import { requireFeature } from "@/lib/platform";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { getViewer } from "@/lib/auth/viewer";
-import { sql } from "@/lib/db/neon";
+import { sql, auditedSql } from "@/lib/db/neon";
 import { clientAddress, isRateLimited } from "@/lib/security/rate-limit";
 import { headers } from "next/headers";
 // Types/initial value live outside this "use server" module — see the file.
@@ -28,8 +29,14 @@ const submissionSchema = z.object({
   category: z.string().trim().max(40).optional().default(""),
   stage: z.enum(["concept", "closed_alpha", "public_beta", "launched"]),
   market: z.enum(["nepal_domestic", "global_export", "hybrid"]),
-  websiteUrl: z.union([z.literal(""), z.url().max(300)]),
-  demoVideoUrl: z.union([z.literal(""), z.url().max(300)]),
+  websiteUrl: z.url().max(300).refine(v=>/^https?:\/\//i.test(v)),
+  demoVideoUrl: z.union([z.literal(""), z.url().max(300).refine(v=>/^https?:\/\//i.test(v))]),
+  logoUrl: z.union([z.literal(""),z.url().max(500).refine(v=>/^https:\/\//i.test(v))]),
+  screenshots: z.array(z.url().max(500).refine(v=>/^https:\/\//i.test(v))).max(8),
+  problem: z.string().trim().max(2000),
+  solution: z.string().trim().max(2000),
+  audience: z.string().trim().max(2000),
+  betaNotes: z.string().trim().max(2000),
   tags: z.array(z.string().trim().min(1).max(40)).max(12),
 });
 
@@ -93,6 +100,7 @@ export async function submitStartupAction(
   _prevState: StartupSubmissionActionState,
   formData: FormData
 ): Promise<StartupSubmissionActionState> {
+  await requireFeature('submissions_enabled');
   const viewer = await getViewer();
   if (!viewer.userId) {
     return {
@@ -121,6 +129,12 @@ export async function submitStartupAction(
     market: String(formData.get("market") ?? ""),
     websiteUrl: String(formData.get("websiteUrl") ?? "").trim(),
     demoVideoUrl: String(formData.get("demoVideoUrl") ?? "").trim(),
+    logoUrl: String(formData.get("logoUrl") ?? "").trim(),
+    screenshots: String(formData.get("screenshots")??"").split(/\n/).map(v=>v.trim()).filter(Boolean),
+    problem: String(formData.get("problem")??""),
+    solution: String(formData.get("solution")??""),
+    audience: String(formData.get("audience")??""),
+    betaNotes: String(formData.get("betaNotes")??""),
     tags: Array.isArray(rawTags) ? rawTags.filter((t): t is string => typeof t === "string") : [],
   });
 
@@ -139,50 +153,31 @@ export async function submitStartupAction(
     };
   }
 
-  const slug = await uniqueSlug(slugify(parsed.data.name));
+  const requestedId=String(formData.get('startupId')??'');
+  if(requestedId&&!z.uuid().safeParse(requestedId).success) return {status:'error',message:'Invalid startup.'};
+  const existing=requestedId?(await sql`select id,slug from startups where id=${requestedId}::uuid and founder_id=${viewer.userId}::uuid and status in ('pending_approval','rejected') and archived_at is null`)[0]:null;
+  if(requestedId&&!existing) return {status:'error',message:'This startup cannot be revised.'};
+  const slug=existing?String(existing.slug):await uniqueSlug(slugify(parsed.data.name));
 
   try {
-    const inserted = (await sql`
-      insert into startups (
-        founder_id, slug, name, tagline, description,
-        website_url, demo_video_url, stage, target_market, status
-      )
-      values (
-        ${viewer.userId}::uuid,
-        ${slug},
-        ${parsed.data.name},
-        ${parsed.data.tagline},
-        ${parsed.data.description},
-        ${parsed.data.websiteUrl},
-        ${parsed.data.demoVideoUrl || null},
-        ${parsed.data.stage}::startup_stage,
-        ${parsed.data.market}::target_market,
-        'pending_approval'
-      )
-      returning id
-    `) as { id: string }[];
-
-    const startupId = inserted[0]?.id;
-    if (!startupId) throw new Error("Startup insert returned no id.");
-
-    // The industry the founder picked is stored as a tag alongside the stack.
-    const labels = [parsed.data.category, ...parsed.data.tags].filter(Boolean);
-    const tagIds = await resolveTagIds(labels);
-
-    if (tagIds.length > 0) {
-      try {
-        await sql`
-          insert into startup_tags (startup_id, tag_id)
-          select ${startupId}::uuid, unnest(${tagIds}::uuid[])
-          on conflict do nothing
-        `;
-      } catch (tagError) {
-        // A tag failure must not lose the submission itself.
-        console.error("[startups] could not attach tags:", tagError);
-      }
-    }
+    const write=auditedSql(viewer.userId);
+    const labels=[parsed.data.category,...parsed.data.tags].filter(Boolean);
+    const tagIds=await resolveTagIds(labels);
+    const inserted=await write`
+      with saved as (
+        insert into startups(id,founder_id,slug,name,tagline,description,website_url,demo_video_url,stage,target_market,status,logo_url,problem,solution,audience,beta_notes)
+        values(coalesce(${requestedId||null}::uuid,gen_random_uuid()),${viewer.userId}::uuid,${slug},${parsed.data.name},${parsed.data.tagline},${parsed.data.description},${parsed.data.websiteUrl},${parsed.data.demoVideoUrl||null},${parsed.data.stage}::startup_stage,${parsed.data.market}::target_market,'pending_approval',${parsed.data.logoUrl},${parsed.data.problem},${parsed.data.solution},${parsed.data.audience},${parsed.data.betaNotes})
+        on conflict(id) do update set name=excluded.name,tagline=excluded.tagline,description=excluded.description,website_url=excluded.website_url,demo_video_url=excluded.demo_video_url,stage=excluded.stage,target_market=excluded.target_market,status='pending_approval',review_state='submitted',rejection_reason=null,logo_url=excluded.logo_url,problem=excluded.problem,solution=excluded.solution,audience=excluded.audience,beta_notes=excluded.beta_notes
+        where startups.founder_id=${viewer.userId}::uuid and startups.status in ('pending_approval','rejected') and startups.archived_at is null returning id
+      ), old_media as (delete from startup_media where startup_id in(select id from saved) returning id), old_tags as (delete from startup_tags where startup_id in(select id from saved) returning startup_id), media as (
+       insert into startup_media(startup_id,media_url,caption,display_order) select saved.id,value,'Product screenshot',ordinality::int from saved,unnest(${parsed.data.screenshots}::text[]) with ordinality as x(value,ordinality) where (select count(*) from old_media)>=0 returning id
+      ), tags as (insert into startup_tags(startup_id,tag_id) select saved.id,value from saved,unnest(${tagIds}::uuid[]) as x(value) where (select count(*) from old_tags)>=0 returning startup_id), draft as (delete from submission_drafts where user_id=${viewer.userId}::uuid and exists(select 1 from saved)) select id from saved
+    `;
+    if(!inserted.length) throw new Error('Startup unavailable for revision.');
 
     revalidatePath("/profile");
+    revalidatePath("/dashboard/founder");
+    revalidatePath("/admin/submissions");
     revalidatePath("/");
 
     return {

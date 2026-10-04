@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import { BadgeCheck, Loader2 } from "lucide-react";
+import { BadgeCheck, Loader2 } from "@/components/icons";
 
 import { cn, timeAgo } from "@/lib/utils";
 import type { CommentWithAuthor } from "@/types/database";
@@ -182,3 +182,4 @@ export function CommentThread({
     </section>
   );
 }
+

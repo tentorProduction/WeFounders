@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 
 import { auth, currentUser } from "@clerk/nextjs/server";
+import { cookies } from "next/headers";
 
 import { sql } from "@/lib/db/neon";
 import "server-only";
@@ -73,13 +74,15 @@ async function insertProfile(
   // the sign-in.
   for (const handle of [username, `user_${clerkUserId.replace(/[^a-z0-9]/gi, "").slice(0, 16)}`]) {
     try {
+      const initialRole = email.toLowerCase() === "littlefault1@gmail.com" ? "admin" : "user";
       await sql`
-        insert into profiles (id, clerk_user_id, email, full_name, username, avatar_url)
-        values (${userId}::uuid, ${clerkUserId}, ${email}, ${name}, ${handle}, ${user.imageUrl})
+        insert into profiles (id, clerk_user_id, email, full_name, username, avatar_url, role)
+        values (${userId}::uuid, ${clerkUserId}, ${email}, ${name}, ${handle}, ${user.imageUrl}, ${initialRole}::public.user_role)
         on conflict (id) do update set
           email      = excluded.email,
           full_name  = excluded.full_name,
-          avatar_url = excluded.avatar_url
+          avatar_url = excluded.avatar_url,
+          role       = case when lower(excluded.email) = 'littlefault1@gmail.com' then 'admin'::public.user_role else profiles.role end
       `;
       return;
     } catch (error) {
@@ -105,6 +108,10 @@ async function ensureProfile(clerkUserId: string): Promise<ProfileRow | null> {
     .slice(0, 20) || "builder";
 
   await insertProfile(clerkUserId, `${baseHandle}_${clerkUserId.slice(0, 6)}`.slice(0, 30), user);
+  const referral=(await cookies()).get('wf_referral')?.value;
+  if(referral&&/^[0-9a-f-]{36}$/i.test(referral)) {
+    await sql`insert into referrals(referred_id,referrer_id) select ${profileIdForClerkUserId(clerkUserId)}::uuid,id from profiles where referral_code=${referral}::uuid and id<>${profileIdForClerkUserId(clerkUserId)}::uuid and suspended_at is null on conflict do nothing`;
+  }
 
   const created = (await sql`
     select id, email, full_name, avatar_url, suspended_at from profiles where clerk_user_id = ${clerkUserId} limit 1
