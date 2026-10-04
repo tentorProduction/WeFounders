@@ -1,5 +1,4 @@
 import type { NextConfig } from "next";
-import { PHASE_DEVELOPMENT_SERVER } from "next/constants";
 
 const nextConfig: NextConfig = {
   async headers() {
@@ -27,5 +26,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-const configureNext = (phase: string): NextConfig => ({ ...nextConfig, distDir: phase === PHASE_DEVELOPMENT_SERVER ? ".next" : ".next-production" });
-export default configureNext;
+export default nextConfig;
