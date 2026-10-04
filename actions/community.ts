@@ -18,24 +18,39 @@ async function actor(namespace: string) {
 
 export async function follow(data: FormData) {
  const {user}=await actor("follow"); const target=id(data); const kind=z.enum(["startup","profile"]).parse(data.get("kind"));
- const field=kind==='startup' ? 'startup_id' : 'profile_id';
+ const targetType = kind === 'startup' ? 'startup' : 'user';
  if (kind==='profile' && target===user.id) throw new Error("You cannot follow yourself.");
  const available=kind==='startup' ? await sql`select id from startups where id=${target}::uuid and status='approved' and archived_at is null and launch_date<=now()` : await sql`select id from profiles where id=${target}::uuid and suspended_at is null`;
  if (!available.length) throw new Error("This page is unavailable.");
- if (data.get("active")==="true") await sql`delete from follows where user_id=${user.id}::uuid and ${raw(field)}=${target}::uuid`;
- else {
-  await sql`insert into follows(user_id,${raw(field)}) values(${user.id}::uuid,${target}::uuid) on conflict do nothing`;
+ if (data.get("active")==="true") {
+  await sql`delete from follows where follower_id=${user.id}::uuid and target_type=${targetType} and target_id=${target}::uuid`;
+  if (targetType === "startup") {
+    await sql`update startups set followers_count = greatest(0, followers_count - 1) where id = ${target}::uuid`;
+  } else {
+    await sql`update profiles set followers_count = greatest(0, followers_count - 1) where id = ${target}::uuid`;
+    await sql`update profiles set following_count = greatest(0, following_count - 1) where id = ${user.id}::uuid`;
+  }
+ } else {
+  await sql`insert into follows(follower_id,target_type,target_id) values(${user.id}::uuid,${targetType},${target}::uuid) on conflict do nothing`;
+  if (targetType === "startup") {
+    await sql`update startups set followers_count = followers_count + 1 where id = ${target}::uuid`;
+  } else {
+    await sql`update profiles set followers_count = followers_count + 1 where id = ${target}::uuid`;
+    await sql`update profiles set following_count = following_count + 1 where id = ${user.id}::uuid`;
+  }
  }
  refresh();
 }
 
 export async function bookmark(data: FormData) {
  const {user}=await actor("bookmark"); const target=id(data); const kind=z.enum(["startup","quest","collab"]).parse(data.get("kind"));
- const field={startup:'startup_id',quest:'quest_id',collab:'collab_id'}[kind];
  const available=kind==='startup' ? await sql`select id from startups where id=${target}::uuid and status='approved' and archived_at is null and launch_date<=now()` : kind==='quest' ? await sql`select q.id from testing_quests q join startups s on s.id=q.startup_id where q.id=${target}::uuid and q.approval_status='approved' and s.status='approved' and s.archived_at is null and s.launch_date<=now()` : await sql`select id from collab_posts where id=${target}::uuid and approval_status='approved' and is_active`;
  if(!available.length) throw new Error("This item is unavailable.");
- if(data.get("active")==="true") await sql`delete from bookmarks where user_id=${user.id}::uuid and ${raw(field)}=${target}::uuid`;
- else await sql`insert into bookmarks(user_id,${raw(field)}) values(${user.id}::uuid,${target}::uuid) on conflict do nothing`;
+ if(data.get("active")==="true") {
+  await sql`delete from saved_items where user_id=${user.id}::uuid and item_type=${kind} and item_id=${target}::uuid`;
+ } else {
+  await sql`insert into saved_items(user_id,item_type,item_id) values(${user.id}::uuid,${kind},${target}::uuid) on conflict do nothing`;
+ }
  refresh();
 }
 

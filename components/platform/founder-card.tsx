@@ -17,14 +17,22 @@ interface FounderProfile {
 }
 
 export async function FounderCard({ founderId }: { founderId: string }) {
-  const rows = (await sql`
-    SELECT id, full_name, username, avatar_url, bio, website_url, github_handle, karma_score
-    FROM profiles
-    WHERE id = ${founderId}::uuid
-    LIMIT 1
-  `) as unknown as FounderProfile[];
+  if (!founderId) return null;
 
-  const founder = rows[0];
+  let founder: FounderProfile | null = null;
+  try {
+    const rows = (await sql`
+      SELECT id, full_name, username, avatar_url, bio, website_url, github_handle, karma_score
+      FROM profiles
+      WHERE id = ${founderId}::uuid
+      LIMIT 1
+    `) as unknown as FounderProfile[];
+    founder = rows[0] ?? null;
+  } catch (err) {
+    console.error("[FounderCard] Failed to fetch founder profile:", err);
+    return null;
+  }
+
   if (!founder) return null;
 
   const session = await readSession();

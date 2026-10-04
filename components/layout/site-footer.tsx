@@ -5,17 +5,17 @@ import { CookieSettingsButton } from "@/components/privacy/cookie-settings-butto
 import { GlobeHemisphereWest } from "@/components/icons";
 
 const DISCOVER_LINKS = [
-  { href: "/", label: "Launches" },
+  { href: "/startups", label: "Startups Directory" },
+  { href: "/discover", label: "Product Radar" },
   { href: "/leaderboard", label: "Leaderboard" },
-  { href: "/quests", label: "Quests" },
+  { href: "/quests", label: "Beta Quests" },
   { href: "/collab", label: "Collab" },
-  { href: "/promote", label: "Spotlight" },
 ];
 
 const RESOURCE_LINKS = [
+  { href: "/how-it-works", label: "How It Works" },
   { href: "/about", label: "About" },
-  { href: "/about#guidelines", label: "Guidelines" },
-  { href: "/about#curation", label: "Curation" },
+  { href: "/press", label: "Press & Media" },
   { href: "/faq", label: "FAQ" },
 ];
 

@@ -1,0 +1,32 @@
+# WeFounders
+
+> The Global Startup Launchpad & Beta Testing Platform
+
+WeFounders (https://wefounders.dev) is an open founder and builder community designed to connect early-stage software startups with verified beta testers and early adopters.
+
+## Core Capabilities
+
+- **Startup Showcases**: Public directory of live products, MVPs, and beta software across AI, SaaS, Mobile, Fintech, and Developer Tools.
+- **Beta Testing Quests**: Structured challenges created by founders specifying target devices, user instructions, and testing criteria.
+- **Karma & Reputation System**: Testers earn Karma by submitting bug reports and product feedback. Top builders appear on the global leaderboard.
+- **Makers & Founders**: Verified profiles showcasing launches, updates, follower networks, and team collaboration opportunities.
+- **Community Collab**: A matching platform where founders find co-founders, advisors, developers, designers, and marketers.
+
+## Key Public URLs
+
+- Homepage & Launchpad: https://wefounders.dev/
+- Startups Directory: https://wefounders.dev/startups
+- Product Radar & Feed: https://wefounders.dev/discover
+- Active Testing Quests: https://wefounders.dev/quests
+- Community Collaborations: https://wefounders.dev/collab
+- Global Leaderboard: https://wefounders.dev/leaderboard
+- How It Works: https://wefounders.dev/how-it-works
+- Press & Media Kit: https://wefounders.dev/press
+
+## Technology Architecture
+
+- Frontend & Server: Next.js 15 (App Router, Server Components, React 19)
+- Styling: Tailwind CSS with Archivo/Inter typography
+- Database: Neon Serverless PostgreSQL
+- Authentication: Clerk (required only for writing actions, not public browsing)
+- Icons: Phosphor Icons exclusively

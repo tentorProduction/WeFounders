@@ -3,10 +3,16 @@ import type { ProjectUpdate } from "@/types/database";
 import "server-only";
 
 export async function getStartupUpdates(startupId: string): Promise<ProjectUpdate[]> {
-  const rows = (await sql`
-    SELECT * FROM project_updates
-    WHERE startup_id = ${startupId}::uuid
-    ORDER BY created_at DESC
-  `) as unknown as ProjectUpdate[];
-  return rows;
+  if (!startupId) return [];
+  try {
+    const rows = (await sql`
+      SELECT * FROM project_updates
+      WHERE startup_id = ${startupId}::uuid
+      ORDER BY created_at DESC
+    `) as unknown as ProjectUpdate[];
+    return rows;
+  } catch (error) {
+    console.error("[getStartupUpdates] Failed to fetch startup updates:", error);
+    return [];
+  }
 }

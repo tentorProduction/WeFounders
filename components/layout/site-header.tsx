@@ -11,6 +11,7 @@ import { BrandLogo } from "@/components/brand/brand-logo";
 import { NotificationBell } from "@/components/layout/notification-bell";
 
 const NAV_LINKS = [
+  { href: "/startups", label: "Startups" },
   { href: "/discover", label: "Discover" },
   { href: "/leaderboard", label: "Leaderboard" },
   { href: "/quests", label: "Quests" },

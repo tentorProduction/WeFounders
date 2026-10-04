@@ -54,16 +54,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const baseUrl = getSiteOrigin();
   const canonical = new URL(`/startups/${startup.slug}`, baseUrl);
+  const description = (startup.description || startup.tagline || "").slice(0, 160);
 
   return {
     title: `${startup.name} — ${startup.tagline}`,
-    description: startup.description.slice(0, 160),
+    description,
     alternates: { canonical },
     openGraph: {
       title: `${startup.name} — ${startup.tagline}`,
-      description: startup.description.slice(0, 160),
+      description,
       url: canonical,
       type: "website",
+      images: startup.logo_url ? [{ url: startup.logo_url, alt: startup.name }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${startup.name} — ${startup.tagline}`,
+      description,
     },
   };
 }
@@ -90,7 +97,7 @@ export default async function StartupShowcasePage({ params, searchParams }: Page
     : [false, false];
 
   // The founder's own markdown is the "About the Product" copy.
-  const pitch = startup.description;
+  const pitch = startup.description || "";
   const canManage = isFounderViewer(viewer, startup);
   const totalWaitlist = startup.waitlist_count;
   const query = await searchParams;
@@ -98,9 +105,58 @@ export default async function StartupShowcasePage({ params, searchParams }: Page
     startup.tags.find((tag) => tag.category === "industry") ?? startup.tags[0];
 
   const exportHref = `/startups/${startup.slug}/waitlist/export`;
+  const baseUrl = getSiteOrigin();
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": startup.name,
+        "headline": startup.tagline,
+        "description": startup.description || startup.tagline,
+        "url": startup.website_url || `${baseUrl}/startups/${startup.slug}`,
+        "image": startup.logo_url || undefined,
+        "applicationCategory": primaryTag?.name || "Productivity",
+        "operatingSystem": "Web, iOS, Android",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": baseUrl,
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Startups",
+            "item": `${baseUrl}/startups`,
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": startup.name,
+            "item": `${baseUrl}/startups/${startup.slug}`,
+          },
+        ],
+      },
+    ],
+  };
 
   return (
     <div className="site-container py-8 max-w-4xl space-y-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Breadcrumbs */}
       <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-caption text-muted-foreground">
         <Link href="/" className="hover:text-foreground">
