@@ -1,7 +1,7 @@
 # Current State — WeFounders
 
 **Last Updated:** 2026-10-04  
-**Latest Commit:** `5bad408` (fix(startups): resolve /startups/capgen crash and add discoverability pages)
+**Latest Commit:** `5ddec17` (feat(startups): responsive 2-col layout, sticky sidebar, beta testing badge, and smart markdown auto-formatting)
 **Active Branch:** `main`  
 **Latest Deployment Status:** Live at `https://wefounders.dev`
 
