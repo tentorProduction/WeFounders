@@ -1,7 +1,7 @@
 # Current State — WeFounders
 
 **Last Updated:** 2026-10-04  
-**Latest Commit:** `deba457` (fix(onboarding): rethrow NEXT_REDIRECT in error boundary and harden onboarding page against render crashes)
+**Latest Commit:** `db34bde` (feat(onboarding): make all fields compulsory with live 20-char bio counter and strict validation)
 **Active Branch:** `main`  
 **Latest Deployment Status:** Live at `https://wefounders.dev`
 
