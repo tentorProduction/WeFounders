@@ -1,7 +1,7 @@
 # Current State — WeFounders
 
 **Last Updated:** 2026-10-04  
-**Latest Commit:** `12e99f8` (fix(dashboard): eliminate React error #310 by converting /dashboard to unified hub and adding favicon.ico)
+**Latest Commit:** `deba457` (fix(onboarding): rethrow NEXT_REDIRECT in error boundary and harden onboarding page against render crashes)
 **Active Branch:** `main`  
 **Latest Deployment Status:** Live at `https://wefounders.dev`
 
