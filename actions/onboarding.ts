@@ -18,14 +18,16 @@ export async function completeOnboardingAction(formData: FormData) {
   const skillsInput = (formData.get("skills") as string)?.trim() || "";
   const skills = skillsInput ? skillsInput.split(",").map((s) => s.trim()).filter(Boolean) : [];
 
+  const rolesArray = roles.length > 0 ? roles : ["user"];
+
   await sql`
     UPDATE profiles SET
       onboarding_completed = true,
-      roles = ${roles.length > 0 ? roles : ["user"]},
+      roles = ${rolesArray}::text[],
       bio = COALESCE(${bio}, bio),
       location = ${location},
       portfolio_url = ${portfolioUrl},
-      skills = ${skills}
+      skills = ${skills}::text[]
     WHERE id = ${session.userId}::uuid
   `;
 
