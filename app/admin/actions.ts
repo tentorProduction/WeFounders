@@ -89,10 +89,28 @@ export async function deleteStartup(startupId: string) {
   const admin = await verifyAdmin();
   const sql = auditedSql(admin.userId);
   assertId(startupId);
+
+  // Cleanly delete child rows to prevent foreign key issues
+  await sql`delete from startup_tags where startup_id = ${startupId}::uuid`;
+  await sql`delete from startup_media where startup_id = ${startupId}::uuid`;
+  await sql`delete from upvotes where startup_id = ${startupId}::uuid`;
+  await sql`delete from comments where startup_id = ${startupId}::uuid`;
+  await sql`delete from waitlist_entries where startup_id = ${startupId}::uuid`;
+  await sql`delete from follows where target_type = 'startup' and target_id = ${startupId}::uuid`;
+  await sql`delete from saved_items where item_type = 'startup' and item_id = ${startupId}::uuid`;
+  await sql`delete from project_updates where startup_id = ${startupId}::uuid`;
+  await sql`delete from startup_updates where startup_id = ${startupId}::uuid`;
+  await sql`delete from testing_quests where startup_id = ${startupId}::uuid`;
+
   const rows = await sql`
-    update startups set archived_at=now(), status='rejected' where id = ${startupId}::uuid returning id
+    delete from startups where id = ${startupId}::uuid returning id
   `;
-  if (rows.length === 0) throw new Error("Startup was not found.");
+  if (rows.length === 0) {
+    const alt = await sql`
+      update startups set archived_at=now(), status='rejected' where id = ${startupId}::uuid returning id
+    `;
+    if (alt.length === 0) throw new Error("Startup was not found.");
+  }
   refreshAdminData();
 }
 

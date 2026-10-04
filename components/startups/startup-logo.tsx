@@ -59,7 +59,8 @@ export function StartupLogo({
         alt={`${name} logo`}
         width={size}
         height={size}
-        className={cn("shrink-0 rounded-lg border border-border object-cover grayscale", className)}
+        unoptimized
+        className={cn("shrink-0 rounded-lg border border-border object-cover", className)}
         style={{ width: size, height: size }}
         onError={() => setImageFailed(true)}
       />
