@@ -39,8 +39,6 @@ export function SiteHeader() {
 
   // Scroll & Header state
   const [scrolled, setScrolled] = useState(false);
-  const [visible, setVisible] = useState(true);
-  const lastScrollY = useRef(0);
 
   // Search state
   const [searchExpanded, setSearchExpanded] = useState(false);
@@ -54,31 +52,15 @@ export function SiteHeader() {
   // Live type-ahead results
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
 
-  // Handle Scroll behavior (hide on scroll down, reveal on scroll up, shadow past 24px)
+  // Track scroll for subtle background elevation (always stays visible)
   useEffect(() => {
     function handleScroll() {
-      const currentScrollY = window.scrollY;
-
-      if (currentScrollY > 24) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
-
-      if (currentScrollY > lastScrollY.current && currentScrollY > 80 && !mobileOpen) {
-        // Scrolling down
-        setVisible(false);
-      } else {
-        // Scrolling up
-        setVisible(true);
-      }
-
-      lastScrollY.current = currentScrollY;
+      setScrolled(window.scrollY > 24);
     }
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [mobileOpen]);
+  }, []);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -155,10 +137,9 @@ export function SiteHeader() {
     <>
       <header
         className={cn(
-          "sticky top-0 z-50 w-full bg-transparent transition-transform duration-300",
+          "sticky top-0 z-50 w-full bg-transparent transition-all duration-300",
           "h-[72px] md:h-[92px] pt-2 md:pt-4",
-          !visible && "-translate-y-full",
-          scrolled && ""
+          scrolled && "backdrop-blur-xs"
         )}
       >
         <div className="glass-pill site-container h-[56px] md:h-[62px] flex items-center justify-between gap-2 overflow-x-hidden rounded-xl px-3 md:px-4">
@@ -166,7 +147,7 @@ export function SiteHeader() {
           <div className="flex items-center shrink-0">
             <Link
               href="/"
-              className="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-[#FF4B3E] rounded-md"
+              className="flex items-center gap-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] rounded-md"
               onClick={() => setMobileOpen(false)}
             >
               {/* Brand mark, with the wordmark shown from 640px up to prevent horizontal overflow */}
@@ -180,15 +161,14 @@ export function SiteHeader() {
           {/* CENTER LINKS (Desktop ONLY >= 768px) */}
           <nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-4 xl:gap-6">
             {NAV_LINKS.map((link) => {
-              const isActive =
-                pathname.startsWith(link.href);
+              const isActive = pathname.startsWith(link.href);
 
               return (
                 <Link
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    "relative font-sans text-[15px] font-medium transition-colors duration-200 py-1 focus:outline-none focus:ring-1 focus:ring-[#FF4B3E] rounded-xs",
+                    "relative font-sans text-[15px] font-medium transition-colors duration-200 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] rounded-md",
                     isActive ? "text-[#17181B] font-semibold" : "text-[#666A73] hover:text-[#17181B]"
                   )}
                 >

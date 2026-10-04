@@ -9,29 +9,8 @@ import { ViewTracker } from "@/components/platform/share";
 import {
   ChatCircleDots,
   ThumbsUp,
-  Flask,
-  Users,
-  Eye,
-  Target,
-  Lightbulb,
   CheckCircle,
-  Sparkle,
 } from "@phosphor-icons/react/dist/ssr";
-
-interface StartupDataRow {
-  problem: string | null;
-  solution: string | null;
-  audience: string | null;
-  beta_notes: string | null;
-  is_curated: boolean;
-  verified_at: string | null;
-  username: string | null;
-  full_name: string | null;
-  founder_verified: string | null;
-  followers: number;
-  views: number;
-  testers: number;
-}
 
 interface CommentRow {
   id: string;
@@ -58,42 +37,6 @@ export async function StartupCommunity({
   page?: number;
 }) {
   const user = await member();
-
-  let data: StartupDataRow = {
-    problem: null,
-    solution: null,
-    audience: null,
-    beta_notes: null,
-    is_curated: false,
-    verified_at: null,
-    username: null,
-    full_name: null,
-    founder_verified: null,
-    followers: 0,
-    views: 0,
-    testers: 0,
-  };
-
-  try {
-    const rows = (await sql`
-      select
-        s.problem, s.solution, s.audience, s.beta_notes, s.is_curated, s.verified_at,
-        p.username, p.full_name, p.verified_at as founder_verified,
-        coalesce((select count(*)::int from follows where target_id = s.id and target_type = 'startup'), s.followers_count, 0) as followers,
-        coalesce((select count(*)::int from startup_views where startup_id = s.id), s.views_count, 0) as views,
-        coalesce((select count(*)::int from quest_members m join testing_quests q on q.id = m.quest_id where q.startup_id = s.id), 0) as testers
-      from startups s
-      left join profiles p on p.id = s.founder_id
-      where s.id = ${startup.id}::uuid
-      limit 1
-    `) as unknown as StartupDataRow[];
-
-    if (rows[0]) {
-      data = rows[0];
-    }
-  } catch (err) {
-    console.error("[StartupCommunity] Failed to query startup details:", err);
-  }
 
   let comments: CommentRow[] = [];
   try {
@@ -141,110 +84,9 @@ export async function StartupCommunity({
     console.error("[StartupCommunity] Failed to query related startups:", err);
   }
 
-  const hasProductDetails = Boolean(data.problem || data.solution || data.audience);
-
   return (
     <div className="space-y-6">
       <ViewTracker id={startup.id} />
-
-      {/* Product Deep Dive (Problem, Solution, Target Audience) */}
-      {hasProductDetails && (
-        <section
-          aria-label="Product Deep Dive"
-          className="rounded-2xl border border-[#DADDE1] bg-white p-5 sm:p-6 space-y-5 shadow-xs"
-        >
-          <div className="flex items-center gap-2">
-            <Sparkle size={20} weight="fill" className="text-[#FF4B3E]" />
-            <h2 className="font-archivo text-lg font-bold text-[#17181B]">Product Blueprint</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {data.problem && (
-              <div className="p-4 rounded-xl bg-[#F8F9FA] border border-[#DADDE1] space-y-2">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#FF4B3E]">
-                  <Target size={16} weight="bold" />
-                  <span>The Problem</span>
-                </div>
-                <p className="text-xs text-[#666A73] leading-relaxed whitespace-pre-line">{data.problem}</p>
-              </div>
-            )}
-
-            {data.solution && (
-              <div className="p-4 rounded-xl bg-[#F8F9FA] border border-[#DADDE1] space-y-2">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#059669]">
-                  <Lightbulb size={16} weight="bold" />
-                  <span>The Solution</span>
-                </div>
-                <p className="text-xs text-[#666A73] leading-relaxed whitespace-pre-line">{data.solution}</p>
-              </div>
-            )}
-
-            {data.audience && (
-              <div className="p-4 rounded-xl bg-[#F8F9FA] border border-[#DADDE1] space-y-2">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#17181B]">
-                  <Users size={16} weight="bold" />
-                  <span>Target Audience</span>
-                </div>
-                <p className="text-xs text-[#666A73] leading-relaxed whitespace-pre-line">{data.audience}</p>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
-      {/* Beta Access & Testing Directives */}
-      {data.beta_notes && (
-        <section
-          aria-label="Beta Testing Guidance"
-          className="rounded-2xl border border-[#059669]/20 bg-[#ECFDF5]/40 p-5 sm:p-6 space-y-3 shadow-xs"
-        >
-          <div className="flex items-center gap-2">
-            <Flask size={20} weight="fill" className="text-[#059669]" />
-            <h2 className="font-archivo text-base font-bold text-[#17181B]">Beta Testing Directives</h2>
-          </div>
-          <p className="text-xs text-[#374151] leading-relaxed whitespace-pre-line">{data.beta_notes}</p>
-        </section>
-      )}
-
-      {/* Community Traction Metrics */}
-      <section
-        aria-label="Community Traction"
-        className="rounded-2xl border border-[#DADDE1] bg-white p-5 sm:p-6 shadow-xs"
-      >
-        <h2 className="font-archivo text-xs uppercase font-bold tracking-wider text-[#666A73] mb-4">
-          Community Traction
-        </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="p-3 rounded-xl bg-[#F8F9FA] border border-[#E4E7EB]">
-            <div className="flex items-center gap-1.5 text-xs text-[#666A73]">
-              <Eye size={15} />
-              <span>Unique Views</span>
-            </div>
-            <div className="mt-1 font-mono text-xl font-bold text-[#17181B]">{data.views}</div>
-          </div>
-          <div className="p-3 rounded-xl bg-[#F8F9FA] border border-[#E4E7EB]">
-            <div className="flex items-center gap-1.5 text-xs text-[#666A73]">
-              <Users size={15} />
-              <span>Followers</span>
-            </div>
-            <div className="mt-1 font-mono text-xl font-bold text-[#17181B]">{data.followers}</div>
-          </div>
-          <div className="p-3 rounded-xl bg-[#F8F9FA] border border-[#E4E7EB]">
-            <div className="flex items-center gap-1.5 text-xs text-[#666A73]">
-              <Flask size={15} />
-              <span>Beta Testers</span>
-            </div>
-            <div className="mt-1 font-mono text-xl font-bold text-[#17181B]">{data.testers}</div>
-          </div>
-          <div className="p-3 rounded-xl bg-[#F8F9FA] border border-[#E4E7EB]">
-            <div className="flex items-center gap-1.5 text-xs text-[#666A73]">
-              <ThumbsUp size={15} />
-              <span>Upvotes</span>
-            </div>
-            <div className="mt-1 font-mono text-xl font-bold text-[#17181B]">{startup.upvotes_count}</div>
-          </div>
-        </div>
-      </section>
 
       {/* Discussion & Community Feedback */}
       <section
@@ -300,7 +142,8 @@ export async function StartupCommunity({
         ) : (
           <div className="rounded-xl border border-[#DADDE1] bg-[#F8F9FA] p-5 text-center space-y-2">
             <p className="text-xs text-[#666A73]">
-              Have questions, feedback, or test results for <span className="font-semibold text-[#17181B]">{startup.name}</span>?
+              Have questions, feedback, or test results for{" "}
+              <span className="font-semibold text-[#17181B]">{startup.name}</span>?
             </p>
             <Link
               href={`/sign-in?redirect_url=/startups/${startup.slug}`}
@@ -319,7 +162,12 @@ export async function StartupCommunity({
               const isOwner = user?.id === c.user_id || user?.role === "admin";
 
               return (
-                <li key={c.id} className={`pt-4 first:pt-0 ${c.parent_id ? "pl-5 border-l-2 border-[#E4E7EB] ml-2" : ""}`}>
+                <li
+                  key={c.id}
+                  className={`pt-4 first:pt-0 ${
+                    c.parent_id ? "pl-5 border-l-2 border-[#E4E7EB] ml-2" : ""
+                  }`}
+                >
                   <div className="space-y-2">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-2">

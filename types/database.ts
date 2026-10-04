@@ -78,6 +78,10 @@ export interface Startup {
   followers_count?: number;
   views_count?: number;
   verified?: boolean;
+  problem?: string | null;
+  solution?: string | null;
+  audience?: string | null;
+  beta_notes?: string | null;
   is_featured: boolean;
   featured_until: string | null;
   created_at: string;

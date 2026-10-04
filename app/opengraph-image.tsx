@@ -21,10 +21,10 @@ export default function OpenGraphImage() {
           >
             <path d={BRAND_MARK_PATH.replace(/\n\s*/g, "")} />
           </svg>
-          wefounders<span style={{ color: "#FF4B3E" }}>.global</span>
+          wefounders
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          <div style={{ color: "#E83A30", fontSize: 20, fontWeight: 700, letterSpacing: 4 }}>GLOBAL STARTUP LAUNCH PLATFORM</div>
+          <div style={{ color: "#E83A30", fontSize: 20, fontWeight: 700, letterSpacing: 4 }}>STARTUP LAUNCH PLATFORM</div>
           <div style={{ display: "flex", flexDirection: "column", maxWidth: 1000, fontSize: 68, lineHeight: 1.05, fontWeight: 700 }}><span>Built by Founders.</span><span>Ready for the world.</span></div>
           <div style={{ color: "#52525B", fontSize: 27 }}>Meet the founders. Try the products. Help them grow.</div>
         </div>

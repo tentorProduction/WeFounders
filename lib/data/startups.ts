@@ -23,8 +23,9 @@ const STARTUP_WITH_TAGS = `
     s.id, s.founder_id, s.slug, s.name, s.tagline, s.description,
     s.website_url, s.demo_video_url, s.logo_url, s.banner_url, s.stage,
     s.target_market, s.status, s.rejection_reason, s.launch_date,
-    s.upvotes_count, s.comments_count, s.waitlist_count, s.is_featured,
-    s.featured_until, s.created_at, s.updated_at,
+    s.upvotes_count, s.comments_count, s.waitlist_count, s.followers_count, s.views_count,
+    s.problem, s.solution, s.audience, s.beta_notes,
+    s.is_featured, s.featured_until, s.created_at, s.updated_at,
     coalesce(
       (
         select json_agg(json_build_object(

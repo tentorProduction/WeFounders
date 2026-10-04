@@ -1,29 +1,5 @@
 import { cn } from "@/lib/utils";
 
-const DOT_COLORS: Record<string, string> = {
-  // Payment rails
-  esewa: "bg-[#6E8B74]",
-  khalti: "bg-[#A691A0]",
-  fonepay: "bg-[#C85A48]",
-  // Localisation
-  "sparrow-sms": "bg-[#8C8F94]",
-  "ntc-ncell": "bg-[#D98C7B]",
-  "devanagari-ui": "bg-[#D98C7B]",
-  "nepali-language": "bg-[#D98C7B]",
-  "offline-first": "bg-[#8C8F94]",
-  // Stacks
-  "next-js": "bg-foreground",
-  supabase: "bg-[#6E8B74]",
-  firebase: "bg-[#D98C7B]",
-  flutter: "bg-[#8C8F94]",
-  "ai-ml": "bg-[#A691A0]",
-  devtools: "bg-muted-foreground",
-  // Markets
-  "nepal-domestic": "bg-[#D98C7B]",
-  "global-export": "bg-[#8C8F94]",
-  verified: "bg-[#6E8B74]",
-};
-
 export interface TagPillTag {
   name: string;
   slug: string;
@@ -44,24 +20,17 @@ export function TagPill({
   active = false,
   className,
 }: TagPillProps) {
-  const dotClass = DOT_COLORS[tag.slug] ?? "bg-muted-foreground/60";
-
   const chipClass = cn(
-    "inline-flex h-[24px] items-center gap-1.5 rounded-full border px-2.5 text-caption font-medium transition-all",
+    "inline-flex h-[20px] sm:h-[22px] items-center rounded-full border px-2 text-[11px] font-medium leading-none transition-all",
     active
-      ? "border-[#FF4B3E] bg-[#FF4B3E]/20 text-[#FF4B3E] font-semibold"
-      : "border-[#DADDE1] bg-[#FFFFFF] text-[#17181B]",
+      ? "border-[#FF4B3E] bg-[#FF4B3E]/15 text-[#FF4B3E] font-semibold"
+      : "border-[#DADDE1] bg-[#FFFFFF] text-[#4B5059] hover:text-[#17181B] hover:border-[#17181B]",
     onSelect &&
       "cursor-pointer hover:border-[#FF4B3E]/60 hover:bg-[#FF4B3E]/10",
     className
   );
 
-  const label = (
-    <>
-      <span aria-hidden className={cn("h-1.5 w-1.5 rounded-full", dotClass)} />
-      {tag.name}
-    </>
-  );
+  const label = tag.name;
 
   if (onRemove) {
     return (

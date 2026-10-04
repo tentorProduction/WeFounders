@@ -1,8 +1,6 @@
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { CookieSettingsButton } from "@/components/privacy/cookie-settings-button";
-import { GlobeHemisphereWest } from "@/components/icons";
 
 const DISCOVER_LINKS = [
   { href: "/startups", label: "Startups Directory" },
@@ -44,16 +42,9 @@ export function SiteFooter() {
         <div className="space-y-3">
           <Link href="/" className="flex items-center gap-2">
             <BrandLogo markClassName="h-[22px] text-white" wordmarkClassName="text-white" />
-            <Badge
-              variant="outline"
-              className="border-white/20 bg-white/8 text-[10px] font-mono text-white/80 inline-flex items-center gap-1 py-0.5 px-2"
-            >
-              <GlobeHemisphereWest className="h-3 w-3 text-[#FF4B3E]" weight="bold" />
-              <span>GLOBAL</span>
-            </Badge>
           </Link>
           <p className="max-w-xs text-tiny leading-relaxed text-white/60">
-            The global startup launchpad. Discover world-class products, join
+            The startup launchpad. Discover world-class products, join
             active betas, and help founders ship.
           </p>
         </div>
@@ -80,12 +71,7 @@ export function SiteFooter() {
           </nav>
 
           <p className="flex items-center gap-2">
-            <span>Global Edition</span>
-            <span aria-hidden>·</span>
-            <span className="inline-flex items-center gap-1.5">
-              <GlobeHemisphereWest className="h-3.5 w-3.5 text-[#FF4B3E]" weight="bold" />
-              Built for Builders Worldwide
-            </span>
+            Built for Builders Worldwide
           </p>
         </div>
       </div>
