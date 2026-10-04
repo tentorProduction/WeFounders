@@ -179,6 +179,7 @@ export async function submitStartupAction(
     if(!inserted.length) throw new Error('Startup unavailable for revision.');
 
     revalidatePath("/profile");
+    revalidatePath("/dashboard");
     revalidatePath("/dashboard/founder");
     revalidatePath("/admin/submissions");
     revalidatePath("/");

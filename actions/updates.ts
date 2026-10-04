@@ -56,6 +56,7 @@ export async function createProjectUpdateAction(formData: FormData) {
   }
 
   revalidatePath(`/startups/${startup[0].slug}`);
+  revalidatePath("/dashboard");
   revalidatePath("/dashboard/founder");
   return { success: true };
 }

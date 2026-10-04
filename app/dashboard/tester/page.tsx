@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { readSession } from "@/lib/auth/session";
 import { sql } from "@/lib/db/neon";
 import { Flask, ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
@@ -37,7 +36,29 @@ export const metadata = {
 export default async function TesterDashboardPage() {
   const session = await readSession();
   if (!session) {
-    redirect("/sign-in");
+    return (
+      <div className="site-container py-16 sm:py-24">
+        <div className="max-w-md mx-auto bg-white border border-[#DADDE1] rounded-[24px] p-8 text-center space-y-4 shadow-sm">
+          <div className="w-14 h-14 rounded-2xl bg-[#FFF5F4] text-[#FF4B3E] flex items-center justify-center mx-auto">
+            <Flask size={28} weight="fill" />
+          </div>
+          <h1 className="font-archivo text-2xl font-bold text-[#17181B] tracking-tight">
+            Sign In to Tester Dashboard
+          </h1>
+          <p className="text-xs text-[#666A73] leading-relaxed">
+            Connect your account to track your test reports, complete testing quests, and view earned Karma.
+          </p>
+          <div className="pt-2 flex justify-center">
+            <Link
+              href="/sign-in?redirect_url=/dashboard/tester"
+              className="ink-button rounded-full px-6 py-2.5 text-xs font-semibold"
+            >
+              Continue to Sign In
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   // Get tester submissions
