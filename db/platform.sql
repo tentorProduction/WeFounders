@@ -19,6 +19,7 @@ alter table startups add column if not exists verified_at timestamptz;
 alter table startups add column if not exists archived_at timestamptz;
 alter table startups add column if not exists review_state text not null default 'submitted';
 alter table startups add column if not exists moderation_notes text not null default '';
+alter table startups add column if not exists logo_synced_at timestamptz;
 alter table promotions add column if not exists duration_hours integer not null default 48 check(duration_hours between 1 and 720);
 alter table promotions add column if not exists refund_requested_at timestamptz;
 alter table promotions add column if not exists refund_note text;
@@ -43,16 +44,18 @@ alter table waitlist_entries add column if not exists member_role text not null 
 alter table waitlist_entries add column if not exists status text not null default 'waiting';
 create unique index if not exists waitlist_email_case_idx on waitlist_entries(startup_id, lower(email));
 
+-- `follows` is polymorphic (follower_id + target_type/target_id) — the same shape
+-- db/schema.sql creates and every action queries. An older user_id/startup_id/
+-- profile_id declaration here made the migration abort on the two indexes below.
 create table if not exists follows (
- user_id uuid not null references profiles(id) on delete cascade,
- startup_id uuid references startups(id) on delete cascade,
- profile_id uuid references profiles(id) on delete cascade,
+ follower_id uuid not null references profiles(id) on delete cascade,
+ target_type text not null check (target_type in ('startup','user')),
+ target_id uuid not null,
  created_at timestamptz not null default now(),
- check ((startup_id is null) <> (profile_id is null)),
- check (user_id <> profile_id)
+ unique (follower_id, target_type, target_id)
 );
-create unique index if not exists follows_startup_idx on follows(user_id,startup_id) where startup_id is not null;
-create unique index if not exists follows_profile_idx on follows(user_id,profile_id) where profile_id is not null;
+create index if not exists follows_target_idx on follows(target_type,target_id);
+create index if not exists follows_follower_idx on follows(follower_id);
 create table if not exists bookmarks (
  user_id uuid not null references profiles(id) on delete cascade,
  startup_id uuid references startups(id) on delete cascade,
@@ -145,11 +148,11 @@ create or replace function notify_platform_event() returns trigger language plpg
 declare owner_id uuid; slug_value text; title_value text; recipient uuid;
 begin
  if tg_table_name='follows' then
-  if new.profile_id is not null then recipient:=new.profile_id; else select founder_id,slug into recipient,slug_value from startups where id=new.startup_id; end if;
-  if recipient<>new.user_id then insert into notifications(user_id,kind,title,href) values(recipient,'follower','You have a new follower','/following'); end if;
+  if new.target_type='user' then recipient:=new.target_id; else select founder_id,slug into recipient,slug_value from startups where id=new.target_id; end if;
+  if recipient is not null and recipient<>new.follower_id then insert into notifications(user_id,kind,title,href) values(recipient,'follower','You have a new follower','/following'); end if;
  elsif tg_table_name='startup_updates' then
   select slug into slug_value from startups where id=new.startup_id;
-  insert into notifications(user_id,kind,title,href) select user_id,'update',new.title,'/startups/'||slug_value from follows where startup_id=new.startup_id and user_id<>new.author_id;
+  insert into notifications(user_id,kind,title,href) select follower_id,'update',new.title,'/startups/'||slug_value from follows where target_type='startup' and target_id=new.startup_id and follower_id<>new.author_id;
  elsif tg_table_name='comments' then
   select founder_id,slug into owner_id,slug_value from startups where id=new.startup_id;
   if new.parent_id is not null then select user_id into recipient from comments where id=new.parent_id; end if;
@@ -164,7 +167,7 @@ begin
   end if;
  elsif tg_table_name='testing_quests' then
   if new.approval_status='approved' and old.approval_status<>'approved' then
-   insert into notifications(user_id,kind,title,href) select user_id,'quest',new.title,'/quests/'||new.id from follows where startup_id=new.startup_id;
+   insert into notifications(user_id,kind,title,href) select follower_id,'quest',new.title,'/quests/'||new.id from follows where target_type='startup' and target_id=new.startup_id;
   end if;
  elsif tg_table_name='collab_applications' then
   if tg_op='INSERT' then select author_id into recipient from collab_posts where id=new.collab_id; insert into notifications(user_id,kind,title,href) values(recipient,'application','New collaboration application','/dashboard/founder');

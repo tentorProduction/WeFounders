@@ -15,7 +15,7 @@ export default async function SubmitPage({searchParams}:{searchParams:Promise<{e
   if(!z.uuid().safeParse(edit).success)notFound();
   const project=(await sql`select s.*,coalesce((select string_agg(t.name,', ') from startup_tags st join tags t on t.id=st.tag_id where st.startup_id=s.id),'') as tags,coalesce((select string_agg(media_url,E'\n' order by display_order) from startup_media where startup_id=s.id),'') as screenshots from startups s where s.id=${edit}::uuid and s.founder_id=${user.id}::uuid and s.status in ('pending_approval','rejected') and s.archived_at is null`)[0];
   if(!project)notFound();
-  for(const [key,column] of Object.entries({name:'name',tagline:'tagline',description:'description',problem:'problem',solution:'solution',audience:'audience',websiteUrl:'website_url',demoVideoUrl:'demo_video_url',logoUrl:'logo_url',screenshots:'screenshots',stage:'stage',market:'target_market',tags:'tags',betaNotes:'beta_notes'}))initial[key as keyof LaunchDraft]=String(project[column]??'');
+  for(const [key,column] of Object.entries({name:'name',tagline:'tagline',description:'description',problem:'problem',solution:'solution',audience:'audience',websiteUrl:'website_url',screenshots:'screenshots',stage:'stage',market:'target_market',tags:'tags',betaNotes:'beta_notes'}))initial[key as keyof LaunchDraft]=String(project[column]??'');
   initial.startupId=edit;
  }
  return <PlatformPage title="Your next launch starts here." description="Tell the community what you’re building. Your draft saves to your account as you go."><SubmissionWizard initial={initial} name={user.full_name||user.username}/></PlatformPage>;

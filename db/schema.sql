@@ -83,6 +83,7 @@ create table public.startups (
   website_url    text not null default '',
   demo_video_url text,
   logo_url       text not null default '',
+  logo_synced_at timestamptz, -- last time logo_url was resolved from website_url
   banner_url     text,
   stage          public.startup_stage not null default 'concept',
   target_market  public.target_market not null default 'nepal_domestic',

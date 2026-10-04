@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { getViewer } from "@/lib/auth/viewer";
+import { resolveSiteLogo } from "@/lib/logo";
 import { sql, auditedSql } from "@/lib/db/neon";
 import { clientAddress, isRateLimited } from "@/lib/security/rate-limit";
 import { headers } from "next/headers";
@@ -19,7 +20,8 @@ import type { StartupSubmissionActionState } from "@/lib/action-state";
  * approves it, which is why the feed query filters on `status = 'approved'`.
  *
  * Identity comes from the verified session rather than from the form, so
- * `founder_id` is never taken from client input.
+ * `founder_id` is never taken from client input. The logo is never pasted by
+ * the founder either: it is synced from `website_url` (see lib/logo.ts).
  */
 
 const submissionSchema = z.object({
@@ -30,8 +32,6 @@ const submissionSchema = z.object({
   stage: z.enum(["concept", "closed_alpha", "public_beta", "launched"]),
   market: z.enum(["nepal_domestic", "global_export", "hybrid"]),
   websiteUrl: z.url().max(300).refine(v=>/^https?:\/\//i.test(v)),
-  demoVideoUrl: z.union([z.literal(""), z.url().max(300).refine(v=>/^https?:\/\//i.test(v))]),
-  logoUrl: z.union([z.literal(""),z.url().max(500).refine(v=>/^https:\/\//i.test(v))]),
   screenshots: z.array(z.url().max(500).refine(v=>/^https:\/\//i.test(v))).max(8),
   problem: z.string().trim().max(2000),
   solution: z.string().trim().max(2000),
@@ -128,8 +128,6 @@ export async function submitStartupAction(
     stage: String(formData.get("stage") ?? ""),
     market: String(formData.get("market") ?? ""),
     websiteUrl: String(formData.get("websiteUrl") ?? "").trim(),
-    demoVideoUrl: String(formData.get("demoVideoUrl") ?? "").trim(),
-    logoUrl: String(formData.get("logoUrl") ?? "").trim(),
     screenshots: String(formData.get("screenshots")??"").split(/\n/).map(v=>v.trim()).filter(Boolean),
     problem: String(formData.get("problem")??""),
     solution: String(formData.get("solution")??""),
@@ -147,7 +145,7 @@ export async function submitStartupAction(
           ? "A tagline is required (4–80 characters)."
           : field === "name"
             ? "Your startup needs a name."
-            : field === "websiteUrl" || field === "demoVideoUrl"
+            : field === "websiteUrl"
               ? "URLs must be complete links, e.g. https://yourproduct.com"
               : "Check the form — something didn't validate.",
     };
@@ -155,9 +153,14 @@ export async function submitStartupAction(
 
   const requestedId=String(formData.get('startupId')??'');
   if(requestedId&&!z.uuid().safeParse(requestedId).success) return {status:'error',message:'Invalid startup.'};
-  const existing=requestedId?(await sql`select id,slug from startups where id=${requestedId}::uuid and founder_id=${viewer.userId}::uuid and status in ('pending_approval','rejected') and archived_at is null`)[0]:null;
+  const existing=requestedId?(await sql`select id,slug,logo_url from startups where id=${requestedId}::uuid and founder_id=${viewer.userId}::uuid and status in ('pending_approval','rejected') and archived_at is null`)[0]:null;
   if(requestedId&&!existing) return {status:'error',message:'This startup cannot be revised.'};
   const slug=existing?String(existing.slug):await uniqueSlug(slugify(parsed.data.name));
+
+  // Logo is synced from the product website on every submission. Keep the
+  // previously synced logo when the site cannot be reached right now.
+  const syncedLogo=await resolveSiteLogo(parsed.data.websiteUrl);
+  const logoUrl=syncedLogo??String(existing?.logo_url??'');
 
   try {
     const write=auditedSql(viewer.userId);
@@ -165,9 +168,9 @@ export async function submitStartupAction(
     const tagIds=await resolveTagIds(labels);
     const inserted=await write`
       with saved as (
-        insert into startups(id,founder_id,slug,name,tagline,description,website_url,demo_video_url,stage,target_market,status,logo_url,problem,solution,audience,beta_notes)
-        values(coalesce(${requestedId||null}::uuid,gen_random_uuid()),${viewer.userId}::uuid,${slug},${parsed.data.name},${parsed.data.tagline},${parsed.data.description},${parsed.data.websiteUrl},${parsed.data.demoVideoUrl||null},${parsed.data.stage}::startup_stage,${parsed.data.market}::target_market,'pending_approval',${parsed.data.logoUrl},${parsed.data.problem},${parsed.data.solution},${parsed.data.audience},${parsed.data.betaNotes})
-        on conflict(id) do update set name=excluded.name,tagline=excluded.tagline,description=excluded.description,website_url=excluded.website_url,demo_video_url=excluded.demo_video_url,stage=excluded.stage,target_market=excluded.target_market,status='pending_approval',review_state='submitted',rejection_reason=null,logo_url=excluded.logo_url,problem=excluded.problem,solution=excluded.solution,audience=excluded.audience,beta_notes=excluded.beta_notes
+        insert into startups(id,founder_id,slug,name,tagline,description,website_url,demo_video_url,logo_synced_at,stage,target_market,status,logo_url,problem,solution,audience,beta_notes)
+        values(coalesce(${requestedId||null}::uuid,gen_random_uuid()),${viewer.userId}::uuid,${slug},${parsed.data.name},${parsed.data.tagline},${parsed.data.description},${parsed.data.websiteUrl},null,now(),${parsed.data.stage}::startup_stage,${parsed.data.market}::target_market,'pending_approval',${logoUrl},${parsed.data.problem},${parsed.data.solution},${parsed.data.audience},${parsed.data.betaNotes})
+        on conflict(id) do update set name=excluded.name,tagline=excluded.tagline,description=excluded.description,website_url=excluded.website_url,stage=excluded.stage,target_market=excluded.target_market,status='pending_approval',review_state='submitted',rejection_reason=null,logo_url=excluded.logo_url,logo_synced_at=now(),problem=excluded.problem,solution=excluded.solution,audience=excluded.audience,beta_notes=excluded.beta_notes
         where startups.founder_id=${viewer.userId}::uuid and startups.status in ('pending_approval','rejected') and startups.archived_at is null returning id
       ), old_media as (delete from startup_media where startup_id in(select id from saved) returning id), old_tags as (delete from startup_tags where startup_id in(select id from saved) returning startup_id), media as (
        insert into startup_media(startup_id,media_url,caption,display_order) select saved.id,value,'Product screenshot',ordinality::int from saved,unnest(${parsed.data.screenshots}::text[]) with ordinality as x(value,ordinality) where (select count(*) from old_media)>=0 returning id
