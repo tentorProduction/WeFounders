@@ -10,13 +10,17 @@ Scope: inspect WeFounders reports, repair confirmed technical SEO defects, prese
 
 Status: local SEO milestone verified with lint (zero warnings), TypeScript, production build, 13 middleware scope checks, 3 structured-data escaping checks, 3 generated artifact checks, and HTTP 200/no-redirect checks for robots.txt and sitemap.xml using HTML crawler headers. Production configuration and deployment remain pending. Windsor does not expose Page Indexing exclusion reasons, URL Inspection, or Core Web Vitals in this connector.
 
-Deployment access: GitHub's successful production check identifies `tentorproduction/wefounders`, confirmed by the user. The available Vercel CLI login cannot access that team; the browser project opens at Vercel sign-in. The user has been asked to sign in. No deployment or credential changes have been made.
+Deployment access: signed-in browser access to `tentorproduction/wefounders` is now available; the separate CLI login cannot access that team. The pushed branch `codex/seo-search-console-20261018` has a Ready Vercel preview at commit `d533827`. Preview HTTP checks reach Vercel Authentication, so they do not verify application pages. Creating a draft pull request through the GitHub connector returned integration HTTP 403; the Git branch push succeeded. No production deployment or credential changes have been made.
 
 ### Confirmed deployed crawl problem
 
 HTML navigation requests without cookies (including a Googlebot user-agent test) to /, /robots.txt and /startups/capgen return HTTP 307 to the Clerk development instance /v1/client/handshake. Plain non-HTML fetches return 200, so a simple health check misses this. Production must use a verified Clerk production domain and production instance keys; migrating existing Clerk identities must be planned before switching instances. No credentials were changed. Excluding robots.txt/sitemap.xml from authentication middleware fixes the crawl metadata path without relaxing admin/API authorization. Full page-redirect resolution requires provider configuration and a redeploy.
 
-Account migration gate: `ensureProfile()` resolves only `clerk_user_id`; a new production ID with an existing email would violate the unique profile email constraint. There is no existing linking flow. Establish verified development-to-production user mappings, then update only `profiles.clerk_user_id` transactionally while preserving profile UUIDs, roles, suspension flags and ownership. Do not automatically link unverified emails or run the administrator bootstrap as a migration.
+Account migration gate: `ensureProfile()` resolves only `clerk_user_id`; a new production ID with an existing email would violate the unique profile email constraint. There is no existing linking flow. The user confirmed existing users and profile mappings are migrated. No migration writes were performed in this task. Do not automatically link unverified emails or run the administrator bootstrap as a migration.
+
+Credential handoff: Vercel's Production/Preview publishable key was inspected without printing its value and is still a development key. It was hidden again. The user needs guidance; Clerk sign-in is pending in an opened browser tab so the correct production instance can be located. The computer-use policy requires the user to enter and submit credentials. The verified SEO code can deploy independently; a later rebuild with saved production keys is needed to resolve the page handshake.
+
+Final read-only source review found no blocking defects in canonical/noindex metadata, sitemap eligibility, quest UUID validation, public SQL visibility, structured-data escaping or middleware authorization boundaries.
 
 ### Content baseline
 
