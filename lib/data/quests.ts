@@ -1,6 +1,7 @@
 import type { QuestWithStartup } from "@/types/database";
 import { raw, sql } from "@/lib/db/neon";
 import { reportReadFailure } from "@/lib/data/read-failure";
+import { z } from "zod";
 
 /**
  * Testing-quest reads (TRD §2 tables 8–9). Neon is the only source — the board
@@ -40,12 +41,12 @@ export async function getQuestBoard(): Promise<QuestWithStartup[]> {
 }
 
 export async function getQuestById(questId: string): Promise<QuestWithStartup | null> {
-  if (!questId) return null;
+  if (!z.uuid().safeParse(questId).success) return null;
 
   try {
     const rows = (await sql`
       ${raw(QUEST_WITH_STARTUP)}
-      where q.id = ${questId}::uuid and q.approval_status='approved' and s.status='approved' and s.archived_at is null
+      where q.id = ${questId}::uuid and q.approval_status='approved' and s.status='approved' and s.archived_at is null and s.launch_date<=now()
       limit 1
     `) as unknown as QuestWithStartup[];
 
@@ -60,7 +61,7 @@ export async function getQuestsByStartupId(startupId: string): Promise<QuestWith
   try {
     const rows = (await sql`
       ${raw(QUEST_WITH_STARTUP)}
-      where q.startup_id = ${startupId}::uuid and q.status = 'active'
+      where q.startup_id = ${startupId}::uuid and q.status = 'active' and q.approval_status='approved' and s.status='approved' and s.archived_at is null and s.launch_date<=now()
       order by q.created_at desc
     `) as unknown as QuestWithStartup[];
     return rows;

@@ -4,7 +4,7 @@ import { getStartupFeed,getAllTags } from "@/lib/data/startups";
 import { sql } from "@/lib/db/neon";
 import type { ListItem } from "@/lib/platform";
 export const dynamic="force-dynamic";
-export const metadata={title:"Search the community",description:"Find startups, founders, quests, and collaboration opportunities.",alternates:{canonical:'/search'}};
+export const metadata={title:"Search the community",description:"Find startups, founders, quests, and collaboration opportunities.",alternates:{canonical:'/search'},robots:{index:false,follow:true,googleBot:{index:false,follow:true}}};
 export default async function Search({searchParams}:{searchParams:Promise<{q?:string;category?:string;stage?:string;market?:string;technology?:string;location?:string;sort?:string}>}){
  const query=await searchParams;const term=(query.q??'').trim().slice(0,100);const pattern='%'+term.replace(/[\\%_]/g,c=>'\\'+c)+'%';
  const [startups,tags]=await Promise.all([getStartupFeed({limit:200}),getAllTags()]);

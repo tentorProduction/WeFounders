@@ -9,7 +9,8 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 
 export const metadata: Metadata = {
-  title: "How It Works — Launch, Test, and Ship | WeFounders",
+  // The root layout appends " · WeFounders"; repeating the brand here doubled it.
+  title: "How It Works — Launch, Test and Ship",
   description:
     "Learn how WeFounders connects ambitious founders with passionate beta testers and builders to launch, test, and scale world-class software.",
   alternates: {

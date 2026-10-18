@@ -33,7 +33,8 @@ const CURATION_CRITERIA = [
 ];
 
 export const metadata: Metadata = {
-  title: "About & Manifesto — WeFounders",
+  // The root layout appends " · WeFounders"; repeating the brand here doubled it.
+  title: "About & Manifesto — The Global Startup Launchpad",
   description:
     "Learn about WeFounders, our curation acceptance bar, submission guidelines, and how we help founders reach early beta users worldwide.",
   alternates: { canonical: new URL("/about", baseUrl) },

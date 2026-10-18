@@ -7,7 +7,8 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 
 export const metadata: Metadata = {
-  title: "Press & Media Kit — Brand Assets & Facts | WeFounders",
+  // The root layout appends " · WeFounders"; repeating the brand here doubled it.
+  title: "Press & Media Kit — Brand Assets and Facts",
   description:
     "Official WeFounders press kit, brand guidelines, company overview, and verified media assets for journalists and creators.",
   alternates: {

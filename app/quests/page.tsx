@@ -10,13 +10,14 @@ import { EmptyState } from "@/components/ui/empty-state";
 const baseUrl = getSiteOrigin();
 
 export const metadata: Metadata = {
-  title: "Testing Quests & Bounties",
+  title: "Beta Testing Quests & Product Feedback",
   description:
-    "Test real product betas across real devices and platforms. Founders post the task; you file the report and earn bounties and Karma.",
+    "Find beta testing quests, test new products, and share bug reports and usability feedback. Earn Karma when founders accept your testing work.",
   alternates: { canonical: new URL("/quests", baseUrl) },
 };
 
-export const dynamic = "force-dynamic";
+// The board is a plain query with no viewer state, so serve it from the edge.
+export const revalidate = 300;
 
 /** Testing Quests board (PRD §4.1 Should-Have, DESIGN.md §4.4). */
 export default async function QuestsPage() {

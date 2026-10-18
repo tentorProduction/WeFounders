@@ -14,7 +14,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const canonical = new URL("/startups", baseUrl);
 
   return {
-    title: "Startups Directory — Discover & Test New Products | WeFounders",
+    // The root layout appends " · WeFounders", so the brand must not be repeated
+    // here — that produced "Startups Directory … | WeFounders · WeFounders".
+    title: "Startups Directory — Discover New Products",
     description:
       "Explore the index of world-class startups, open beta programs, and developer tools shipping on WeFounders.",
     alternates: { canonical },
@@ -88,7 +90,7 @@ export default async function StartupsDirectoryPage({
     <div className="site-container py-8 sm:py-12 space-y-8">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
 
       {/* Directory Header */}

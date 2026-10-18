@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import { getSiteOrigin } from "@/lib/site-url";
 import { getQuestById } from "@/lib/data/quests";
 import { readSession } from "@/lib/auth/session";
 import { QuestActionButton } from "@/components/quests/quest-action-button";
@@ -14,14 +16,21 @@ export async function generateMetadata({
   params,
 }: {
   params: Promise<{ id: string }>;
-}) {
+}): Promise<Metadata> {
   const { id } = await params;
   const quest = await getQuestById(id);
-  if (!quest) return { title: "Quest Not Found — WeFounders" };
+  if (!quest) return { title: "Quest Not Found", robots: { index: false, follow: false } };
+
+  const title = `${quest.title} — Testing Quest`;
+  const description = quest.task_instructions.slice(0, 160);
+  const canonical = new URL(`/quests/${quest.id}`, getSiteOrigin());
 
   return {
-    title: `${quest.title} — Testing Quest on WeFounders`,
-    description: quest.task_instructions.slice(0, 160),
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: { title, description, url: canonical, type: "website" },
+    twitter: { title, description, card: "summary_large_image" },
   };
 }
 

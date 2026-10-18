@@ -51,31 +51,59 @@ interface PageProps {
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Search engines truncate titles near 60 characters and the root layout appends
+ * " · WeFounders", so the part this page controls has to fit the remainder.
+ */
+const TITLE_BUDGET = 60 - " · WeFounders".length;
+
+function fitTitle(name: string, tagline: string): string {
+  const full = `${name} — ${tagline}`.replace(/\s+/g, " ").trim();
+  if (full.length <= TITLE_BUDGET) return full;
+  const room = TITLE_BUDGET - name.length - 4; // " — " plus the ellipsis
+  if (room <= 0) return name.slice(0, TITLE_BUDGET);
+  return `${name} — ${tagline.slice(0, room).trimEnd()}…`;
+}
+
+/** Trim to a word boundary so the snippet never ends mid-word. */
+function fitDescription(text: string, max = 155): string {
+  const flat = text.replace(/\s+/g, " ").trim();
+  if (flat.length <= max) return flat;
+  return `${flat.slice(0, max).replace(/\s+\S*$/, "").trimEnd()}…`;
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const startup = await getStartupBySlug(slug);
 
-  if (!startup) return { title: "Startup not found" };
+  if (!startup) return { title: "Startup not found", robots: { index: false, follow: false } };
 
   const baseUrl = getSiteOrigin();
   const canonical = new URL(`/startups/${startup.slug}`, baseUrl);
-  const description = (startup.description || startup.tagline || "").slice(0, 160);
+  const description = fitDescription(
+    startup.description || startup.tagline || `${startup.name} on WeFounders.`
+  );
+  const socialTitle = `${startup.name} — ${startup.tagline}`;
+  const image = startup.logo_url
+    ? [{ url: startup.logo_url, alt: `${startup.name} logo` }]
+    : [{ url: new URL("/opengraph-image", baseUrl).href, alt: `${startup.name} on WeFounders` }];
 
   return {
-    title: `${startup.name} — ${startup.tagline}`,
+    title: fitTitle(startup.name, startup.tagline),
     description,
     alternates: { canonical },
     openGraph: {
-      title: `${startup.name} — ${startup.tagline}`,
+      title: socialTitle,
       description,
       url: canonical,
       type: "website",
-      images: startup.logo_url ? [{ url: startup.logo_url, alt: startup.name }] : undefined,
+      images: image,
     },
     twitter: {
       card: "summary_large_image",
-      title: `${startup.name} — ${startup.tagline}`,
+      title: socialTitle,
       description,
+      images: image,
     },
   };
 }
@@ -116,19 +144,15 @@ export default async function StartupShowcasePage({ params, searchParams }: Page
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": "SoftwareApplication",
+        "@type": "WebPage",
+        "@id": `${baseUrl}/startups/${startup.slug}#webpage`,
         "name": startup.name,
         "headline": startup.tagline,
         "description": startup.description || startup.tagline,
-        "url": startup.website_url || `${baseUrl}/startups/${startup.slug}`,
+        "url": `${baseUrl}/startups/${startup.slug}`,
+        "about": { "@type": "Thing", "name": startup.name, "url": startup.website_url || undefined },
+        "isPartOf": { "@id": `${baseUrl}/#website` },
         "image": startup.logo_url || undefined,
-        "applicationCategory": primaryTag?.name || "Productivity",
-        "operatingSystem": "Web, iOS, Android",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD",
-        },
       },
       {
         "@type": "BreadcrumbList",
@@ -160,7 +184,7 @@ export default async function StartupShowcasePage({ params, searchParams }: Page
     <div className="site-container max-w-7xl py-6 sm:py-8 space-y-6 sm:space-y-8 animate-fade-in">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
 
       {/* Breadcrumbs */}

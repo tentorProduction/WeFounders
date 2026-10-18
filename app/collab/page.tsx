@@ -15,7 +15,8 @@ export const metadata: Metadata = {
   alternates: { canonical: new URL("/collab", baseUrl) },
 };
 
-export const dynamic = "force-dynamic";
+// The listing is a plain query with no viewer state, so serve it from the edge.
+export const revalidate = 300;
 
 /** Collab & Co-founder Board (PRD §4.1 Should-Have, DESIGN.md §4.5). */
 export default async function CollabPage() {

@@ -8,8 +8,10 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Discover Startups — WeFounders",
+  // The root layout appends " · WeFounders"; repeating the brand here doubled it.
+  title: "Discover Startups — New Launches Daily",
   description: "Browse world-class startups, indie tools, and open beta programs.",
+  alternates: { canonical: "/discover" },
 };
 
 export default async function DiscoverPage({

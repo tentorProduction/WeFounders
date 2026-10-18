@@ -63,8 +63,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    creator: "@wefounders_dev",
-    images: ["/opengraph-image"],
+    // No `creator`: @wefounders_dev does not exist, and no `images` — Twitter
+    // inherits the hashed opengraph-image URL from openGraph above.
   },
   robots: {
     index: true,
@@ -91,11 +91,15 @@ const jsonLd = {
       "@id": `${siteUrl}/#organization`,
       name: "WeFounders",
       url: siteUrl,
+      description:
+        "Global startup launch and beta-testing platform: launch pages, waitlists, testing quests, and community reputation.",
       logo: `${siteUrl}/logo.png`,
+      // Only profiles that actually resolve. The x.com/wefounders_dev and
+      // linkedin.com/company/wefounders-dev handles both 404, and a sameAs entry
+      // pointing at a dead profile breaks entity validation rather than helping it.
       sameAs: [
-        "https://twitter.com/wefounders_dev",
-        "https://linkedin.com/company/wefounders-dev",
         "https://github.com/tentorProduction/WeFounders",
+        "https://discord.gg/wefounders",
       ],
     },
     {
@@ -104,6 +108,7 @@ const jsonLd = {
       url: siteUrl,
       name: "WeFounders",
       description: "Global Startup Launch & Beta Platform",
+      inLanguage: "en-US",
       publisher: { "@id": `${siteUrl}/#organization` },
       potentialAction: {
         "@type": "SearchAction",

@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import { getSiteOrigin } from "@/lib/site-url";
 import { sql } from "@/lib/db/neon";
 import { readSession } from "@/lib/auth/session";
 import { isFollowing } from "@/lib/data/follows";
@@ -19,21 +21,30 @@ export async function generateMetadata({
   params,
 }: {
   params: Promise<{ username: string }>;
-}) {
+}): Promise<Metadata> {
   const { username } = await params;
   const decoded = decodeURIComponent(username).trim();
   const rows = (await sql`
     SELECT full_name, username, bio FROM profiles 
-    WHERE lower(username) = lower(${decoded}) OR id::text = ${decoded}
+    WHERE (lower(username) = lower(${decoded}) OR id::text = ${decoded}) AND suspended_at IS NULL
     LIMIT 1
   `) as { full_name: string; username: string; bio: string | null }[];
 
   const profile = rows[0];
-  if (!profile) return { title: "Profile Not Found — WeFounders" };
+  if (!profile) return { title: "Profile Not Found", robots: { index: false, follow: false } };
+
+  const title = `${profile.full_name || profile.username} (@${profile.username})`;
+  const description = profile.bio || `Explore ${profile.full_name || profile.username}'s launches and builder profile on WeFounders.`;
+  const canonical = new URL(`/profile/${encodeURIComponent(profile.username)}`, getSiteOrigin());
+  const complete = (profile.bio?.trim().length ?? 0) >= 20;
 
   return {
-    title: `${profile.full_name || profile.username} (@${profile.username}) — WeFounders`,
-    description: profile.bio || `Check out ${profile.full_name}'s launches and builder profile on WeFounders.`,
+    title,
+    description,
+    alternates: { canonical },
+    robots: { index: complete, follow: true, googleBot: { index: complete, follow: true } },
+    openGraph: { title, description, url: canonical, type: "profile" },
+    twitter: { title, description, card: "summary_large_image" },
   };
 }
 
@@ -47,7 +58,7 @@ export default async function PublicProfilePage({
 
   const rows = (await sql`
     SELECT * FROM profiles 
-    WHERE lower(username) = lower(${decoded}) OR id::text = ${decoded}
+    WHERE (lower(username) = lower(${decoded}) OR id::text = ${decoded}) AND suspended_at IS NULL
     LIMIT 1
   `) as unknown as Profile[];
 
@@ -69,7 +80,7 @@ export default async function PublicProfilePage({
         '[]'::json
       ) as tags
     FROM startups s
-    WHERE s.founder_id = ${profile.id}::uuid AND s.status = 'approved'
+    WHERE s.founder_id = ${profile.id}::uuid AND s.status = 'approved' AND s.archived_at IS NULL AND s.launch_date <= now()
     ORDER BY s.upvotes_count DESC
   `) as unknown as StartupWithTags[];
 
