@@ -10,9 +10,13 @@ Scope: inspect WeFounders reports, repair confirmed technical SEO defects, prese
 
 Status: local SEO milestone verified with lint (zero warnings), TypeScript, production build, 13 middleware scope checks, 3 structured-data escaping checks, 3 generated artifact checks, and HTTP 200/no-redirect checks for robots.txt and sitemap.xml using HTML crawler headers. Production configuration and deployment remain pending. Windsor does not expose Page Indexing exclusion reasons, URL Inspection, or Core Web Vitals in this connector.
 
+Deployment access: GitHub's successful production check identifies `tentorproduction/wefounders`, confirmed by the user. The available Vercel CLI login cannot access that team; the browser project opens at Vercel sign-in. The user has been asked to sign in. No deployment or credential changes have been made.
+
 ### Confirmed deployed crawl problem
 
 HTML navigation requests without cookies (including a Googlebot user-agent test) to /, /robots.txt and /startups/capgen return HTTP 307 to the Clerk development instance /v1/client/handshake. Plain non-HTML fetches return 200, so a simple health check misses this. Production must use a verified Clerk production domain and production instance keys; migrating existing Clerk identities must be planned before switching instances. No credentials were changed. Excluding robots.txt/sitemap.xml from authentication middleware fixes the crawl metadata path without relaxing admin/API authorization. Full page-redirect resolution requires provider configuration and a redeploy.
+
+Account migration gate: `ensureProfile()` resolves only `clerk_user_id`; a new production ID with an existing email would violate the unique profile email constraint. There is no existing linking flow. Establish verified development-to-production user mappings, then update only `profiles.clerk_user_id` transactionally while preserving profile UUIDs, roles, suspension flags and ownership. Do not automatically link unverified emails or run the administrator bootstrap as a migration.
 
 ### Content baseline
 
