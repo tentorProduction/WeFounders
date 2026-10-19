@@ -1,34 +1,36 @@
 # Current State — WeFounders
 
-## Search Console review — 2026-10-18
+## Search Console SEO — 2026-10-19
 
-Scope: inspect WeFounders reports, repair confirmed technical SEO defects, preserve pre-existing working changes.
+Scope: inspect `sc-domain:wefounders.dev`, repair confirmed technical SEO defects, preserve existing content and working changes. No ranking guarantees or synthetic keyword pages.
 
-1. Windsor confirmed `searchconsole` / `sc-domain:wefounders.dev`. Finalized 2026-07-19 through 2026-10-16: 1 click, 11 impressions, CTR 9.09%, average position 3.8182. Disclosed query is branded; previous 90 days has no rows. Sitemap has 37 submitted URLs, zero errors/warnings; submitted URL count does not prove indexing.
-2. Correct unsafe/inaccurate JSON-LD, canonical metadata, search indexing directives, and public profile/quest visibility. Keep keyword targeting tied to real content; no ranking guarantees or thin generated pages.
-3. Run lint, TypeScript, production build and focused route checks. Record local versus deployed results separately.
+### Deployment and fixes
 
-Status: local SEO milestone verified with lint (zero warnings), TypeScript, production build, 13 middleware scope checks, 3 structured-data escaping checks, 3 generated artifact checks, and HTTP 200/no-redirect checks for robots.txt and sitemap.xml using HTML crawler headers. Production configuration and deployment remain pending. Windsor does not expose Page Indexing exclusion reasons, URL Inspection, or Core Web Vitals in this connector.
+- SEO implementation `308ffb1` and state updates through `be7deb5` were pushed to `main`. Vercel production deployment `G3np5FnEGTpjv7cNDNsTMKZxxNZr` is Ready; independent October 19 live checks confirm the new metadata and sitemap. A draft PR could not be created because the GitHub connector returned integration HTTP 403; Git push succeeded.
+- Preserved pending metadata/FAQ improvements. Corrected canonical/social metadata, public profile/quest visibility, malformed quest-ID handling, and JSON-LD escaping. Removed fabricated software pricing/platform claims. Internal search and incomplete profiles are excluded from indexing and the sitemap. Only crawl metadata bypasses Clerk middleware; admin/API authorization remains enforced.
+- Live robots.txt and sitemap.xml return HTTP 200 without redirects using HTML crawler headers. The sitemap contains 18 canonical URLs, including four complete profiles; internal search is omitted. The database baseline is two live products and 22 public profiles, four with a bio of at least 20 characters.
+- Capgen's stored description contained copied site navigation. A guarded one-row maintenance update replaced only that field with its existing founder-provided solution text. An audit entry preserves the original/replacement and reason with a null actor, without impersonating an administrator. Only description, its automatic timestamp and generated search vector changed. Live metadata, JSON-LD and visible pitch now contain the repaired description.
 
-Deployment access: signed-in browser access to `tentorproduction/wefounders` is now available; the separate CLI login cannot access that team. The pushed branch `codex/seo-search-console-20261018` has a Ready Vercel preview at commit `d533827`. Preview HTTP checks reach Vercel Authentication, so they do not verify application pages. Creating a draft pull request through the GitHub connector returned integration HTTP 403; the Git branch push succeeded. No production deployment or credential changes have been made.
+### Search Console evidence
 
-### Confirmed deployed crawl problem
+- Windsor finalized July 19 through October 16: one click, 11 impressions, CTR 9.09%, average position 3.8182. Only the branded query is disclosed; previous 90 days has no rows. Aggregation/privacy limits prevent inferring zero nonbrand searches or calculating growth.
+- Direct Page Indexing report, last updated October 12: three indexed pages and 39 excluded pages. Reasons: 32 discovered/currently not indexed, five noindex exclusions, and two HTTP URL redirects. HTTP-to-HTTPS redirects are expected and were left intact.
+- The homepage's cached October 7 inspection detected an X-Robots-Tag noindex header. Its actual Google live test on October 18 passed: URL is available to Google / Page can be indexed. The homepage indexing request was accepted into Google's priority crawl queue. The historical noindex cause is not proven; do not describe the site as currently blocked from Google based solely on a simulated request.
+- On October 19, Google accepted `https://wefounders.dev/sitemap.xml` with status Success and 18 discovered URLs. The older www sitemap's 37 URLs are a previous report snapshot, not an indexed-page count.
+- Noindex validation for the five historical exclusions started October 19. Validation and indexing completion are pending Google's processing; neither is claimed complete.
+- Google's Manual Actions and Security Issues reports both show No issues detected. This is not a comprehensive application security audit. The October 18 Core Web Vitals overview showed No data.
 
-HTML navigation requests without cookies (including a Googlebot user-agent test) to /, /robots.txt and /startups/capgen return HTTP 307 to the Clerk development instance /v1/client/handshake. Plain non-HTML fetches return 200, so a simple health check misses this. Production must use a verified Clerk production domain and production instance keys; migrating existing Clerk identities must be planned before switching instances. No credentials were changed. Excluding robots.txt/sitemap.xml from authentication middleware fixes the crawl metadata path without relaxing admin/API authorization. Full page-redirect resolution requires provider configuration and a redeploy.
+### Authentication decision
 
-Account migration gate: `ensureProfile()` resolves only `clerk_user_id`; a new production ID with an existing email would violate the unique profile email constraint. There is no existing linking flow. The user confirmed existing users and profile mappings are migrated. No migration writes were performed in this task. Do not automatically link unverified emails or run the administrator bootstrap as a migration.
+The deployed Clerk development instance redirects cookie-free HTML navigation requests to a development-browser handshake. Plain non-HTML fetches return 200, and Google's actual live homepage test passed. These observations must be distinguished.
 
-Credential handoff: Vercel's Production/Preview publishable key was inspected without printing its value and is still a development key. It was hidden again. The user needs guidance; Clerk sign-in is pending in an opened browser tab so the correct production instance can be located. The computer-use policy requires the user to enter and submit credentials. The verified SEO code can deploy independently; a later rebuild with saved production keys is needed to resolve the page handshake.
+The user-supplied Clerk dashboard was verified against the deployed frontend host. It has only Development and offers Create production instance, contradicting the earlier production-readiness claim. The user explicitly chose Keep development instance for now; the creation dialog was cancelled. No production instance, credentials, identities or profile mappings were changed.
 
-Final read-only source review found no blocking defects in canonical/noindex metadata, sitemap eligibility, quest UUID validation, public SQL visibility, structured-data escaping or middleware authorization boundaries.
+Future cutover requires verified production setup and existing-user mappings. `ensureProfile()` resolves only `clerk_user_id`; a new Clerk ID with an existing email otherwise violates the unique profile email constraint. Preserve internal profile UUIDs, roles, suspension flags and ownership. Do not auto-link unverified emails or use administrator bootstrap as a migration.
 
-### Content baseline
+### Verification
 
-Current DB: 2 approved live products; 22 public profiles, of which only 4 have a bio of at least 20 characters. Empty-profile indexing is disabled and those profiles are omitted from the sitemap while their public pages remain usable. This reduces the generated sitemap to 18 eligible URLs; the previously submitted 37 URLs are not an indexed-page count. The only disclosed Search Console query is wefounders (1 click, 7 impressions). No nonbrand keyword opportunity can be scored reliably from this small sample.
-
-### Local changes
-
-Preserved pending SEO metadata and FAQ improvements. Added canonical/social metadata for profiles and quests; proper invalid-quest 404 eligibility; public-only profile and quest launch queries; noindex for internal search and incomplete profiles; accurate generic WebPage markup rather than invented software prices/platforms; escaped database-backed JSON-LD on home, directory and showcase pages; clearer homepage copy targeting real startup-launch and beta-testing tasks. Production artifacts and malicious closing-script escaping checks passed. Full local HTTP smoke checks remain limited by the current authentication integration, so they are not recorded as passed.
+Lint (zero warnings), TypeScript, production build, 13 actual Next middleware matcher checks, three JSON-LD closing-script escaping checks and generated metadata/sitemap artifact checks passed for the implementation. The final October 19 `npm run lint`, `npx tsc --noEmit` and `npm run build` all passed, generating all 21 static routes and the dynamic routes. Full local page HTTP smoke checks were limited by the development authentication integration and are not claimed as passed. Independent deployed checks and Google's actual live inspection are recorded above.
 
 ## Historical project state (2026-10-04)
 
@@ -58,4 +60,4 @@ Preserved pending SEO metadata and FAQ improvements. Added canonical/social meta
 - **Branding & Assets:** Fully internationalized to WeFounders with custom SVG logo and Phosphor icons.
 - **Environment:** Clean `.env` and `.env.local` synchronized with zero deprecated variables.
 
-Deployment gate: user confirmed the Clerk production instance/domain is ready. Verify the Vercel production environment actually uses that instance and plan existing-user linkage before changing instance keys. Never paste or commit credentials.
+The historical production-readiness claim was superseded by the direct Clerk inspection and the user's decision to retain Development. Follow the current Authentication decision above before any future cutover. Never paste or commit credentials.
