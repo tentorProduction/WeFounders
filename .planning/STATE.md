@@ -1,5 +1,12 @@
 # Current State — WeFounders
 
+## Search Console SEO — 2026-10-20
+
+- Rechecked verified property `sc-domain:wefounders.dev`. Google's live test for `https://wefounders.dev/` completed October 20 and reports **URL is available to Google** and **Page can be indexed**.
+- The Page Indexing dashboard still shows the prior October 12 snapshot: 3 indexed and 39 not indexed. Five historical noindex examples remain in validation with **5 pending, 0 failed**; this is Google's processing state, not a reproduced current header defect.
+- Independent live checks cover all 18 sitemap URLs: HTTP 200, unique titles, nonempty descriptions, self-canonicals, no noindex directives, and valid JSON-LD. No current application SEO defect was reproduced, so no application code change was needed.
+- Verification after the audit: `npm run lint`, `npx tsc --noEmit`, and `npm run build` passed. The build generated 21 static routes and the dynamic routes.
+
 ## Search Console SEO — 2026-10-19
 
 Scope: inspect `sc-domain:wefounders.dev`, repair confirmed technical SEO defects, preserve existing content and working changes. No ranking guarantees or synthetic keyword pages.
